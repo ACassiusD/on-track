@@ -1,0 +1,17 @@
+import React, { useState } from 'react';
+import { Alert, Linking, Switch } from 'react-native';
+import { useApp } from '../store/AppStore';
+import { useReminders } from '../store/ReminderStore';
+import { validTime } from '../domain/reminders';
+import { Button, Card, Field, Label, Row, Screen } from '../components/UI';
+export default function Reminders() {
+  const { state, commit } = useApp(); const service = useReminders(); const [draft, setDraft] = useState(state.reminders); const [saving, setSaving] = useState(false);
+  const save = async () => {
+    if (draft.some(r => !validTime(r.time) || !validTime(r.weekendTime ?? r.time))) { Alert.alert('Use 24-hour time HH:MM'); return; }
+    setSaving(true);
+    try { await commit(s => ({ ...s, reminders: draft })); await service.refresh(); Alert.alert('Schedule saved', state.mode === 'demo' ? 'Demo mode never schedules reminders.' : 'Check permission and scheduled status above.'); } catch { Alert.alert('Could not update reminders', 'Your saved preferences are kept. Retry here.'); } finally { setSaving(false); }
+  };
+  return <Screen title="Reminders"><Card><Label>iPhone notifications</Label><Label>{service.permission?.label ?? 'Checking permission…'}</Label>{state.mode === 'demo' ? <Label>Demo mode · notifications paused</Label> : null}<Label small>{service.count} alerts scheduled{service.through ? ` · through ${service.through}` : ''}</Label><Label small>Reopen the app at least every two weeks to refill the schedule. Normal notifications can be silenced by Focus or system settings.</Label>{service.error ? <Label>{service.error}</Label> : null}{!service.permission?.allowed && service.permission?.canAsk ? <Button title="Allow notifications" primary onPress={() => { void service.authorize().catch(() => Alert.alert('Could not request permission')); }} /> : null}<Row><Button title="System settings" onPress={() => { void Linking.openSettings().catch(() => Alert.alert('Could not open Settings')); }} /><Button title="Refresh status" onPress={() => { void service.refresh().catch(() => {}); }} /></Row></Card>
+    {draft.map((r, i) => { const change = (value: Partial<typeof r>) => setDraft(items => items.map((item, index) => index === i ? { ...item, ...value } : item)); return <Card key={r.id}><Row><Label>{r.label}</Label><Switch accessibilityLabel={`${r.label} enabled`} value={r.enabled} onValueChange={enabled => change({ enabled })} /></Row><Label small>Monday–Friday · device timezone</Label><Field value={r.time} placeholder="Weekday time HH:MM" onChangeText={time => change({ time })} /><Label small>Saturday–Sunday</Label><Field value={r.weekendTime ?? r.time} placeholder="Weekend time HH:MM" onChangeText={weekendTime => change({ weekendTime })} /><Label small>Which day should this check apply to?</Label><Row><Button title="Same day" selected={!r.dayOffset} onPress={() => change({ dayOffset: 0 })} /><Button title="Previous day" selected={r.dayOffset === -1} onPress={() => change({ dayOffset: -1 })} /></Row>{r.dayOffset === -1 ? <Label small>Example: Monday 01:00 reviews Sunday. Weekend times refer to the day the alert fires.</Label> : null}</Card>; })}
+    <Button title={saving ? 'Saving…' : 'Save schedule'} primary disabled={saving} onPress={() => { void save(); }} /><Card><Label small>Taken / Done marks that dated habit complete. Edit it later in the day details. Food review opens the snack/drink audit; it never confirms your food automatically. Later snoozes 30 minutes, at most twice per alert.</Label></Card></Screen>;
+}

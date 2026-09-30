@@ -1,0 +1,568 @@
+<div id="classic-dashboard" class="viz-dotted-background">
+<style>
+#classic-dashboard{padding:18px 8px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color-scheme:light dark}
+#classic-dashboard .app{--bg:light-dark(#f5f5f1,#141917);--tile:light-dark(#fff,#202824);--ink:light-dark(#192d24,#eef5ed);--muted:light-dark(#58685d,#acbcb0);--green:light-dark(#236747,#b5ed81);--on-green:light-dark(#fff,#182315);--soft:light-dark(#e5eddf,#33412c);--line:light-dark(#dce3d8,#3a473e);--amber:light-dark(#8b541d,#efbe7d);max-width:390px;margin:auto;background:var(--bg);color:var(--ink);border-radius:30px;padding:24px 20px;box-sizing:border-box}
+#classic-dashboard *{box-sizing:border-box}
+#classic-dashboard button,#classic-dashboard input,#classic-dashboard select{font:inherit}
+#classic-dashboard button{color:var(--ink);border:0;min-height:44px;background:transparent;border-radius:12px;padding:10px 12px}
+#classic-dashboard .row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+#classic-dashboard .mini{font-size:12px;color:var(--muted)}
+#classic-dashboard .brand{font-size:14px;letter-spacing:2px;font-weight:500}
+#classic-dashboard h2{font-size:27px;letter-spacing:-.7px;font-weight:500;margin:18px 0 0}
+#classic-dashboard h3{font-size:16px;font-weight:500;margin:0}
+#classic-dashboard p{margin:7px 0}
+#classic-dashboard .status{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--amber);margin-top:8px}
+#classic-dashboard .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+#classic-dashboard .meter{position:relative;width:230px;height:230px;margin:14px auto 0}
+#classic-dashboard .meter svg{width:100%;height:100%;transform:rotate(-90deg)}
+#classic-dashboard .track{fill:none;stroke:var(--soft);stroke-width:13}
+#classic-dashboard .arc{fill:none;stroke:var(--green);stroke-width:13;stroke-linecap:round;stroke-dasharray:628.32;stroke-dashoffset:177.22;transition:stroke-dashoffset .25s ease}
+#classic-dashboard .center{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center}
+#classic-dashboard .number{font-size:56px;letter-spacing:-2px;line-height:1.1;font-weight:500;font-variant-numeric:tabular-nums}
+#classic-dashboard .under{font-size:14px;color:var(--muted);margin-top:5px}
+#classic-dashboard .totals{text-align:center;font-size:13px;color:var(--muted)}
+#classic-dashboard .edit{display:block;margin:4px auto 10px;font-size:13px;text-decoration:underline;text-underline-offset:4px}
+#classic-dashboard .tile{background:var(--tile);padding:16px;border-radius:19px;margin-top:12px}
+#classic-dashboard .weight{font-size:26px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.8px}
+#classic-dashboard .weight small{font-size:13px;font-weight:400;color:var(--muted);letter-spacing:0}
+#classic-dashboard .progress{height:8px;border-radius:20px;background:var(--soft);overflow:hidden;margin:12px 0 7px}
+#classic-dashboard .progress span{display:block;background:var(--green);height:100%;width:40%;border-radius:20px}
+#classic-dashboard .milestones{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:11px}
+#classic-dashboard .milestones .next{color:var(--green);font-weight:500}
+#classic-dashboard .week{display:grid;grid-template-columns:48px repeat(7,minmax(0,1fr));gap:5px;align-items:center;margin:12px 0 0;font-size:12px;text-align:center}
+#classic-dashboard .week .label{text-align:left;color:var(--muted);font-size:11px}
+#classic-dashboard .cell{height:27px;border-radius:7px;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted)}
+#classic-dashboard .cell.done{background:var(--green);color:var(--on-green)}
+#classic-dashboard .cell.open{background:var(--soft);color:var(--amber)}
+#classic-dashboard .cell.future{background:transparent;color:var(--muted)}
+#classic-dashboard .focus{display:flex;gap:10px;align-items:center;margin:16px 2px;font-size:13px}
+#classic-dashboard .focus i{color:var(--green);flex:none}
+#classic-dashboard .primary{background:var(--green);color:var(--on-green);width:100%;font-weight:500;min-height:50px;border-radius:15px}
+#classic-dashboard .nav{display:flex;justify-content:center;gap:25px;margin-top:14px;border-top:1px solid var(--line);padding-top:8px}
+#classic-dashboard .nav button{font-size:13px;color:var(--muted)}
+#classic-dashboard .nav button[aria-selected="true"]{color:var(--green);font-weight:500}
+#classic-dashboard .form label{display:block;font-size:14px;margin:12px 0}
+#classic-dashboard input[type="number"],#classic-dashboard select{display:block;width:100%;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:12px;border-radius:10px;margin-top:6px;font-size:16px}
+#classic-dashboard .check{display:flex!important;align-items:center;gap:10px;min-height:44px;margin:4px 0!important}
+#classic-dashboard input[type="checkbox"]{width:20px;height:20px;accent-color:var(--green)}
+#classic-dashboard .event{padding:14px 0;border-bottom:1px solid var(--line);font-size:14px;line-height:1.5}
+#classic-dashboard .event .mini{display:block;margin-top:3px}
+#classic-dashboard .message{font-size:12px;color:var(--muted);text-align:center;margin:9px 0 0;line-height:1.4}
+#classic-dashboard [hidden]{display:none!important}
+@media(prefers-reduced-motion:reduce){#classic-dashboard .arc{transition:none}}
+#classic-dashboard .journey{display:flex;gap:0;margin:15px 0 12px;align-items:center}
+#classic-dashboard .station{flex:1;text-align:center;font-size:12px;position:relative}
+#classic-dashboard .station::before{content:'';display:block;height:6px;background:var(--soft);margin:0 -1px 12px}
+#classic-dashboard .station.first::before{background:var(--green)}
+#classic-dashboard .station.active::before{background:linear-gradient(to right,var(--green) 40%,var(--soft) 40%)}
+#classic-dashboard .station .marker{width:24px;height:24px;border-radius:50%;background:var(--soft);margin:-27px auto 7px;position:relative;display:grid;place-items:center;font-size:11px;color:var(--muted)}
+#classic-dashboard .station.first .marker{background:var(--green);color:var(--onbrand)}
+#classic-dashboard .station.active .marker{background:var(--ink);color:var(--surface)}
+#classic-dashboard .statline{display:flex;align-items:baseline;gap:8px;margin:16px 0}
+#classic-dashboard .statline .journey-big{font-size:44px}
+#classic-dashboard .chart{width:100%;display:block;margin-top:16px;color:var(--muted);overflow:visible}
+#classic-dashboard .chart text{font-size:11px;fill:var(--muted)}
+#classic-dashboard .chart .trend{fill:none;stroke:var(--green);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+#classic-dashboard .days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:12px 0}
+#classic-dashboard .days button{min-height:44px;padding:3px;background:var(--soft);border-radius:8px;font-size:12px}
+#classic-dashboard .days .complete{background:var(--green);color:var(--onbrand)}
+#classic-dashboard .days .partial{color:var(--amber);background:var(--soft)}
+#classic-dashboard .days .missing{background:var(--surface);color:var(--muted)}
+#classic-dashboard .days button[aria-pressed="true"]{outline:2px solid var(--ink);outline-offset:1px}
+#classic-dashboard .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted)}
+#classic-dashboard .legend span{display:flex;align-items:center;gap:4px}
+#classic-dashboard .swatch{width:8px;height:8px;border-radius:2px;display:inline-block;background:var(--green)}
+#classic-dashboard .awards{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap}
+#classic-dashboard .award{font-size:12px;background:var(--soft);padding:8px 11px;border-radius:20px;display:flex;align-items:center;gap:6px}
+#classic-dashboard .award i{color:var(--green)}
+#classic-dashboard .event{font-size:13px;border-top:1px solid var(--line);padding:12px 0;line-height:1.5}
+#classic-dashboard .event small{display:block;color:var(--muted);font-size:11px}
+#classic-dashboard details summary{min-height:44px;display:flex;align-items:center;font-size:13px;gap:7px}
+#classic-dashboard .bar{height:8px;background:var(--soft);border-radius:10px;margin:13px 0 9px;overflow:hidden}
+#classic-dashboard .bar span{display:block;height:100%;background:var(--green);border-radius:10px}
+#classic-dashboard .journey-big{font-size:44px;letter-spacing:-2px;font-weight:500;line-height:1.1;font-variant-numeric:tabular-nums}
+#classic-dashboard .app{padding:25px 22px}
+#classic-dashboard h2{font-size:29px;letter-spacing:-1.1px;margin:28px 0 9px}
+#classic-dashboard .status{background:var(--soft);padding:7px 10px;border-radius:12px;margin-top:3px}
+#classic-dashboard .meter{width:250px;height:250px;margin:23px auto 0;max-width:100%}
+#classic-dashboard .number{font-size:61px}
+#classic-dashboard .edit{margin:8px auto 24px}
+#classic-dashboard .workout-chip{display:block;width:100%;background:var(--tile);font-size:13px;border-radius:16px;min-height:48px;margin:13px 0}
+#classic-dashboard .primary{margin-top:16px;min-height:52px}
+#classic-dashboard .journey-weight{font-size:55px;letter-spacing:-2.5px;font-weight:500;font-variant-numeric:tabular-nums}
+#classic-dashboard .down-badge{background:var(--soft);color:var(--green);border-radius:20px;padding:9px 12px;font-size:13px;font-weight:500}
+#classic-dashboard .chart{margin:26px 0 7px}
+#classic-dashboard .checkpoint{margin-top:23px;padding:18px}
+#classic-dashboard .checkpoint .weight{font-size:35px}
+#classic-dashboard .honest-stat{font-size:62px;letter-spacing:-2.5px;font-weight:500;line-height:1.1;margin-top:25px;font-variant-numeric:tabular-nums}
+#classic-dashboard .of-days{font-size:28px;color:var(--muted);letter-spacing:-1px;font-weight:400}
+#classic-dashboard .days{margin-top:26px;gap:5px}
+#classic-dashboard .days button{border-radius:10px;min-height:44px}
+#classic-dashboard .day-detail{min-height:34px;margin-top:15px}
+#classic-dashboard .focus{background:var(--soft);padding:14px;border-radius:15px;margin:20px 0;font-size:13px}
+#classic-dashboard details{border-bottom:1px solid var(--line);margin:6px 0}
+#classic-dashboard summary{display:flex;justify-content:space-between;gap:8px;align-items:center;min-height:48px;font-size:13px}
+#classic-dashboard summary::after{content:'+';color:var(--muted);font-size:18px}
+#classic-dashboard details[open] summary::after{content:'−'}
+#classic-dashboard .nav{gap:0;margin-top:25px;padding-top:13px}
+#classic-dashboard .nav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;font-size:11px;min-height:57px;padding:7px 2px}
+#classic-dashboard .chart{margin:14px 0 8px}
+#classic-dashboard .calories{margin-top:23px;padding-top:14px;border-top:1px solid var(--line)}
+#classic-dashboard .calories h3{font-size:14px}
+#classic-dashboard .calories .status{background:transparent;padding:0;font-size:11px;margin:0}
+#classic-dashboard .calories .progress{height:7px;margin:11px 0 8px}
+#classic-dashboard #classic-calorie-fill{display:block;width:71.8%;height:100%;background:var(--green);border-radius:20px}
+#classic-dashboard .photo-modes{display:flex;gap:4px;border-radius:12px;background:var(--soft);padding:3px;margin:20px 0 15px}
+#classic-dashboard .photo-modes button{flex:1;font-size:12px;padding:8px 4px}
+#classic-dashboard .photo-modes button[aria-pressed="true"]{background:var(--tile);color:var(--green)}
+#classic-dashboard .photo-labels{margin-bottom:8px}
+#classic-dashboard .photo-stage{height:320px;display:flex;gap:8px;position:relative}
+#classic-dashboard .photo-frame{position:relative;flex:1;background:var(--soft);border-radius:15px;overflow:hidden;min-width:0}
+#classic-dashboard .photo-stage.overlay .photo-frame,#classic-dashboard .photo-stage.flip .photo-frame{position:absolute;inset:0}
+#classic-dashboard .photo-stage.overlay #classic-photo-compare{clip-path:inset(0 0 0 50%)}
+#classic-dashboard .photo-divider{position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--ink);z-index:3;pointer-events:none}
+#classic-dashboard .visual{position:absolute;inset:0;transform-origin:center center}
+#classic-dashboard .visual img{width:100%;height:100%;object-fit:contain}
+#classic-dashboard .figure{position:absolute;width:90px;height:264px;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--muted);opacity:.45}
+#classic-dashboard .figure div{position:absolute;background:currentColor}
+#classic-dashboard .head{width:32px;height:37px;left:29px;top:0;border-radius:50%}
+#classic-dashboard .torso{width:63px;height:115px;left:14px;top:43px;border-radius:25px 25px 22px 22px}
+#classic-dashboard .arm{width:14px;height:103px;top:48px;border-radius:14px}
+#classic-dashboard .arm.left{left:1px;transform:rotate(8deg)}
+#classic-dashboard .arm.right{right:1px;transform:rotate(-8deg)}
+#classic-dashboard .leg{width:25px;height:112px;top:150px;border-radius:10px 10px 13px 13px}
+#classic-dashboard .leg.left{left:17px}
+#classic-dashboard .leg.right{right:17px}
+#classic-dashboard .placeholder-label{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:11px;color:var(--muted)}
+#classic-dashboard .photo-timeline{display:flex;gap:6px;margin:17px 0}
+#classic-dashboard .photo-timeline button{flex:1;font-size:12px;background:var(--tile);padding:9px 5px}
+#classic-dashboard .photo-timeline button span{display:block;font-size:11px;color:var(--muted);margin-top:4px}
+#classic-dashboard .photo-timeline button[aria-pressed="true"]{background:var(--green);color:var(--onbrand)}
+#classic-dashboard .photo-timeline button[aria-pressed="true"] span{color:var(--onbrand)}
+#classic-dashboard input[type="range"]{display:block;width:100%;min-height:36px;accent-color:var(--green);margin:5px 0 9px}
+#classic-dashboard .upload-label{display:block;margin:12px 0}
+#classic-dashboard input[type="file"]{display:block;max-width:100%;font-size:12px;margin:8px 0;white-space:normal}
+#classic-dashboard .photo-stage.flip #classic-photo-start{z-index:1}
+#classic-dashboard .photo-stage.flip #classic-photo-compare{z-index:2}
+#classic-dashboard h2{font-size:20px;letter-spacing:-.3px;margin:23px 0 8px}
+#classic-dashboard .app{--bg:light-dark(#edf0fa,#111421);--tile:light-dark(#fff,#1b2033);--ink:light-dark(#172039,#f4f6ff);--muted:light-dark(#53607a,#b0bad2);--green:light-dark(#275dbd,#9bccff);--on-green:light-dark(#fff,#111e30);--onbrand:var(--on-green);--surface:var(--tile);--soft:light-dark(#dce7fc,#293852);--line:light-dark(#d3dbeb,#353f58);--amber:light-dark(#95541c,#ffbc80);--violet:light-dark(#6943bd,#c3afff);--bad:light-dark(#ab3d53,#ff9fb4);background:var(--bg);border-radius:28px;padding:22px 18px}
+#classic-dashboard .brand{font-weight:500;letter-spacing:3px;color:var(--violet)}
+#classic-dashboard .calories{background:var(--tile);border:0;border-radius:22px;padding:16px;margin-top:18px}
+#classic-dashboard #classic-total{font-size:48px;font-weight:500;letter-spacing:-2px;font-variant-numeric:tabular-nums;line-height:1.2}
+#classic-dashboard .calories .progress{height:12px;margin-top:14px}
+#classic-dashboard .calories .progress span{background:linear-gradient(90deg,var(--violet),var(--green))}
+#classic-dashboard .calories .status{padding:0;background:none;margin-top:10px}
+#classic-dashboard .calories .row:nth-child(2){align-items:baseline}
+#classic-dashboard .section-head{margin-top:20px}
+#classic-dashboard .section-head h2{margin:0;font-size:16px;letter-spacing:0}
+#classic-dashboard .journey-weight{font-size:42px;letter-spacing:-1.5px}
+#classic-dashboard .down-badge{background:transparent;padding:0}
+#classic-dashboard .chart{margin:8px 0 0}
+#classic-dashboard .two-week{background:var(--tile);border-radius:20px;padding:14px;margin:14px 0}
+#classic-dashboard #classic-rating{font-size:20px;font-weight:500}
+#classic-dashboard .fortnight{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:13px 0 10px;text-align:center}
+#classic-dashboard .fortnight .weekday{font-size:11px;color:var(--muted);padding-bottom:5px}
+#classic-dashboard .fortnight button{padding:4px 0;min-height:44px;border-radius:9px;font-size:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:var(--soft)}
+#classic-dashboard .fortnight .good{background:var(--green);color:var(--on-green)}
+#classic-dashboard .fortnight .over{background:light-dark(#ffe4e8,#4b2d3b);color:var(--bad)}
+#classic-dashboard .fortnight .unknown{color:var(--amber)}
+#classic-dashboard .fortnight .future{background:transparent;color:var(--muted)}
+#classic-dashboard .fortnight .today{outline:2px solid var(--violet);outline-offset:1px}
+#classic-dashboard .fortnight button[aria-pressed="true"]{box-shadow:inset 0 0 0 1px var(--ink)}
+#classic-dashboard .legend{font-size:11px;gap:8px}
+#classic-dashboard .workout-chip{min-height:44px;margin:7px 0;border-radius:12px}
+#classic-dashboard .primary{margin-top:10px}
+#classic-dashboard .detail-back{margin:12px 0 0;color:var(--violet)}
+#classic-dashboard table{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0}
+#classic-dashboard th,#classic-dashboard td{text-align:left;padding:12px 4px;border-bottom:1px solid var(--line);font-weight:400}
+#classic-dashboard .detail-number{font-size:40px;letter-spacing:-1px;margin:15px 0}
+#classic-dashboard button:disabled{opacity:.65}
+
+#classic-dashboard .app{padding:18px 16px;max-width:390px}
+#classic-dashboard .calories{margin-top:12px;padding:12px 14px}
+#classic-dashboard .calories h3{font-size:15px}
+#classic-dashboard #classic-total{font-size:42px}
+#classic-dashboard .calories .progress{margin:8px 0;height:10px}
+#classic-dashboard .calories .status{margin:0}
+#classic-dashboard #classic-edit{background:var(--soft);color:var(--ink);font-size:13px;font-weight:500;padding:9px 12px}
+#classic-dashboard #classic-finish{display:flex;align-items:center;justify-content:center;gap:9px;min-height:46px;margin-top:8px;font-size:14px;background:var(--green)}
+#classic-dashboard .section-head{margin-top:10px}
+#classic-dashboard .journey-weight{font-size:36px;line-height:1.15}
+#classic-dashboard .down-badge{font-size:12px}
+#classic-dashboard #classic-today p.mini{margin:4px 0}
+#classic-dashboard .chart{margin:6px 0 0}
+#classic-dashboard #classic-chart-detail{display:none}
+#classic-dashboard .two-week{padding:10px 12px;margin:10px 0}
+#classic-dashboard .two-week h3{font-size:15px}
+#classic-dashboard #classic-rating{font-size:18px}
+#classic-dashboard .fortnight{margin:8px 0 7px;gap:4px}
+#classic-dashboard .fortnight .weekday{padding-bottom:2px}
+#classic-dashboard .fortnight button{min-height:44px;gap:2px}
+#classic-dashboard .daily-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+#classic-dashboard .action-card{display:flex;align-items:center;gap:8px;padding:12px 9px;min-height:64px;background:var(--tile);border-radius:15px;text-align:left}
+#classic-dashboard .action-card strong{display:block;font-size:13px;font-weight:500;line-height:1.25}
+#classic-dashboard .action-card small{display:block;font-size:11px;color:var(--muted);margin-top:4px}
+#classic-dashboard .action-card>span:last-child{margin-left:auto;font-size:18px;color:var(--violet)}
+#classic-dashboard .action-card i,#classic-dashboard .action-card svg{color:var(--violet);flex:none;width:18px;height:18px}
+#classic-dashboard #classic-message{margin-top:8px;min-height:15px}
+@media(max-width:359px){#classic-dashboard .app{padding:16px 12px}#classic-dashboard .action-card{gap:6px;padding:10px 7px}#classic-dashboard .action-card i,#classic-dashboard .action-card svg{display:none}#classic-dashboard .calories .row:nth-child(2)>span:last-child{max-width:95px;text-align:right}}
+
+#classic-dashboard .calorie-actions{display:grid;grid-template-columns:110px minmax(0,1fr);gap:8px;margin-top:9px}
+#classic-dashboard .calorie-actions #classic-finish{margin:0;min-height:48px;padding:8px;font-size:13px;line-height:1.25}
+#classic-dashboard .calorie-actions #classic-edit{min-height:48px;padding:8px;line-height:1.25}
+#classic-dashboard .weight-summary{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px}
+#classic-dashboard .weight-summary h2{font-size:13px;color:var(--muted);margin:0 0 2px;letter-spacing:0}
+#classic-dashboard .weight-caption{margin-top:3px}
+#classic-dashboard #classic-selected-day{margin-top:5px}
+
+#classic-dashboard .app{--habit-green:light-dark(#277147,#a8e3ad);--habit-on-green:light-dark(#fff,#14281b);--habit-yellow:light-dark(#fae7b6,#493c21);--habit-on-yellow:light-dark(#624811,#f5d384);--habit-red:light-dark(#f8d6de,#512c39);--habit-on-red:light-dark(#923047,#ffb1c3);--habit-grey:light-dark(#e8ebf2,#2a3042)}
+#classic-dashboard .fortnight .good{background:var(--habit-green);color:var(--habit-on-green)}
+#classic-dashboard .fortnight .partial{background:var(--habit-yellow);color:var(--habit-on-yellow)}
+#classic-dashboard .fortnight .none{background:var(--habit-red);color:var(--habit-on-red)}
+#classic-dashboard .fortnight .unknown{background:var(--habit-grey);color:var(--muted)}
+#classic-dashboard .fortnight button span:last-child{font-size:11px;font-variant-numeric:tabular-nums}
+#classic-dashboard #classic-rating{font-size:14px;font-weight:500}
+#classic-dashboard .habit-card{background:var(--tile);padding:10px;border-radius:15px}
+#classic-dashboard .habit-card h3{font-size:13px;margin:0 0 7px;font-weight:500}
+#classic-dashboard .yes-no{display:flex;gap:6px}
+#classic-dashboard .yes-no button{flex:1;min-width:0;min-height:44px;padding:8px;background:var(--soft);font-size:13px}
+#classic-dashboard .yes-no button[aria-pressed="true"]{background:var(--green);color:var(--on-green)}
+#classic-dashboard .habit-detail-row{padding:18px 0;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:15px}
+#classic-dashboard .habit-detail-row span:last-child{font-size:13px}
+#classic-dashboard #classic-open-photo{display:flex;align-items:center;gap:7px;color:var(--violet);font-size:13px}
+#classic-dashboard #classic-open-photo i,#classic-dashboard #classic-open-photo svg{width:17px;height:17px}
+
+#classic-dashboard .check-heading{margin-top:4px;min-height:27px}
+#classic-dashboard .check-heading button{min-height:44px;padding:8px 4px;font-size:12px}
+#classic-dashboard .daily-actions{margin-top:3px}
+#classic-dashboard .daily-actions:has(.habit-card[hidden]){grid-template-columns:1fr}
+#classic-dashboard .habit-card{display:grid;grid-template-columns:1fr 108px;align-items:center;gap:8px;padding:9px 11px}
+#classic-dashboard .habit-card h3{margin:0;font-size:13px}
+#classic-dashboard .yes-no{gap:5px}
+#classic-dashboard .habit-card .yes-no button{font-size:12px;padding:7px}
+#classic-dashboard .daily-actions:not(:has(.habit-card[hidden])) .habit-card{display:block}
+#classic-dashboard .daily-actions:not(:has(.habit-card[hidden])) .habit-card h3{margin-bottom:7px}
+#classic-dashboard .game-stat-tag{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+#classic-dashboard .game-stat-tag svg,#classic-dashboard .game-stat-tag i{width:16px;height:16px}
+#classic-dashboard .next-weight{color:var(--violet);font-size:12px}
+#classic-dashboard .brand{letter-spacing:1px;font-size:21px}
+#classic-dashboard .game-day{font-size:11px;letter-spacing:1px;color:var(--muted);display:block;margin-top:3px}
+#classic-dashboard .app{box-shadow:0 12px 36px light-dark(#b5bfd14d,#0000004d)}
+
+#classic-dashboard .app{--bg:light-dark(#e7eefb,#101329);--tile:light-dark(#f9fcff,#1a2040);--ink:light-dark(#202446,#f2f5ff);--muted:light-dark(#555a78,#b5bfdf);--green:light-dark(#086b91,#72e3ef);--on-green:light-dark(#fff,#112730);--soft:light-dark(#d9e6f7,#293458);--violet:light-dark(#6b44c1,#c6a6ff);--line:light-dark(#ccd8ed,#333f65);border-radius:25px;background:radial-gradient(ellipse at 100% 0%,light-dark(#ddd9ff,#2a2150),transparent 55%),var(--bg);font-family:'Trebuchet MS',-apple-system,sans-serif}
+#classic-dashboard .brand{font-family:ui-monospace,monospace;letter-spacing:2px;font-size:22px}
+#classic-dashboard .calories{border-radius:6px 22px 6px 22px;background:var(--tile);position:relative;margin-top:12px}
+#classic-dashboard .calories::before{content:'';position:absolute;left:14px;top:0;height:3px;width:48px;background:var(--violet)}
+#classic-dashboard #classic-total,#classic-dashboard .journey-weight{font-family:ui-monospace,monospace;letter-spacing:-2px}
+#classic-dashboard .habit-card{border-radius:6px 14px 6px 14px;background:var(--tile)}
+#classic-dashboard .primary{border-radius:6px 13px 6px 13px}
+#classic-dashboard .two-week{border-radius:6px 18px 6px 18px}
+#classic-dashboard .chart .trend{stroke-width:3.5;filter:drop-shadow(0 2px 4px light-dark(#086b9140,#72e3ef30))}
+#classic-dashboard .progress,#classic-dashboard .progress span{border-radius:2px}
+#classic-dashboard .fortnight button{border-radius:5px;font-family:ui-monospace,monospace}
+#classic-dashboard .weight-summary{padding-top:4px}
+
+
+#classic-dashboard .app{--bg:light-dark(#edf0fa,#111421);--tile:light-dark(#fff,#1b2033);--ink:light-dark(#172039,#f4f6ff);--muted:light-dark(#53607a,#b0bad2);--green:light-dark(#275dbd,#9bccff);--on-green:light-dark(#fff,#111e30);--soft:light-dark(#dce7fc,#293852);--line:light-dark(#d3dbeb,#353f58);--violet:light-dark(#6943bd,#c3afff);background:var(--bg);border-radius:28px;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+#classic-dashboard .brand{font-family:inherit;font-size:21px;letter-spacing:1px}
+#classic-dashboard .calories,#classic-dashboard .two-week{border-radius:20px}
+#classic-dashboard .calories::before{display:none}
+#classic-dashboard .habit-card{border-radius:15px}
+#classic-dashboard #classic-total,#classic-dashboard .journey-weight{font-family:inherit}
+#classic-dashboard .primary,#classic-dashboard .fortnight button{border-radius:12px;font-family:inherit}
+#classic-dashboard .chart .trend{filter:none;stroke-width:3}
+#classic-dashboard .progress,#classic-dashboard .progress span{border-radius:20px}
+
+</style>
+<div class="app">
+<div class="row"><span class="brand">ON TRACK<span class="game-day">WED · SEP 30</span></span><button type="button" id="classic-open-photo" class="cursor-interaction"><i data-lucide="images" aria-hidden="true"></i>Photos <span id="classic-photo-mark"></span></button></div>
+<div id="classic-today" aria-label="Dashboard"><div class="row check-heading"><span class="mini" id="classic-checks-summary">Daily checks · Sep 30</span><button type="button" id="classic-edit-checks" class="cursor-interaction mini" hidden>Edit today's checks</button><button type="button" id="classic-done-edit" class="cursor-interaction mini" hidden>Done</button></div>
+<div id="classic-habit-prompts" class="daily-actions" aria-label="Today's habit checks">
+<section id="classic-workout-card" class="habit-card"><h3>Workout today?</h3><div class="yes-no" role="group" aria-label="Workout today, lifting or cardio"><button type="button" id="classic-workout-yes" class="cursor-interaction" aria-pressed="false">Yes</button><button type="button" id="classic-workout-no" class="cursor-interaction" aria-pressed="false">No</button></div></section>
+<section id="classic-creatine-card" class="habit-card"><h3>Creatine taken?</h3><div class="yes-no" role="group" aria-label="Creatine taken today"><button type="button" id="classic-creatine-yes" class="cursor-interaction" aria-pressed="false">Yes</button><button type="button" id="classic-creatine-no" class="cursor-interaction" aria-pressed="false">No</button></div></section>
+</div>
+<section class="calories" aria-label="Today's calorie total">
+<div class="row"><h3 class="game-stat-tag"><i data-lucide="utensils" aria-hidden="true"></i>Today's calories</h3><button type="button" id="classic-open-calories" class="cursor-interaction mini">Details ›</button></div>
+<div class="row"><span><span id="classic-total">1,400</span><span class="mini"> / 1,950 kcal</span></span><span class="mini"><span id="classic-remaining">550</span> <span id="classic-remaining-label">kcal remaining</span></span></div>
+<div class="progress" id="classic-meter" role="progressbar" aria-label="1400 of 1950 calories logged; unconfirmed" aria-valuemin="0" aria-valuemax="1950" aria-valuenow="1400"><span id="classic-calorie-fill"></span></div>
+<div class="row"><div class="status" id="classic-status"><span class="dot"></span><span id="classic-state">Unconfirmed</span></div></div>
+<div class="calorie-actions"><button type="button" class="cursor-interaction" id="classic-edit">Update calories</button><button type="button" class="primary cursor-interaction" id="classic-finish"><i data-lucide="circle-check" aria-hidden="true"></i><span id="classic-finish-label">Everything I ate is logged</span></button></div>
+</section>
+<section class="weight-block"><div class="weight-summary"><div><h2>Weight · 7-day average</h2><span class="journey-weight">175.0 <span class="under">lb</span></span></div><button type="button" id="classic-open-weight" class="cursor-interaction">Details ›</button></div>
+<div class="row mini weight-caption"><span>−2.0 lb since start</span><span class="next-weight">Next · 172 lb</span></div>
+<svg id="classic-chart" class="chart" role="img" aria-label="Illustrative seven-day average weight falls from 177 to 175 pounds between September 3 and September 30"></svg>
+<p class="mini" id="classic-chart-detail">Last 28 days</p>
+</section><section class="two-week">
+<div class="row"><h3>Past two weeks</h3><button type="button" id="classic-open-status" class="cursor-interaction">Details ›</button></div>
+<div class="row"><strong id="classic-rating">Mixed</strong><span class="mini" id="classic-period">Sep 21 – Oct 4</span></div>
+<div id="classic-fortnight" class="fortnight" aria-label="Previous and current calendar week"></div>
+<div class="legend"><span>4/4 All done</span><span>1–3/4 Some</span><span>0/4 None</span><span>? No check-in</span></div>
+<p class="mini" id="classic-selected-day" aria-live="polite">Sep 30 · Today · unconfirmed</p>
+</section>
+<div hidden><span id="classic-home-count"></span><span id="classic-home-dots"></span></div>
+<section class="tile form" id="classic-editor" hidden aria-label="Edit calorie total">
+<div class="row"><h3>Daily total</h3><button type="button" id="classic-cancel" class="cursor-interaction">Cancel</button></div>
+<label>Calories<input id="classic-input" type="number" min="0" step="1" value="1400" inputmode="numeric"></label>
+<label id="classic-reason-label" hidden>What changed?<select id="classic-reason"><option value="Forgotten food">Forgotten food</option><option value="Ate after checking out">Ate after checking out</option><option value="Estimate correction">Estimate correction</option><option value="Not specified">Skip reason</option></select></label>
+<button type="button" class="primary cursor-interaction" id="classic-save">Save total</button>
+<p id="classic-error" class="message" role="alert"></p>
+</section>
+
+
+<section id="classic-review" class="tile form" hidden aria-label="Nightly food audit">
+<div class="row"><h3>Confirm food log</h3><button type="button" id="classic-review-cancel" class="cursor-interaction">Cancel</button></div>
+<label class="check"><input type="checkbox" id="classic-check-snacks">Snacks &amp; small bites checked</label>
+<label class="check"><input type="checkbox" id="classic-check-drinks">Drinks &amp; sauces checked</label>
+<button type="button" id="classic-confirm" class="primary cursor-interaction">Everything is logged</button>
+<p class="message" id="classic-review-error" role="alert"></p>
+</section>
+<p class="message" id="classic-message" aria-live="polite"></p>
+
+</div>
+<section id="classic-photos" aria-label="Progress photos" hidden>
+<button type="button" class="detail-back cursor-interaction" data-back>‹ Dashboard</button><h2>Progress photos</h2>
+<div class="photo-modes" role="group" aria-label="Photo comparison mode">
+<button type="button" id="classic-mode-side" class="cursor-interaction" aria-pressed="true">Side by side</button>
+<button type="button" id="classic-mode-overlay" class="cursor-interaction" aria-pressed="false">Slider</button>
+<button type="button" id="classic-mode-flip" class="cursor-interaction" aria-pressed="false">Flip</button>
+</div>
+<div class="row mini photo-labels"><span id="classic-start-label">Start · Sep 3</span><span id="classic-compare-label">Now · Sep 30</span></div>
+<div id="classic-photo-stage" class="photo-stage side" aria-label="Photo comparison; schematic placeholders, not a body transformation">
+<div id="classic-photo-start" class="photo-frame">
+<div class="visual" id="classic-visual-start"><img id="classic-image-start" alt="Your starting photo" hidden><div class="figure" id="classic-placeholder-start" aria-hidden="true"><div class="head"></div><div class="torso"></div><div class="arm left"></div><div class="arm right"></div><div class="leg left"></div><div class="leg right"></div></div></div>
+<span class="placeholder-label" id="classic-placeholder-label-start">Placeholder</span>
+</div>
+<div id="classic-photo-compare" class="photo-frame">
+<div class="visual" id="classic-visual-compare"><img id="classic-image-compare" alt="Your selected progress photo" hidden><div class="figure" id="classic-placeholder-compare" aria-hidden="true"><div class="head"></div><div class="torso"></div><div class="arm left"></div><div class="arm right"></div><div class="leg left"></div><div class="leg right"></div></div></div>
+<span class="placeholder-label" id="classic-placeholder-label-compare">Placeholder</span>
+</div>
+<div id="classic-photo-divider" class="photo-divider" hidden></div>
+</div>
+<label id="classic-slider-label" class="mini" hidden>Compare photos<input id="classic-photo-slider" type="range" min="0" max="100" value="50" aria-label="Before and after comparison position"></label>
+<button type="button" id="classic-flip-photo" class="workout-chip cursor-interaction" hidden>Show starting photo</button>
+<div class="photo-timeline" role="group" aria-label="Progress photo timeline">
+<button type="button" id="classic-date-start" class="cursor-interaction" aria-pressed="false">Start<span>Sep 3</span></button>
+<button type="button" id="classic-date-middle" class="cursor-interaction" aria-pressed="false">Week 2<span>Sep 17</span></button>
+<button type="button" id="classic-date-now" class="cursor-interaction" aria-pressed="true">Now<span>Sep 30</span></button>
+</div>
+<details><summary class="cursor-interaction">Add photos</summary>
+<label class="mini upload-label">Starting photo<input id="classic-upload-start" type="file" accept="image/*"></label>
+<label class="mini upload-label">Selected progress photo<input id="classic-upload-compare" type="file" accept="image/*"></label>
+<p class="mini">Preview only · cleared when this view reloads</p>
+</details>
+<details><summary class="cursor-interaction">Align comparison photo</summary>
+<label class="mini">Size<input id="classic-align-scale" type="range" min="70" max="150" value="100" aria-label="Comparison photo scale"></label>
+<label class="mini">Left / right<input id="classic-align-x" type="range" min="-50" max="50" value="0" aria-label="Comparison photo horizontal position"></label>
+<label class="mini">Up / down<input id="classic-align-y" type="range" min="-50" max="50" value="0" aria-label="Comparison photo vertical position"></label>
+<p class="mini">Scales and positions the whole photo</p>
+</details>
+<button type="button" id="classic-photo-seen" class="primary cursor-interaction">Mark photo reviewed</button>
+<p id="classic-photo-notice" class="message" aria-live="polite">Demo photos · not saved</p>
+</section>
+<section id="classic-consistency" aria-label="Status details" hidden>
+<button type="button" class="detail-back cursor-interaction" data-back>‹ Dashboard</button><h2>Two-week status</h2><p class="mini">Sep 21 – Oct 4 · previous + current week</p><p id="classic-status-explanation"></p><details><summary class="cursor-interaction">Status rules</summary><p class="mini">Green: all four checks. Yellow: one to three checks. Red: zero checks, with all answers known. Grey: zero done and some answers unknown. Future days are neutral. The count distinguishes 1/4 from 3/4 without adding colours. Workout means lifting, cardio, or both. Within calories is confirmed only with a complete food log; an already over-target total can be shown as over before confirmation.</p></details><h2>Logging history</h2>
+<div class="honest-stat"><span id="classic-honest-total">20</span><span class="of-days" id="classic-honest-denominator"> / 27</span></div>
+<p class="mini">Days fully logged · last 28 days</p>
+<div id="classic-days" class="days" aria-label="September 3 to September 30 food-log completeness"></div>
+<div class="legend"><span><i class="swatch"></i>Complete</span><span><i class="swatch" style="background:var(--soft)"></i>Partial</span><span>— Missing</span></div>
+<p class="mini day-detail" id="classic-day-detail" aria-live="polite">Tap a day to see its log.</p>
+<div class="focus"><i data-lucide="target" aria-hidden="true"></i><span>This week: count evening snacks</span></div>
+<div hidden><span id="classic-week-count"></span><span id="classic-grid-log"></span><span id="classic-grid-target"></span><span id="classic-grid-move"></span></div>
+<details><summary class="cursor-interaction">Achievements</summary>
+<div class="awards"><span class="award"><i data-lucide="award" aria-hidden="true"></i>7 complete logs</span><span class="award"><i data-lucide="trending-down" aria-hidden="true"></i>2 lb decrease</span></div>
+
+<p class="mini">Next milestone: 172 lb</p>
+</details>
+<details>
+<summary class="cursor-interaction"><i data-lucide="history" aria-hidden="true"></i>Log revisions · <span id="classic-revised-days">0</span> days this week</summary>
+<div id="classic-events"><p class="mini">No revisions recorded.</p></div>
+</details>
+</section>
+<section id="classic-day-checks" hidden aria-label="Selected day habit checks">
+<button type="button" class="detail-back cursor-interaction" data-back>‹ Dashboard</button>
+<div class="row"><h2 id="classic-check-date">Sep 30</h2><span class="detail-number" id="classic-check-score">0 / 4</span></div>
+<div id="classic-check-rows"></div>
+<p class="mini" id="classic-check-note"></p>
+<button type="button" id="classic-fix-today" class="primary cursor-interaction">Update today's checks</button>
+</section>
+
+<section id="classic-calorie-details" hidden aria-label="Calorie details">
+<button type="button" class="detail-back cursor-interaction" data-back>‹ Dashboard</button>
+<h2>Calories</h2><p class="mini">Demo target · 1,950 kcal per day</p>
+<table><thead><tr><th>Date</th><th>Calories</th><th>Log</th></tr></thead><tbody id="classic-calorie-rows"></tbody></table>
+<button type="button" id="classic-edit-from-details" class="workout-chip cursor-interaction">Update today's total</button>
+<button type="button" id="classic-history-from-details" class="workout-chip cursor-interaction">Confirmation &amp; revision history ›</button>
+</section>
+<section id="classic-weight-details" hidden aria-label="Weight details">
+<button type="button" class="detail-back cursor-interaction" data-back>‹ Dashboard</button>
+<h2>Weight</h2><div class="detail-number">175.0 <span class="mini">lb trend</span></div>
+<p class="mini">7-day average · 7 weigh-ins</p>
+<section class="tile"><div class="row"><h3>Next milestone</h3><span>172 lb</span></div><div class="bar"><span style="width:40%"></span></div><p class="mini">3.0 lb remaining · from 177 lb</p></section>
+<details><summary class="cursor-interaction">Weight milestones</summary>
+<div class="row mini"><span>Start 177 lb</span><span>Goal 155 lb · 9% of the way</span></div>
+<div class="bar" role="progressbar" aria-label="Progress toward 155 pounds" aria-valuemin="0" aria-valuemax="100" aria-valuenow="9.1"><span style="width:9.1%"></span></div>
+<div class="journey" aria-label="Milestone journey: start 177, current 175, next 172, then 170, 165, 160, 155 pounds">
+<div class="station first"><span class="marker">✓</span>177</div><div class="station active"><span class="marker">●</span>175</div><div class="station"><span class="marker">○</span>172</div><div class="station"><span class="marker">○</span>170</div><div class="station"><span class="marker">○</span>165</div><div class="station"><span class="marker">○</span>160</div><div class="station"><span class="marker">○</span>155</div>
+</div>
+
+</details>
+<details><summary class="cursor-interaction">Trend history · 28 days</summary><table><thead><tr><th>Date</th><th>Trend weight</th></tr></thead><tbody id="classic-weight-rows"></tbody></table></details>
+</section>
+
+</div>
+<script>
+(()=>{
+const root=document.getElementById('classic-dashboard');const el=id=>root.querySelector('#classic-'+id);
+let total=1400,confirmed=false,everConfirmed=false,workout=null,creatine=null,revised=false,editingHabits=false;const events=[];
+const stamp=()=>new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+function draw(){
+ const difference=1950-total;
+ el('total').textContent=total.toLocaleString();el('remaining').textContent=Math.abs(difference).toLocaleString();
+ el('remaining-label').textContent=difference<0?'kcal over target':'kcal remaining';
+ el('calorie-fill').style.width=Math.min(100,total/1950*100)+'%';el('meter').setAttribute('aria-valuenow',String(Math.min(total,1950)));
+ el('meter').setAttribute('aria-label',total+' of 1950 calories logged, '+Math.abs(difference)+(difference<0?' over target':' remaining')+(confirmed?'; confirmed':'; unconfirmed'));
+ el('state').textContent=confirmed?'Food log complete':everConfirmed?'Changed · confirm again':'Unconfirmed';
+ el('status').style.color=confirmed?'var(--green)':'var(--amber)';
+ el('grid-log').textContent=confirmed?'✓':'○';el('grid-log').className='cell '+(confirmed?'done':'open');el('grid-log').setAttribute('aria-label',confirmed?'Wednesday complete':'Wednesday unconfirmed');
+ el('grid-target').textContent=confirmed?(difference>=0?'✓':'↑'):'?';el('grid-target').className='cell '+(confirmed&&difference>=0?'done':'open');el('grid-target').setAttribute('aria-label',confirmed?(difference>=0?'Wednesday within target':'Wednesday over target'):'Wednesday unknown');
+ el('week-count').textContent=(confirmed?'3':'2')+' / 3 logs complete';el('home-count').textContent=(confirmed?'3':'2')+' / 3 food logs this week';el('home-dots').textContent=confirmed?'● ● ●':'● ● ○';el('home-dots').setAttribute('aria-label',confirmed?'Three of three days confirmed':'Two of three days confirmed');
+ el('finish-label').textContent=confirmed?'Everything logged ✓':everConfirmed?'Confirm updated food log':'Everything I ate is logged';el('finish').disabled=confirmed;
+ el('revised-days').textContent=revised?'1':'0';
+ renderProgress();
+ updateFortnight();
+}
+function addEvent(title,detail){events.push({title,detail,time:stamp()});el('events').replaceChildren();for(const e of [...events].reverse()){const item=document.createElement('div');item.className='event';item.textContent=e.title;const meta=document.createElement('span');meta.className='mini';meta.textContent=e.time+' · '+e.detail;item.append(meta);el('events').append(item);}}
+el('edit').onclick=()=>{el('editor').hidden=false;el('input').value=String(total);el('reason-label').hidden=!everConfirmed;el('review').hidden=true;el('input').focus();};
+el('cancel').onclick=()=>{el('editor').hidden=true;};
+el('save').onclick=()=>{
+ const next=Number(el('input').value);if(el('input').value.trim()===''||!Number.isInteger(next)||next<0){el('error').textContent='Enter a whole calorie total of zero or more.';return;}
+ if(next!==total){const before=total;total=next;if(everConfirmed){revised=true;confirmed=false;const delta=next-before;addEvent(before.toLocaleString()+' → '+next.toLocaleString()+' kcal',(delta>=0?'+':'')+delta+' · '+el('reason').value);el('message').textContent='Total changed · confirmation required.';}else{el('message').textContent='Calorie total updated.';}}
+ el('error').textContent='';el('editor').hidden=true;draw();
+};
+el('finish').onclick=()=>{el('review').hidden=false;el('editor').hidden=true;el('check-snacks').checked=false;el('check-drinks').checked=false;el('review-error').textContent='';};
+el('review-cancel').onclick=()=>{el('review').hidden=true;};
+el('confirm').onclick=()=>{if(!el('check-snacks').checked||!el('check-drinks').checked){el('review-error').textContent='Check both categories before confirming.';return;}confirmed=true;everConfirmed=true;addEvent('Confirmed '+total.toLocaleString()+' kcal','Food log complete');el('review').hidden=true;el('message').textContent=total>1950?'Food log confirmed · over calorie target.':'Food log confirmed.';draw();};
+
+
+const averages=[177,176.9,176.85,176.8,176.65,176.6,176.7,176.6,176.5,176.45,176.35,176.3,176.25,176.35,176.2,176.05,176,175.95,175.85,175.75,175.8,175.65,175.5,175.4,175.35,175.2,175.1,175];
+const partialDays=[3,8,15,23],missingDays=[11,18,24];
+let selectedDay=null;
+function dayState(i){if(i===27)return confirmed?'complete':'pending';if(i>=18)return previousWeek[i-18].logged===true?'complete':previousWeek[i-18].logged===false?'partial':'missing';return missingDays.includes(i)?'missing':partialDays.includes(i)?'partial':'complete';}
+function describeDay(i){const state=dayState(i);el('day-detail').textContent='Sep '+(i+3)+' · '+(state==='complete'?'Fully logged':state==='partial'?'Incomplete log':state==='pending'?'Today · awaiting confirmation':'No log')+(i===27?' · '+total.toLocaleString()+' kcal':'');}
+function renderProgress(){
+ el('days').replaceChildren();
+ averages.forEach((_,i)=>{const state=dayState(i),button=document.createElement('button');button.type='button';button.className='cursor-interaction '+state;button.textContent=String(i+3);button.setAttribute('aria-label','September '+(i+3)+': '+state);button.setAttribute('aria-pressed',String(selectedDay===i));button.onclick=()=>{selectedDay=i;for(const child of el('days').children)child.setAttribute('aria-pressed','false');button.setAttribute('aria-pressed','true');describeDay(i);};el('days').append(button);});
+ el('honest-total').textContent=String(averages.filter((_,i)=>dayState(i)==='complete').length);el('honest-denominator').textContent=confirmed?' / 28':' / 27';
+ if(selectedDay!==null)describeDay(selectedDay);
+}
+function chart(){
+ const svg=el('chart'),width=svg.getBoundingClientRect().width;if(width<1)return;
+ const height=115,left=35,right=12,top=15,bottom=30;svg.setAttribute('viewBox','0 0 '+width+' '+height);svg.replaceChildren();
+ const ns='http://www.w3.org/2000/svg';
+ const add=(tag,attrs,text)=>{const node=document.createElementNS(ns,tag);for(const [key,value]of Object.entries(attrs))node.setAttribute(key,String(value));if(text!==undefined)node.textContent=text;svg.append(node);return node;};
+ const low=Math.min(...averages)-.3,high=Math.max(...averages)+.3;
+ const x=i=>left+i/27*(width-left-right),y=v=>top+(high-v)/(high-low)*(height-top-bottom);
+ for(const value of [177,176,175]){add('line',{x1:left,x2:width-right,y1:y(value),y2:y(value),stroke:'var(--line)','stroke-width':1});add('text',{x:0,y:y(value)+4},String(value));}
+ add('path',{d:averages.map((value,i)=>(i?'L':'M')+x(i)+' '+y(value)).join(' '),class:'trend'});
+ for(const i of [0,9,18,27])add('text',{x:x(i),y:height-6,'text-anchor':i===0?'start':i===27?'end':'middle'},'Sep '+(i+3));
+ averages.forEach((value,i)=>{const point=add('circle',{cx:x(i),cy:y(value),r:i===27?4:2,fill:'var(--green)'});point.setAttribute('data-tooltip','Sep '+(i+3)+' · '+value.toFixed(1)+' lb trend');});
+}
+if(typeof ResizeObserver!=='undefined')new ResizeObserver(chart).observe(el('chart'));
+
+let photoReviewed=false,photoMode='side',showStart=false,selectedPhoto=2;
+const photoRecords=[{label:'Start · Sep 3',data:null,scale:100,x:0,y:0},{label:'Week 2 · Sep 17',data:null,scale:100,x:0,y:0},{label:'Now · Sep 30',data:null,scale:100,x:0,y:0}];
+function switchPage(name){for(const tab of ['today','photos','consistency','calorie-details','weight-details','day-checks'])el(tab).hidden=tab!==name;if(name==='today')chart();}
+function paintPhoto(slot,record){el('image-'+slot).hidden=!record.data;el('placeholder-'+slot).hidden=!!record.data;el('placeholder-label-'+slot).hidden=!!record.data;if(record.data)el('image-'+slot).src=record.data;}
+function updatePhotos(){
+ const record=photoRecords[selectedPhoto];
+ el('photo-stage').className='photo-stage '+photoMode;
+ for(const name of ['side','overlay','flip'])el('mode-'+name).setAttribute('aria-pressed',String(photoMode===name));
+ el('slider-label').hidden=photoMode!=='overlay';el('photo-divider').hidden=photoMode!=='overlay';el('flip-photo').hidden=photoMode!=='flip';
+ el('photo-start').hidden=photoMode==='flip'&&!showStart;el('photo-compare').hidden=photoMode==='flip'&&showStart;
+ el('photo-compare').style.clipPath=photoMode==='overlay'?'inset(0 0 0 '+el('photo-slider').value+'%)':'none';
+ el('photo-divider').style.left=el('photo-slider').value+'%';
+ el('flip-photo').textContent=showStart?'Show selected progress photo':'Show starting photo';
+ el('start-label').textContent=photoRecords[0].label;el('compare-label').textContent=record.label;
+ for(const [i,key]of ['start','middle','now'].entries())el('date-'+key).setAttribute('aria-pressed',String(i===selectedPhoto));
+ el('align-scale').value=record.scale;el('align-x').value=record.x;el('align-y').value=record.y;
+ el('visual-compare').style.transform='translate('+record.x+'px,'+record.y+'px) scale('+record.scale/100+')';
+ paintPhoto('start',photoRecords[0]);paintPhoto('compare',record);
+}
+for(const name of ['side','overlay','flip'])el('mode-'+name).onclick=()=>{photoMode=name;showStart=false;updatePhotos();};
+el('photo-slider').oninput=updatePhotos;
+el('flip-photo').onclick=()=>{showStart=!showStart;updatePhotos();};
+for(const [i,key]of ['start','middle','now'].entries())el('date-'+key).onclick=()=>{selectedPhoto=i;showStart=false;updatePhotos();};
+for(const [key,field]of [['scale','scale'],['x','x'],['y','y']])el('align-'+key).oninput=()=>{photoRecords[selectedPhoto][field]=Number(el('align-'+key).value);updatePhotos();};
+for(const slot of ['start','compare']){
+ el('upload-'+slot).onchange=()=>{
+ const file=el('upload-'+slot).files?.[0];if(!file)return;
+ if(!file.type.startsWith('image/')){el('photo-notice').textContent='Choose an image file.';return;}
+ const index=slot==='start'?0:selectedPhoto;const reader=new FileReader();
+ reader.onload=()=>{photoRecords[index].data=reader.result;photoRecords[index].label=index===0?'Your starting photo':'Your progress photo';updatePhotos();el('photo-notice').textContent='Local preview · not saved.';};
+ reader.onerror=()=>{el('photo-notice').textContent='Could not read that photo. Try another image.';};reader.readAsDataURL(file);
+ };
+ el('image-'+slot).onerror=()=>{el('photo-notice').textContent='This image format could not display. Try JPEG or PNG.';};
+}
+el('open-photo').onclick=()=>{photoMode='flip';showStart=true;updatePhotos();switchPage('photos');};
+el('photo-seen').onclick=()=>{photoReviewed=true;el('photo-mark').textContent='✓';el('photo-notice').textContent='Photo reviewed.';el('message').textContent='Photo reviewed.';switchPage('today');};
+const previousWeek=[
+ {d:21,c:1810,logged:true,w:true,k:true},
+ {d:22,c:2060,logged:true,w:true,k:false},
+ {d:23,c:null,logged:null,w:null,k:null},
+ {d:24,c:2300,logged:false,w:false,k:false},
+ {d:25,c:1900,logged:true,w:true,k:true},
+ {d:26,c:1790,logged:true,w:false,k:true},
+ {d:27,c:1880,logged:true,w:true,k:true},
+ {d:28,c:1800,logged:true,w:true,k:true},
+ {d:29,c:2090,logged:true,w:true,k:true}
+];
+let selectedFortnight=9;
+function fortnightRows(){return [...previousWeek,{d:30,c:total,logged:confirmed?true:null,w:workout,k:creatine,today:true},...Array.from({length:4},(_,i)=>({d:i+1,c:null,logged:null,w:null,k:null,future:true,oct:true}))];}
+function dayChecks(r){return [r.k,r.w,r.logged,r.c!==null&&r.c>1950?false:r.logged===true&&r.c!==null?true:null];}
+function checkSummary(r){const values=dayChecks(r),done=values.filter(v=>v===true).length,unknown=values.filter(v=>v===null).length;return {done,unknown,state:r.future?'future':done===4?'good':done>0?'partial':unknown===0?'none':'unknown'};}
+function paintHabitControls(){
+ el('workout-card').hidden=workout!==null&&!editingHabits;el('creatine-card').hidden=creatine!==null&&!editingHabits;el('habit-prompts').hidden=workout!==null&&creatine!==null&&!editingHabits;
+ el('edit-checks').hidden=editingHabits||(workout===null&&creatine===null);el('done-edit').hidden=!editingHabits;
+ el('checks-summary').textContent='Daily checks · '+[workout,creatine].filter(v=>v!==null).length+'/2 answered';
+ for(const [key,value]of [['workout',workout],['creatine',creatine]])for(const answer of ['yes','no'])el(key+'-'+answer).setAttribute('aria-pressed',String(value===(answer==='yes')));
+ el('grid-move').textContent=workout===true?'✓':workout===false?'×':'?';el('grid-move').className='cell '+(workout===true?'done':'open');el('grid-move').setAttribute('aria-label','Wednesday workout '+(workout===true?'done':workout===false?'not done':'unconfirmed'));
+}
+function showDayChecks(){
+ const r=fortnightRows()[selectedFortnight],s=checkSummary(r);
+ el('check-date').textContent=(r.oct?'Oct ':'Sep ')+r.d+(r.today?' · Today':'');
+ el('check-score').textContent=r.future?'—':s.done+' / 4';el('check-rows').replaceChildren();
+ const labels=['Creatine taken','Workout done','Food fully logged','Within calorie target'];
+ dayChecks(r).forEach((v,i)=>{const row=document.createElement('div');row.className='habit-detail-row';const label=document.createElement('span'),state=document.createElement('span');label.textContent=labels[i];state.textContent=r.future?'Upcoming':v===true?'✓ Yes':v===false?(i===3?'↑ Over target':'× No'):'? Unconfirmed';state.style.color=v===true?'var(--habit-green)':v===false?'var(--habit-on-red)':'var(--muted)';row.append(label,state);el('check-rows').append(row);});
+ el('check-note').textContent=r.future?'Upcoming day.':(r.c!==null?r.c.toLocaleString()+' / 1,950 kcal · ':'')+(s.unknown?s.unknown+' checks unconfirmed.':'All four checks answered.');
+ el('fix-today').hidden=!r.today;
+}
+function updateFortnight(){
+ const rows=fortnightRows(),past=rows.filter(r=>!r.future&&!r.today),full=rows.filter(r=>!r.future&&checkSummary(r).done===4).length,unknown=past.filter(r=>checkSummary(r).unknown>0).length;
+ el('rating').textContent=full+' all-done days';el('rating').style.color='var(--ink)';
+ el('status-explanation').textContent=full+' days have all four checks complete. '+unknown+' past days have unconfirmed checks. Food completeness and calorie target are separate checks.';
+ el('fortnight').replaceChildren();
+ for(const label of ['M','T','W','T','F','S','S']){const n=document.createElement('span');n.className='weekday';n.textContent=label;el('fortnight').append(n);}
+ rows.forEach((r,i)=>{const s=checkSummary(r),b=document.createElement('button');b.type='button';b.className='cursor-interaction '+s.state+(r.today?' today':'');const date=document.createElement('span'),mark=document.createElement('span');date.textContent=r.d;mark.textContent=r.future?'—':s.state==='unknown'?'?':s.done+'/4';b.append(date,mark);b.setAttribute('aria-label',(r.oct?'Oct ':'Sep ')+r.d+' · '+(r.future?'upcoming':s.done+' of four done, '+s.unknown+' unconfirmed')+(r.today?' · today':''));if(r.today)b.setAttribute('aria-current','date');b.setAttribute('aria-pressed',String(i===selectedFortnight));b.onclick=()=>{selectedFortnight=i;updateFortnight();showDayChecks();switchPage('day-checks');};el('fortnight').append(b);});
+ const today=checkSummary(rows[9]);el('selected-day').textContent='Today · '+today.done+'/4 done'+(today.unknown?' · '+today.unknown+' unconfirmed':'')+' · Tap a day';
+ el('calorie-rows').replaceChildren();for(const r of rows.filter(r=>!r.future)){const tr=document.createElement('tr');for(const value of ['Sep '+r.d,r.c===null?'—':r.c.toLocaleString(),r.logged===true?'Complete':r.logged===false?'Incomplete':'Unconfirmed']){const td=document.createElement('td');td.textContent=value;tr.append(td);}el('calorie-rows').append(tr);}
+ paintHabitControls();showDayChecks();
+}
+for(const key of ['workout','creatine'])for(const answer of ['yes','no'])el(key+'-'+answer).onclick=()=>{if(key==='workout')workout=answer==='yes';else creatine=answer==='yes';updateFortnight();};
+el('fix-today').onclick=()=>{editingHabits=true;switchPage('today');updateFortnight();};
+el('edit-checks').onclick=()=>{editingHabits=true;updateFortnight();};
+el('done-edit').onclick=()=>{editingHabits=false;updateFortnight();};
+for(const button of root.querySelectorAll('[data-back]'))button.onclick=()=>switchPage('today');
+el('open-status').onclick=()=>switchPage('consistency');
+el('open-calories').onclick=()=>switchPage('calorie-details');
+el('open-weight').onclick=()=>switchPage('weight-details');
+el('edit-from-details').onclick=()=>{switchPage('today');el('edit').click();};
+el('history-from-details').onclick=()=>switchPage('consistency');
+averages.forEach((v,i)=>{const tr=document.createElement('tr');for(const text of ['Sep '+(i+3),v.toFixed(1)+' lb']){const td=document.createElement('td');td.textContent=text;tr.append(td);}el('weight-rows').append(tr);});
+
+updatePhotos();
+
+draw();
+chart();
+})();
+</script>
+</div>
