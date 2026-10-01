@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Modal, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
+import { Modal, Platform, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
@@ -38,6 +38,7 @@ function Tour({ replay, onClose }: { replay: boolean; onClose?: () => void }) {
   const [page, setPage] = useState(0);
   const [mood, setMood] = useState<ExampleMood>('thriving');
   const [saving, setSaving] = useState(false);
+  const [skipFocused, setSkipFocused] = useState(false);
   const [error, setError] = useState('');
   const lesson = moods.find(m => m.mood === mood)!;
   const size = height < 700 ? 132 : 172;
@@ -60,7 +61,7 @@ function Tour({ replay, onClose }: { replay: boolean; onClose?: () => void }) {
       <View pointerEvents="none" style={{ position: 'absolute', inset: 0 }}><Svg width="100%" height="100%"><Defs><RadialGradient id="welcomeGlow" cx="50%" cy="28%" r="65%"><Stop offset="0" stopColor={p.primary} stopOpacity={.13} /><Stop offset=".55" stopColor={p.accent} stopOpacity={.04} /><Stop offset="1" stopColor={p.bg} stopOpacity={0} /></RadialGradient></Defs><Rect width="100%" height="100%" fill="url(#welcomeGlow)" /></Svg></View>
       <View style={{ paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 52 }}>
         <Text style={{ color: p.primary, fontSize: 12, letterSpacing: 2, fontWeight: '700' }}>ON TRACK</Text>
-        <Pressable accessibilityRole="button" disabled={saving} onPress={() => { void finish(); }} style={{ minHeight: 44, justifyContent: 'center', paddingLeft: 16 }}><Text style={{ color: p.muted, fontSize: 15 }}>{replay ? 'Close' : 'Skip'}</Text></Pressable>
+        <Pressable accessibilityRole="button" disabled={saving} onFocus={() => setSkipFocused(true)} onBlur={() => setSkipFocused(false)} onPressIn={() => setSkipFocused(false)} onPress={() => { void finish(); }} style={({ pressed }) => ({ minHeight: 44, minWidth: 64, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 12, borderRadius: p.retro ? 0 : 12, borderWidth: 1, borderColor: skipFocused ? p.primary : 'transparent', backgroundColor: pressed ? p.tile : 'transparent', opacity: saving ? .5 : 1, ...(Platform.OS === 'web' ? { outlineWidth: 0 } : {}) })}><Text selectable={false} style={{ color: skipFocused ? p.primary : p.muted, fontSize: 15 }}>{replay ? 'Close' : 'Skip'}</Text></Pressable>
       </View>
       <ScrollView ref={pager} horizontal pagingEnabled showsHorizontalScrollIndicator={false} scrollEventThrottle={32} onScroll={event => { const next = Math.max(0, Math.min(4, Math.round(event.nativeEvent.contentOffset.x / width))); pageRef.current = next; setPage(next); }} style={{ flex: 1 }}>
         {titles.map((title, i) => {
@@ -72,7 +73,7 @@ function Tour({ replay, onClose }: { replay: boolean; onClose?: () => void }) {
               <Text accessibilityRole="header" style={{ color: p.text, fontSize: 28, fontWeight: '700', textAlign: 'center', lineHeight: 34 }}>{title}</Text>
               {i === 0 ? <>
                 {text('Small daily habits help your pet feel happy.')}
-                <View style={box}>{text('Its happiness follows your habits over 14 days.')}<Text style={{ color: p.primary, textAlign: 'center', fontSize: 13 }}>Weight changes don’t affect its mood.</Text></View>
+                <View style={box}>{text('Your pet’s happiness reflects your habits over the past 2 weeks—not day-to-day weight changes.')}</View>
               </> : null}
               {i === 1 ? <>
                 <View style={{ gap: 11 }}>{tasks.map(([label, copy]) => <View key={label} style={{ flexDirection: 'row', gap: 12 }}><View style={{ width: 22, height: 22, borderWidth: 1.5, borderColor: p.primary, borderRadius: p.retro ? 0 : 5, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: p.primary }}>✓</Text></View><View style={{ flex: 1, gap: 2 }}><Text style={{ color: p.text, fontSize: 15, fontWeight: '600' }}>{label}</Text><Text style={{ color: p.muted, fontSize: 13, lineHeight: 18 }}>{copy}</Text></View></View>)}</View>
