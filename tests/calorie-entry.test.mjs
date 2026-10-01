@@ -9,8 +9,8 @@ test('a saved total stays incomplete until logging is confirmed', () => {
   assert.equal(partial.days[date].calories, 1700);
   assert.equal(taskScore(partial, date).count, 0);
   const done = saveDailyCalories(partial, date, 1900, '1700', true);
-  assert.equal(taskScore(done, date).count, 1);
-  assert.equal(dailyTasks(done, date)[2].label, 'Calories');
+  assert.equal(taskScore(done, date).count, 2);
+  assert.equal(dailyTasks(done, date)[2].label, 'Calories logged');
   assert.equal(done.confirmations.length, 1);
 });
 test('over-target logs complete the task and retain the over-target result', () => {

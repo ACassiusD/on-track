@@ -1,4 +1,4 @@
-import { addDays, checks, emptyDay, score, trend, twoWeeks } from './model.ts';
+import { addDays, checks, emptyDay, trend, twoWeeks } from './model.ts';
 import { taskSummary } from './dailyTasks.ts';
 import type { DataSet, State } from './model.ts';
 export const TREND_COVERAGE = 4; // Display rule, not a persisted award or health assessment.
@@ -11,7 +11,7 @@ export function periodSummary(data: DataSet, today: string) {
   });
   const revisions = data.revisions.filter(r => r.date >= dates[0] && r.date <= today);
   const calorieDays = rows.filter(row => row.day.food === true && row.day.calories !== null);
-  return { dates, rows, totals, completeDays: rows.filter(row => score(row.day).count === 4).length, answeredDays: rows.filter(row => checks(row.day).every(c => c.value !== null)).length, revisionCount: revisions.length, revisedDays: new Set(revisions.map(r => r.date)).size, meanCompleteCalories: calorieDays.length ? calorieDays.reduce((sum,row) => sum + row.day.calories!,0)/calorieDays.length : null, completeCalorieDays: calorieDays.length };
+  return { dates, rows, totals, completeDays: taskSummary(data,today).completeDays, answeredDays: rows.filter(row => checks(row.day).every(c => c.value !== null)).length, revisionCount: revisions.length, revisedDays: new Set(revisions.map(r => r.date)).size, meanCompleteCalories: calorieDays.length ? calorieDays.reduce((sum,row) => sum + row.day.calories!,0)/calorieDays.length : null, completeCalorieDays: calorieDays.length };
 }
 export function milestoneProgress(data: DataSet, state: Pick<State,'mode'|'goal'|'milestones'>, today: string) {
   const current = trend(data.weights,today);
@@ -27,7 +27,7 @@ export function milestoneProgress(data: DataSet, state: Pick<State,'mode'|'goal'
 }
 export function shareSummary(data: DataSet, state: Pick<State,'mode'|'goal'|'milestones'>, today: string): string {
   const period=periodSummary(data,today); const tasks=taskSummary(data,today); const weight=milestoneProgress(data,state,today);
-  return `${state.mode==='demo'?'DEMO · ':''}ON TRACK · ${period.dates[0]} to ${today}\n${tasks.completeDays}/${period.dates.length} days with all four daily tasks complete\n${tasks.totals.map(t=>`${t.label}: ${t.done} done · ${t.known}/${t.days} reported`).join('\n')}\nWeight trend: ${weight.current.average===null?'No readings in the past seven days':`${weight.current.average.toFixed(1)} lb · ${weight.current.coverage}/7 days measured${weight.qualified?'':' · provisional'}`}\n${period.revisionCount} calorie corrections on ${period.revisedDays} days\nUnknown checks remain unknown. Photos are excluded.`;
+  return `${state.mode==='demo'?'DEMO · ':''}ON TRACK · ${period.dates[0]} to ${today}\n${tasks.completeDays}/${period.dates.length} days with all five daily tasks complete\n${tasks.totals.map(t=>`${t.label}: ${t.done} done · ${t.known}/${t.days} reported`).join('\n')}\nWeight trend: ${weight.current.average===null?'No readings in the past seven days':`${weight.current.average.toFixed(1)} lb · ${weight.current.coverage}/7 days measured${weight.qualified?'':' · provisional'}`}\n${period.revisionCount} calorie corrections on ${period.revisedDays} days\nUnknown checks remain unknown. Photos are excluded.`;
 }
 
 export type TrendRange = 7 | 14 | 28 | 30 | 90 | 180 | 365 | 'all';

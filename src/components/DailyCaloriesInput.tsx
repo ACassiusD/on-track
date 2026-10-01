@@ -32,6 +32,8 @@ function Entry({ date, onSaved, onCancel }: { date: string; onSaved: () => void;
       <View style={{ width: 24, height: 24, borderWidth: 2, borderColor: p.primary, backgroundColor: complete ? p.primary : 'transparent', borderRadius: p.retro ? 0 : 5, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: p.bg, fontWeight: '800', fontSize: 16 }}>{complete ? '✓' : ''}</Text></View>
       <Text style={{ flex: 1, color: p.text, fontSize: 16, fontWeight: '600' }}>{date === today ? 'Done logging today' : 'Done logging'}</Text>
     </Pressable>
+    <Label small>Finished logging earns one check. Finishing within target earns a second.</Label>
+    {day.target === null ? <Label small>Set a calorie target in Goals to earn the second check.</Label> : null}
     <View style={{ flexDirection: 'row', gap: 8 }}>{onCancel ? <View style={{ flex: 1 }}><Button title="Cancel" disabled={saving} onPress={onCancel} /></View> : null}<View style={{ flex: 1 }}><Button title={saving ? 'Saving…' : 'Save'} primary disabled={saving || !input.trim()} onPress={() => { void save(); }} /></View></View>
   </View>;
 }

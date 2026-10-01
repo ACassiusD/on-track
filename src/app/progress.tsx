@@ -65,14 +65,14 @@ export default function Progress() {
       <Details title="Logging details">
         <Label small>{period.dates[0]} → {today} · future days excluded</Label>
         {tasks.totals.map(t => <Label key={t.label} small>{t.label}: {t.known} reported · {t.unknown} unknown</Label>)}
-        <Label small>{tasks.completeDays}/{tasks.dates.length} days with all four tasks complete.</Label>
-        <Label small>A completed calorie log counts even when over target. Target consistency is reflected in your buddy’s mood.</Label>
+        <Label small>{tasks.completeDays}/{tasks.dates.length} days with all five tasks complete.</Label>
+        <Label small>Calories logged counts even over target. Within target is a separate automatic task, earned after logging is finished.</Label>
         <Label>{period.meanCompleteCalories === null ? '—' : Math.round(period.meanCompleteCalories).toLocaleString()} kcal average</Label>
         <Label small>From {period.completeCalorieDays} fully logged days; this is recorded intake.</Label>
         <Label small>{period.revisionCount} corrections across {period.revisedDays} days. Earlier confirmed totals stay in your history.</Label>
       </Details>
     </Card>
-    <Card><Details title="Day history">{period.rows.slice().reverse().map(({ date }) => <Pressable key={date} accessibilityRole="button" accessibilityLabel={`${date}, ${taskScore(data, date).count} of 4 tasks complete. Open day.`} onPress={() => router.push({ pathname: '/day', params: { date } })} style={{ minHeight: 44, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: p.line }}><Text style={{ color: p.text, fontSize: 14 }}>{date}</Text><Label small>{taskScore(data, date).count}/4 · {dailyTasks(data, date).filter(c => c.value === null).length} unknown</Label></Pressable>)}</Details></Card>
+    <Card><Details title="Day history">{period.rows.slice().reverse().map(({ date }) => <Pressable key={date} accessibilityRole="button" accessibilityLabel={`${date}, ${taskScore(data, date).count} of 5 tasks complete. Open day.`} onPress={() => router.push({ pathname: '/day', params: { date } })} style={{ minHeight: 44, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: p.line }}><Text style={{ color: p.text, fontSize: 14 }}>{date}</Text><Label small>{taskScore(data, date).count}/5 · {dailyTasks(data, date).filter(c => c.value === null).length} unknown</Label></Pressable>)}</Details></Card>
     <Button title="Share progress" onPress={() => setPreview(shareSummary(data, state, today))} />
     {preview !== null ? <Card><Label>Share preview</Label><Label small>{preview}</Label><Row><Button title="Cancel" onPress={() => setPreview(null)} /><Button title="Share" primary onPress={() => { void Share.share({ message: preview }).catch(() => Alert.alert('Could not open share sheet')); }} /></Row></Card> : null}
   </Screen>;
