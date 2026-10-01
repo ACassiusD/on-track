@@ -1,58 +1,64 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { addDays, emptyData, emptyDay, initialState, validateStored } from '../src/domain/model.ts';
+import { addDays, emptyData, emptyDay } from '../src/domain/model.ts';
 import { buddyStatus } from '../src/domain/buddy.ts';
 const today = '2026-09-30';
-function days(n, over = 0) { const data = emptyData(); for (let i = 0; i < n; i++) { const date = addDays(today, -i); data.days[date] = { ...emptyDay(date, 1700), food: true, calories: i < over ? 1900 : 1600 }; } return data; }
-test('buddy needs enough reported days and missing logs cannot earn a happy mood', () => { assert.equal(buddyStatus(emptyData(), today).mood, 'unknown'); assert.equal(buddyStatus(days(6), today).mood, 'unknown'); assert.equal(buddyStatus(days(7), today).mood, 'normal'); assert.equal(buddyStatus(days(10), today).mood, 'good'); });
-test('mood boundaries separate mixed from consistently within or over target', () => { assert.equal(buddyStatus(days(10,2), today).mood, 'good'); assert.equal(buddyStatus(days(10,3), today).mood, 'normal'); assert.equal(buddyStatus(days(10,5), today).mood, 'normal'); assert.equal(buddyStatus(days(10,6), today).mood, 'low'); });
-test('future, stale, unconfirmed and target-free data cannot inflate the mood', () => { const data = days(10); const old = addDays(today, -14); data.days[old] = { ...emptyDay(old,1700), food: true, calories: 1000 }; data.days[addDays(today,1)] = { ...emptyDay(addDays(today,1),1700), food: true, calories: 1000 }; data.days[today].food = null; data.days[addDays(today,-1)].target = null; const status = buddyStatus(data,today); assert.equal(status.logged,9); assert.equal(status.assessed,8); assert.equal(status.mood,'normal'); });
-test('rest days and one weight spike do not punish food consistency; arcade theme hydrates', () => { const data = days(10); Object.values(data.days).forEach(d => { d.workout = false; }); data.weights.push({date:today,pounds:190}); assert.equal(buddyStatus(data,today).mood,'good'); const state = initialState(today); state.theme = 'Arcade Pop'; assert.equal(validateStored(state).theme,'Arcade Pop'); });
-
-test('five moods have clear boundaries and thriving requires broad coverage', () => {
-  for (const [count, over, expected] of [[14,0,'thriving'],[14,1,'thriving'],[14,2,'good'],[12,1,'thriving'],[12,2,'good'],[11,0,'good'],[9,0,'normal'],[14,7,'normal'],[14,8,'low'],[14,9,'low'],[14,10,'bad'],[6,6,'unknown']]) {
-    assert.equal(buddyStatus(days(count,over),today).mood,expected, `${count} logged, ${over} over target`);
+function days(n, count=5) {
+  const data=emptyData();
+  for(let i=0;i<n;i++) {
+    const date=addDays(today,-i);
+    data.days[date]={...emptyDay(date,1700),workout:count>=1,creatine:count>=2,food:count>=3,calories:count>=3?count>=5?1600:1900:null};
+    if(count>=4)data.weights.push({id:date,date,pounds:175,source:{kind:'manual'}});
+  }
+  return data;
+}
+test('first use introduces the pet and its habits, rather than a calorie-only score',()=>{
+  const s=buddyStatus(emptyData(),today);
+  assert.equal(s.mood,'unknown');assert.equal(s.label,'Meet your pet');assert.equal(s.possible,0);
+  assert.match(s.hint,/happiness.*habits.*14 days.*today’s tasks/);
+});
+test('all five habits contribute equally and four checks usually mean happy',()=>{
+  for(const [count,mood] of [[1,'bad'],[2,'low'],[3,'normal'],[4,'good'],[5,'thriving']]) {
+    const s=buddyStatus(days(14,count),today);assert.equal(s.mood,mood);assert.equal(s.rate,count/5);
   }
 });
-test('one rough day cannot turn a thriving pet unhappy', () => {
-  assert.equal(buddyStatus(days(14,1),today).mood,'thriving');
-  assert.equal(buddyStatus(days(14,2),today).mood,'good');
+test('calorie-only consistency cannot earn happy while other habits are missing',()=>{
+  const data=days(14,0);for(const day of Object.values(data.days)){day.food=true;day.calories=1600;}
+  assert.equal(buddyStatus(data,today).mood,'low');
 });
-
-test('next-mood thresholds stay accurate while hints explain the blocker', () => {
-  const data = days(14,10);
-  data.days[today].calories = 1600;
-  data.days[addDays(today,-10)].calories = 1900;
-  const status = buddyStatus(data,today);
-  assert.equal(status.mood,'bad');
-  assert.equal(status.within,4);
-  assert.equal(status.nextMood,'low');
-  assert.equal(status.requiredWithin,5);
-  assert.equal(status.requiredLogs,14);
-  assert.match(status.hint,/logging consistently.*calorie target more often/);
-  assert.doesNotMatch(status.hint,/\d+\/\d+/);
-  assert.match(status.record,/4\/14 calorie logs on target/);
-  assert.equal(buddyStatus(days(10,6),today).requiredWithin,5);
-  assert.equal(buddyStatus(days(10,3),today).requiredWithin,8);
-  assert.equal(buddyStatus(days(14,2),today).requiredWithin,13);
+test('the pet learns before happy or thriving and does not count pre-start empty days',()=>{
+  assert.equal(buddyStatus(days(6),today).mood,'unknown');
+  assert.equal(buddyStatus(days(7),today).mood,'normal');
+  assert.equal(buddyStatus(days(10),today).mood,'good');
+  assert.equal(buddyStatus(days(12),today).mood,'thriving');
+  assert.equal(buddyStatus(days(1),today).possible,5);
 });
-test('coverage advice never promises happiness from a single extra log', () => {
-  const status = buddyStatus(days(7),today);
-  assert.equal(status.mood,'normal');
-  assert.equal(status.requiredLogs,10);
-  assert.equal(status.requiredWithin,8);
-  assert.match(status.hint,/on target.*keep logging daily.*Happy/);
-  assert.match(buddyStatus(days(6),today).hint,/Keep logging daily calories/);
-  const data=days(7);Object.values(data.days).forEach(d=>d.target=null);
-  assert.match(buddyStatus(data,today).hint,/Add a calorie target/);
-  assert.equal(buddyStatus(days(14),today).nextMood,null);
+test('future and stale activity do not inflate the mood; missed days after starting count',()=>{
+  const data=days(14);delete data.days[addDays(today,-5)];data.weights=data.weights.filter(w=>w.date!==addDays(today,-5));
+  const s=buddyStatus(data,today);assert.equal(s.possible,70);assert.equal(s.completed,65);
+  const future=days(1);future.days[addDays(today,1)]=future.days[today];delete future.days[today];future.weights[0].date=addDays(today,1);
+  assert.equal(buddyStatus(future,today).isNew,true);
+  future.weights[0].date=addDays(today,-14);assert.equal(buddyStatus(future,today).isNew,true);
 });
-
-test('tips address the real blocker even when other daily tasks are complete', () => {
-  const data=days(14,10);
-  for (const day of Object.values(data.days)) { day.workout=true; day.creatine=true; data.weights.push({date:day.date,pounds:175}); }
-  assert.match(buddyStatus(data,today).hint,/logging consistently.*calorie target more often/);
-  assert.match(buddyStatus(days(11),today).hint,/keep logging daily.*Thriving/);
-  assert.match(buddyStatus(days(14,2),today).hint,/calorie target more often.*Thriving/);
-  assert.match(buddyStatus(days(14),today).hint,/consistent.*keep taking great care/);
+test('an unfinished today does not lower the mood before the day is finished',()=>{
+  const data=days(14);const before=buddyStatus(data,today);
+  data.days[today]=emptyDay(today,1700);data.weights=data.weights.filter(w=>w.date!==today);
+  const s=buddyStatus(data,today);assert.equal(s.mood,before.mood);assert.equal(s.rate,1);assert.equal(s.assessedDays,13);assert.equal(s.todayPending,true);
+});
+test('one missed day preserves thriving; an over-target log still earns its own task',()=>{
+  const data=days(14);const missed=addDays(today,-1);delete data.days[missed];data.weights=data.weights.filter(w=>w.date!==missed);
+  assert.equal(buddyStatus(data,today).mood,'thriving');
+  data.days[today].calories=1900;assert.equal(buddyStatus(data,today).totals.find(t=>t.label==='Calories logged').done,13);
+  assert.equal(buddyStatus(data,today).totals.find(t=>t.label==='Within calorie target').done,12);
+});
+test('tips explain the weakest habit, including missing calorie targets',()=>{
+  const data=days(14);Object.values(data.days).forEach(d=>{d.calories=1900;});
+  assert.equal(buddyStatus(data,today).mood,'good');assert.match(buddyStatus(data,today).hint,/calorie target/);
+  Object.values(data.days).forEach(d=>{d.target=null;});assert.match(buddyStatus(data,today).hint,/Set a calorie target in Goals/);
+  const weight=days(14);weight.weights=[];assert.match(buddyStatus(weight,today).hint,/daily weight/);
+});
+test('weight values do not affect mood and duplicate readings earn one check',()=>{
+  const data=days(14);const before=buddyStatus(data,today);
+  data.weights.forEach(w=>w.pounds=300);data.weights.push({...data.weights[0],id:'extra',pounds:150});
+  assert.equal(buddyStatus(data,today).rate,before.rate);
 });

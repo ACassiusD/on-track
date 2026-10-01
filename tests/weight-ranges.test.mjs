@@ -13,11 +13,12 @@ test('range averages exclude old and future dates and count each measured day eq
   assert.equal(trend(data.weights,today,90).average,(172+180+190)/3);
 });
 test('populated demo profiles cover every requested window with believable weights',()=>{
-  for(const profile of ['good','mixed','bad']){
+  for(const profile of ['thriving','good','mixed','low','bad']){
     const state=selectDemoProfile(initialState(today),profile,today);
     for(const range of weightRanges){
-      assert.equal(trend(state.demo.weights,today,range.days).coverage,range.days);
-      assert.ok(trendSeries(state.demo,today,range.days).length>=range.days);
+      const expected = profile === 'bad' ? Math.ceil(range.days / 7) : profile === 'low' ? Math.ceil(range.days / 3) : range.days;
+      assert.equal(trend(state.demo.weights,today,range.days).coverage,expected);
+      assert.ok(trendSeries(state.demo,today,range.days).length>=expected);
     }
     assert.ok(state.demo.weights.every(w=>w.pounds>150&&w.pounds<205));
   }

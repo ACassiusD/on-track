@@ -32,17 +32,16 @@ export default function Progress() {
   return <Screen title="Progress">
     <Card>
       <ProgressBuddy featured />
-      {buddy.logged > 0 ? <Row><Label small>{buddy.logged}/14 days logged</Label>{buddy.assessed > 0 ? <Label small>{buddy.within}/{buddy.assessed} within target</Label> : null}</Row> : null}
-      <Details title="How your buddy feels">
-        <Label small>{buddy.from} → {today}</Label>
-        <Label small>Daily checks show completion. Your pet follows calorie-target consistency over 14 days; workouts, creatine, and weight entries don’t change its mood.</Label>
-        <Label small>Thriving: at least 12 days logged with a target, and at least 90% within it.</Label>
-        <Label small>Happy: at least 10 days logged with a target, and at least 80% within it.</Label>
-        <Label small>Doing okay: at least 7 reported days and at least half within target, while building toward Happy.</Label>
-        <Label small>Needs care: 35–49% within target across at least 7 reported days.</Label>
-        <Label small>Needs a boost: fewer than 35% within target across at least 7 reported days.</Label>
-        <Label small>Getting started: fewer than 7 days logged with a target.</Label>
-        <Label small>Missing logs, weight fluctuations, and rest days don’t count as calorie successes or failures.</Label>
+      {buddy.possible > 0 ? <Label small>{buddy.record}</Label> : null}
+      <Details title="How your pet feels">
+        <Label small>Every daily task counts equally: workout, creatine, logging calories, entering weight, and staying within your calorie target.</Label>
+        <Label small>Your pet reflects completed tasks over the past 14 days, starting with your first entry. Missed days count after you start; an unfinished today waits until you finish logging calories.</Label>
+        <Label small>Thriving: 90% or more complete, with at least 12 days of history.</Label>
+        <Label small>Happy: 80% or more complete, with at least 10 days of history.</Label>
+        <Label small>Doing okay: 50% or more complete, while building toward Happy.</Label>
+        <Label small>Needs care: 35–49% complete. Needs a boost: below 35%.</Label>
+        <Label small>Your pet gets to know your routine for the first 7 days.</Label>
+        <Label small>Logging over target still earns the logging check. Weight changes never affect happiness—only entering it does. This reflects your habits, not a medical health score.</Label>
       </Details>
     </Card>
     {data.weights.length ? (<Card>

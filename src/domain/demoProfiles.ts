@@ -9,9 +9,9 @@ export function selectDemoProfile(state: State, profile: DemoProfile, today: str
     for (let i=365; i>=0; i--) {
       const date = addDays(today,-i);
       const within = i % 14 < successful;
-      demo.days[date] = { ...emptyDay(date,1950), calories: within ? 1780+(i%3)*40 : 2200+(i%3)*70, food: true, workout: profile === 'good' || profile === 'thriving' ? i%7 !== 6 : profile === 'mixed' ? i%3 === 0 : i%7 === 0, creatine: profile === 'good' || profile === 'thriving' ? true : profile === 'mixed' ? i%3 !== 0 : i%4 === 0 };
+      demo.days[date] = { ...emptyDay(date,1950), calories: within ? 1780+(i%3)*40 : 2200+(i%3)*70, food: profile === 'bad' ? i%4 === 0 : profile === 'low' ? i%2 === 0 : true, workout: profile === 'good' ? i%3 === 0 : profile === 'thriving' ? i%7 !== 6 : profile === 'mixed' ? i%3 === 0 : i%7 === 0, creatine: profile === 'good' || profile === 'thriving' || profile === 'low' ? true : profile === 'mixed' ? i%3 !== 0 : i%4 === 0 };
     }
-    demo.weights = demo.weights.map((w, i) => { const ago = 365 - i; return { ...w, time: '14:00', pounds: Number((profile === 'good' || profile === 'thriving' ? 175.8 + ago * .055 + Math.sin(ago / 13) * .4 + Math.sin(ago) * .15 : profile === 'mixed' ? 175.5 + ago * .006 + Math.sin(ago / 17) * 1.1 + Math.sin(ago) * .3 : 178 - ago * .035 + Math.sin(ago / 15) * .6 + Math.sin(ago) * .2).toFixed(1)) }; });
+    demo.weights = demo.weights.filter(w => { const ago = Math.round((Date.parse(today) - Date.parse(w.date)) / 86400000); return profile === 'bad' ? ago % 7 === 0 : profile === 'low' ? ago % 3 === 0 : true; }).map(w => { const ago = Math.round((Date.parse(today) - Date.parse(w.date)) / 86400000); return { ...w, time: '14:00', pounds: Number((profile === 'good' || profile === 'thriving' ? 175.8 + ago * .055 + Math.sin(ago / 13) * .4 + Math.sin(ago) * .15 : profile === 'mixed' ? 175.5 + ago * .006 + Math.sin(ago / 17) * 1.1 + Math.sin(ago) * .3 : 178 - ago * .035 + Math.sin(ago / 15) * .6 + Math.sin(ago) * .2).toFixed(1)) }; });
   }
   return { ...state, mode: 'demo', demoProfile: profile, demo };
 }

@@ -65,8 +65,8 @@ export function ProgressBuddy({ featured = false, compact = false }: { featured?
       <Animated.Text pointerEvents="none" style={{ position: 'absolute', top: 0, right: 0, color: p.accent, fontSize: 18, opacity: reaction, transform: [{ translateY: reduceMotion ? 0 : reaction.interpolate({ inputRange: [0, 1], outputRange: [0, -5] }) }] }}>♥</Animated.Text>
     </Pressable>
     <Pressable accessibilityRole="button" accessibilityLabel={`${status.label}. ${status.record}. ${status.hint} View details.`} onPress={() => router.push('/progress')} style={{ flex: featured ? 1 : undefined, flexShrink: 1, gap: featured ? 3 : 0, minHeight: 44, justifyContent: 'center' }}>
-      <Text style={{ color, fontSize: featured ? 23 : 13, fontWeight: '700' }}>{status.label}</Text>
-      <Text style={{ color: p.text, fontSize: featured ? 12 : 10 }}>{featured ? hint : '14 days'}</Text>
+      <Text style={{ color, fontSize: featured ? status.mood === 'unknown' ? 21 : 23 : 13, fontWeight: '700' }}>{status.label}</Text>
+      <Text style={{ color: p.text, fontSize: featured ? 13 : 10, lineHeight: featured ? 18 : 14 }}>{featured ? hint : '14-day habits'}</Text>{featured && !status.isNew ? <Text style={{ color: p.muted, fontSize: 11, marginTop: 2 }}>Happiness · past 14 days</Text> : null}
     </Pressable>
   </View>;
 }
