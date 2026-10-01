@@ -16,7 +16,7 @@ export function parseDate(s: string): Date { const [y, m, d] = s.split('-').map(
 export function addDays(s: string, n: number): string { const d = parseDate(s); d.setDate(d.getDate() + n); return localDate(d); }
 export function twoWeeks(today: string): string[] { const weekday = (parseDate(today).getDay() + 6) % 7; const start = addDays(today, -weekday - 7); return Array.from({ length: 14 }, (_, i) => addDays(start, i)); }
 export function withinTarget(day: DailyRecord): Answer { if (day.calories == null || day.target == null) return null; if (day.calories > day.target) return false; return day.food === true ? true : null; }
-export function checks(day: DailyRecord): { label: string; value: Answer }[] { return [{ label: 'Workout', value: day.workout }, { label: 'Creatine', value: day.creatine }, { label: 'Food fully logged', value: day.food }, { label: 'Within calorie target', value: withinTarget(day) }]; }
+export function checks(day: DailyRecord): { label: string; value: Answer }[] { return [{ label: 'Workout', value: day.workout }, { label: 'Creatine', value: day.creatine }, { label: 'Food fully logged', value: day.food }, { label: 'Calories within target', value: withinTarget(day) }]; }
 export function score(day: DailyRecord): { count: number; tone: 'green' | 'yellow' | 'red' | 'grey' } { const values = checks(day).map(c => c.value); const count = values.filter(v => v === true).length; return { count, tone: count === 4 ? 'green' : count > 0 ? 'yellow' : values.every(v => v !== null) ? 'red' : 'grey' }; }
 export function timezone(): string { return Intl.DateTimeFormat().resolvedOptions().timeZone; }
 export function manualSource(): Source { return { kind: 'manual', id: makeId(), observedAt: new Date().toISOString(), timezone: timezone() }; }

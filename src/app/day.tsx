@@ -17,7 +17,7 @@ export default function Day() {
     <Card>
       <Label big>{taskScore(data,date).count}/5</Label>
       {dailyTasks(data,date).map(c => <Row key={c.label}><Label>{c.label}</Label><Label>{c.value === null ? 'Unknown' : c.value ? 'Yes ✓' : 'No'}</Label></Row>)}
-      <Label small>{date > today ? 'Future day. No checks required yet.' : 'Calories logged and Within target are separate checks. Within target completes automatically after logging is finished.'}</Label>
+      <Label small>{date > today ? 'Future day. No checks required yet.' : 'Calories logged and Calories within target are separate checks. The target check is automatic after logging is finished.'}</Label>
     </Card>
     {date <= today ? <Card>
       <Label>Edit this day</Label>

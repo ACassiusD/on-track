@@ -7,7 +7,7 @@ export function dailyTasks(data: DataSet, date: string) {
     { label: 'Creatine', value: day.creatine },
     { label: 'Calories logged', value: day.calories !== null ? day.food : null },
     { label: 'Weight entered', value: data.weights.some(w => w.date === date) ? true : null },
-    { label: 'Within calorie target', value: day.food === true && day.calories !== null ? withinTarget(day) : null },
+    { label: 'Calories within target', value: day.food === true && day.calories !== null ? withinTarget(day) : null },
   ];
 }
 export function taskScore(data: DataSet, date: string) {

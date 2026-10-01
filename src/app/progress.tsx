@@ -67,7 +67,7 @@ export default function Progress() {
         <Label small>{period.dates[0]} → {today} · future days excluded</Label>
         {tasks.totals.map(t => <Label key={t.label} small>{t.label}: {t.known} reported · {t.unknown} unknown</Label>)}
         <Label small>{tasks.completeDays}/{tasks.dates.length} days with all five tasks complete.</Label>
-        <Label small>Calories logged counts even over target. Within target is a separate automatic task, earned after logging is finished.</Label>
+        <Label small>Calories logged counts even over target. Calories within target is a separate automatic task, earned after logging is finished.</Label>
         <Label>{period.meanCompleteCalories === null ? '—' : Math.round(period.meanCompleteCalories).toLocaleString()} kcal average</Label>
         <Label small>From {period.completeCalorieDays} fully logged days; this is recorded intake.</Label>
         <Label small>{period.revisionCount} corrections across {period.revisedDays} days. Earlier confirmed totals stay in your history.</Label>

@@ -38,7 +38,7 @@ function PetDetails({ onClose }: { onClose: () => void }) {
           <View style={{ gap: 4, alignItems: 'center' }}>
             <ProgressBuddy artworkOnly sizeOverride={height < 700 ? 132 : 174} />
             <Text style={{ color, fontSize: 25, fontWeight: '700', textAlign: 'center' }}>{status.label}</Text>
-            <Text style={{ color: p.muted, fontSize: 12 }}>Tap your pet to give it some love ♥</Text>
+            <Text style={{ color: p.muted, fontSize: 12 }}>Tap to pet ♥</Text>
           </View>
           <Text style={{ color: p.text, fontSize: 14, lineHeight: 21, textAlign: 'center' }}>{status.reason}</Text>
           <View style={{ flexDirection: 'row', gap: 10 }}>

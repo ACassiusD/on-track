@@ -4,25 +4,26 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { useApp } from '../store/AppStore';
-import type { BuddyMood } from '../domain/buddy';
+import type { ExampleMood } from '../domain/petExamples';
+import { MoodExampleCalendar } from './MoodExampleCalendar';
 import { BuddyArtwork } from './BuddyArtwork';
 import { ProgressBuddy } from './ProgressBuddy';
 import { Button } from './UI';
 
-const moods: { mood: BuddyMood; label: string; copy: string }[] = [
-  { mood: 'thriving', label: 'Thriving', copy: 'At least 90% of daily tasks complete, with 12 days of history. Happy hops, sparkles and little hearts.' },
-  { mood: 'good', label: 'Happy', copy: 'At least 80% complete—about 4 out of 5 each day—with 10 days of history. A bright smile and a playful bounce.' },
-  { mood: 'normal', label: 'Doing okay', copy: 'At least half complete while building toward Happy. A small smile and a gentle sway.' },
-  { mood: 'low', label: 'Needs care', copy: '35–49% complete. Your pet looks a little sleepy. A steadier routine helps it perk up.' },
-  { mood: 'bad', label: 'Needs a boost', copy: 'Below 35% complete. Your pet feels low. Start with a small daily win and build from there.' },
+const moods: { mood: ExampleMood; label: string; copy: string }[] = [
+  { mood: 'thriving', label: 'Thriving', copy: 'Thriving: 90%+ checks over at least 12 days.' },
+  { mood: 'good', label: 'Happy', copy: 'Happy: 80%+ checks over at least 10 days.' },
+  { mood: 'normal', label: 'Doing okay', copy: 'Doing okay: 50%+ checks while building toward Happy.' },
+  { mood: 'low', label: 'Needs care', copy: 'Needs care: 35–49% of checks complete.' },
+  { mood: 'bad', label: 'Needs a boost', copy: 'Needs a boost: fewer than 35% complete.' },
 ];
 const titles = ['Meet your habit buddy', 'Five small daily wins', 'Watch your pet thrive', 'Missed days happen', 'Make it your routine'];
 const tasks = [
-  ['Workout', 'Check it off when you finish.'],
-  ['Creatine', 'Check it off after taking it.'],
-  ['Calories logged', 'Enter your full-day total and mark done logging.'],
-  ['Weight', 'Add today’s weigh-in in your preferred units.'],
-  ['Within target', 'Earned automatically when your finished total is within your calorie target.'],
+  ['Workout', 'Check off after your workout.'],
+  ['Creatine', 'Check off after taking it.'],
+  ['Calories logged', 'Enter your total + mark done logging.'],
+  ['Weight', 'Add today’s weigh-in.'],
+  ['Calories within target', 'Automatic when your finished total is within target.'],
 ];
 export function WelcomeTour({ replay = false, onClose }: { replay?: boolean; onClose?: () => void }) {
   const { state, ready } = useApp();
@@ -35,7 +36,7 @@ function Tour({ replay, onClose }: { replay: boolean; onClose?: () => void }) {
   const pager = useRef<ScrollView>(null);
   const pageRef = useRef(0);
   const [page, setPage] = useState(0);
-  const [mood, setMood] = useState<BuddyMood>('thriving');
+  const [mood, setMood] = useState<ExampleMood>('thriving');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const lesson = moods.find(m => m.mood === mood)!;
@@ -67,31 +68,32 @@ function Tour({ replay, onClose }: { replay: boolean; onClose?: () => void }) {
           return <View key={title} style={{ width, height: '100%', flexShrink: 0 }} accessibilityElementsHidden={page !== i} importantForAccessibility={page === i ? 'auto' : 'no-hide-descendants'}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 28, paddingVertical: 16, gap: 14, maxWidth: 500, width: '100%', alignSelf: 'center' }}>
               <View style={{ alignItems: 'center' }}>{page === i ? <ProgressBuddy artworkOnly previewMood={previewMood} sizeOverride={i === 2 ? Math.min(size, 132) : size} /> : <BuddyArtwork palette={p} mood={previewMood} size={i === 2 ? Math.min(size, 132) : size} />}</View>
+              <Text style={{ color: p.primary, fontSize: 12, textAlign: 'center', marginTop: -10 }}>Tap to pet ♥</Text>
               <Text accessibilityRole="header" style={{ color: p.text, fontSize: 28, fontWeight: '700', textAlign: 'center', lineHeight: 34 }}>{title}</Text>
               {i === 0 ? <>
-                {text('Build your routine. Care for your pet. A few small actions each day help you both feel on track.')}
-                <View style={box}>{text('Its happiness reflects your daily habits over the past 14 days—not the number on the scale.')}<Text style={{ color: p.primary, textAlign: 'center', fontSize: 13 }}>Tap your pet to say hello ♥</Text></View>
+                {text('Small daily habits help your pet feel happy.')}
+                <View style={box}>{text('Its happiness follows your habits over 14 days.')}<Text style={{ color: p.primary, textAlign: 'center', fontSize: 13 }}>Weight changes don’t affect its mood.</Text></View>
               </> : null}
               {i === 1 ? <>
                 <View style={{ gap: 11 }}>{tasks.map(([label, copy]) => <View key={label} style={{ flexDirection: 'row', gap: 12 }}><View style={{ width: 22, height: 22, borderWidth: 1.5, borderColor: p.primary, borderRadius: p.retro ? 0 : 5, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: p.primary }}>✓</Text></View><View style={{ flex: 1, gap: 2 }}><Text style={{ color: p.text, fontSize: 15, fontWeight: '600' }}>{label}</Text><Text style={{ color: p.muted, fontSize: 13, lineHeight: 18 }}>{copy}</Text></View></View>)}</View>
-                {text('Over target? Logging still earns a check. Staying within target is a separate win.')}
+                {text('Logging still counts—even over target.')}
               </> : null}
               {i === 2 ? <>
-                {text('All five tasks count equally. Tap a mood to see how your pet shows your progress.')}
+                {text('Choose a mood. See the habits behind it.')}
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 6 }}>{moods.map(m => <Button key={m.mood} title={m.label} selected={mood === m.mood} onPress={() => setMood(m.mood)} />)}</View>
-                <View style={box}><Text accessibilityLiveRegion="polite" style={{ color: p.text, textAlign: 'center', fontSize: 14, lineHeight: 21 }}>{lesson.copy}</Text></View>
-                <Text style={{ color: p.muted, fontSize: 12, lineHeight: 18, textAlign: 'center' }}>Your pet gets to know your routine for the first 7 days. These are previews, not your current score.</Text>
+                <MoodExampleCalendar mood={mood} rule={lesson.copy} />
+                <Text style={{ color: p.muted, fontSize: 12, lineHeight: 18, textAlign: 'center' }}>Preview only · Your pet learns your first 7 days.</Text>
               </> : null}
               {i === 3 ? <>
-                {text('One rough day doesn’t undo your progress. Your pet responds to your routine over time.')}
-                <View style={box}><Text style={{ color: p.text, fontSize: 15, lineHeight: 23 }}>• Missing tasks regularly makes its mood quieter.\n• Follow the tip beside your pet to find your next small win.\n• Your unfinished today won’t lower its mood while you’re still logging.</Text></View>
-                {text('Need to fix yesterday? Tap its calendar date. Only add a missed weight if you actually recorded it.')}
+                {text('One rough day doesn’t undo your progress.')}
+                <View style={box}>{['Follow your pet’s tip for a small win.', 'Tap a calendar date to fix a past log.'].map((copy,i)=><View key={copy} style={{ flexDirection: 'row', gap: 10, alignItems: 'center', paddingVertical: 3 }}><Text style={{ color: p.primary, fontSize: 20 }}>{i === 0 ? '↗' : '↶'}</Text><Text style={{ flex: 1, color: p.text, fontSize: 14, lineHeight: 20 }}>{copy}</Text></View>)}</View>
+                {text('Only add missed weights you actually recorded.')}
               </> : null}
               {i === 4 ? <>
-                {text('Start with your calorie target, then take today one task at a time. No account needed.')}
-                <View style={box}><Text style={{ color: p.text, fontSize: 15, lineHeight: 23 }}>See your weight trend and milestones as you log. Settings has your goals, units, themes and optional reminders.</Text></View>
+                {text('Set a calorie target. Start with today’s tasks.')}
+                <View style={box}><Text style={{ color: p.text, fontSize: 15, lineHeight: 23 }}>Goals, units, themes and reminders live in Settings.</Text></View>
                 <Button title="Set my calorie target" onPress={() => { void finish(true); }} disabled={saving} />
-                <Text style={{ color: p.muted, fontSize: 12, textAlign: 'center' }}>You can replay this guide from Settings anytime.</Text>
+                <Text style={{ color: p.muted, fontSize: 12, textAlign: 'center' }}>No account needed. Replay this guide in Settings.</Text>
               </> : null}
             </ScrollView>
           </View>;

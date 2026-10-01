@@ -49,7 +49,7 @@ test('one missed day preserves thriving; an over-target log still earns its own 
   const data=days(14);const missed=addDays(today,-1);delete data.days[missed];data.weights=data.weights.filter(w=>w.date!==missed);
   assert.equal(buddyStatus(data,today).mood,'thriving');
   data.days[today].calories=1900;assert.equal(buddyStatus(data,today).totals.find(t=>t.label==='Calories logged').done,13);
-  assert.equal(buddyStatus(data,today).totals.find(t=>t.label==='Within calorie target').done,12);
+  assert.equal(buddyStatus(data,today).totals.find(t=>t.label==='Calories within target').done,12);
 });
 test('tips explain the weakest habit, including missing calorie targets',()=>{
   const data=days(14);Object.values(data.days).forEach(d=>{d.calories=1900;});
