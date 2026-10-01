@@ -1,3 +1,5 @@
+import { parseWeightInput, formatWeight } from './weightUnits.ts';
+import type { WeightUnit } from './weightUnits.ts';
 import { localDate, makeId, manualSource, parseDate, upsertWeight } from './model.ts';
 import type { DataSet } from './model.ts';
 export function saveManualWeight(data: DataSet, date: string, pounds: number, time: string, today: string): DataSet {
@@ -12,4 +14,10 @@ export function saveManualWeight(data: DataSet, date: string, pounds: number, ti
 
 export function clearManualWeight(data: DataSet, date: string): DataSet {
   return { ...data, weights: data.weights.filter(w => w.date !== date || w.source.kind !== 'manual') };
+}
+
+export function saveManualWeightInUnit(data: DataSet, date: string, input: string, time: string, today: string, unit: WeightUnit): DataSet {
+  const pounds = parseWeightInput(input, unit);
+  if (pounds < 50 || pounds > 1000) throw new Error(`Enter weight between ${formatWeight(50, unit)} and ${formatWeight(1000, unit)} ${unit}. Check for a missing decimal.`);
+  return saveManualWeight(data, date, pounds, time, today);
 }

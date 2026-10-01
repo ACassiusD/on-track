@@ -7,6 +7,7 @@ import { milestoneProgress, periodSummary, shareSummary, TREND_COVERAGE, TrendRa
 import { Button, Card, Label, Row, Screen } from '../components/UI';
 import { ProgressBuddy } from '../components/ProgressBuddy';
 import { buddyStatus } from '../domain/buddy';
+import { formatWeight } from '../domain/weightUnits';
 import { WeightChart } from '../components/WeightChart';
 
 function Details({ title, children }: { title: string; children: React.ReactNode }) {
@@ -21,6 +22,7 @@ function Details({ title, children }: { title: string; children: React.ReactNode
 }
 export default function Progress() {
   const { data, state, today, palette: p } = useApp();
+  const unit = state.weightUnit ?? 'lb';
   const [range, setRange] = useState<TrendRange>(28);
   const [preview, setPreview] = useState<string | null>(null);
   const buddy = buddyStatus(data, today);
@@ -45,17 +47,17 @@ export default function Progress() {
     </Card>
     {data.weights.length ? (<Card>
       <Row><Label>Weight trend</Label><Button title="Weigh-ins" onPress={() => router.push('/weight')} /></Row>
-      <Row><Label big>{weight.current.average?.toFixed(1) ?? '—'}<Label small> lb</Label></Label><View style={{ gap: 3 }}><Label small>7-day average</Label><Label small>{weight.current.coverage}/7 days measured</Label></View></Row>
+      <Row><Label big>{weight.current.average === null ? '—' : formatWeight(weight.current.average, unit)}<Label small> {unit}</Label></Label><View style={{ gap: 3 }}><Label small>7-day average</Label><Label small>{weight.current.coverage}/7 days measured</Label></View></Row>
       <View accessibilityLabel="Chart range" style={{ flexDirection: 'row', backgroundColor: p.bg, borderRadius: p.retro ? 0 : 8, padding: 3, gap: 3 }}>
         {([28, 90, 'all'] as const).map(r => <Pressable key={r} accessibilityRole="button" accessibilityState={{ selected: range === r }} onPress={() => setRange(r)} style={{ flex: 1, minHeight: 38, justifyContent: 'center', alignItems: 'center', borderRadius: p.retro ? 0 : 6, backgroundColor: range === r ? p.primary : 'transparent' }}><Text style={{ color: range === r ? p.bg : p.muted, fontSize: 13, fontWeight: '600' }}>{r === 'all' ? 'All time' : `${r} days`}</Text></Pressable>)}
       </View>
       <WeightChart range={range} />
-      {weight.fraction !== null ? <><Row><Label small>{Math.round(weight.fraction * 100)}% to goal</Label><Label small>{weight.goal} lb</Label></Row><View style={{ height: 6, backgroundColor: p.grey, borderRadius: 4, overflow: 'hidden' }}><View style={{ height: 6, width: `${weight.fraction * 100}%`, backgroundColor: p.primary }} /></View></> : weight.next !== null ? <Label small>Next checkpoint: {weight.next} lb</Label> : null}
+      {weight.fraction !== null ? <><Row><Label small>{Math.round(weight.fraction * 100)}% to goal</Label><Label small>{formatWeight(weight.goal!, unit)} {unit}</Label></Row><View style={{ height: 6, backgroundColor: p.grey, borderRadius: 4, overflow: 'hidden' }}><View style={{ height: 6, width: `${weight.fraction * 100}%`, backgroundColor: p.primary }} /></View></> : weight.next !== null ? <Label small>Next checkpoint: {formatWeight(weight.next, unit)} {unit}</Label> : null}
       <Details title="Goals & trend details">
         <Label small>7-day averages; gaps over seven days stay disconnected.</Label>
         <Label small>{weight.qualified ? 'Enough readings for a measured trend.' : `Early estimate. Record at least ${TREND_COVERAGE} days in a seven-day window for a measured trend.`}</Label>
-        {weight.baseline !== null ? <Label small>Baseline: {weight.baseline.toFixed(1)} lb · {weight.baselineDate}</Label> : <Label small>Set a goal and keep weighing in to establish a baseline.</Label>}
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>{weight.milestones.map(n => <Text key={n} style={{ paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, backgroundColor: p.grey, color: weight.reached.includes(n) ? p.primary : p.text, fontSize: 14 }}>{weight.reached.includes(n) ? '✓ ' : ''}{n} lb</Text>)}</View>
+        {weight.baseline !== null ? <Label small>Baseline: {formatWeight(weight.baseline, unit)} {unit} · {weight.baselineDate}</Label> : <Label small>Set a goal and keep weighing in to establish a baseline.</Label>}
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>{weight.milestones.map(n => <Text key={n} style={{ paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, backgroundColor: p.grey, color: weight.reached.includes(n) ? p.primary : p.text, fontSize: 14 }}>{weight.reached.includes(n) ? '✓ ' : ''}{formatWeight(n, unit)} {unit}</Text>)}</View>
         <Label small>Checkpoints require at least {TREND_COVERAGE}/7 measured days. Estimates stay provisional below that; checkpoints are not permanent awards.</Label>
       </Details>
     </Card>) : <Card><Row><Label>Weight</Label><Button title="Add weight" primary onPress={() => router.push('/weight')} /></Row><Label small>Your trend starts with your first weigh-in.</Label></Card>}

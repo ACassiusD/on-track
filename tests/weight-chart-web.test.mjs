@@ -29,11 +29,13 @@ const {themes}=require(root+'/src/components/themes.ts');
 const initial=initialState('2026-09-30');
 const errors=[];const previous=console.error;console.error=(...args)=>errors.push(args.join(' '));
 const single = { ...initial.real, weights: initial.demo.weights.filter(w => w.date === '2026-09-30') };
-for(const data of [initial.real,initial.demo,single]){
- state={data,today:'2026-09-30',palette:themes['Default']};
+for(const unit of ['lb','kg']) for(const data of [initial.real,initial.demo,single]){
+ state={state:{weightUnit:unit},data,today:'2026-09-30',palette:themes['Default']};
  const html=renderToStaticMarkup(React.createElement(WeightChart));
  if(!html.includes('role="img"'))throw Error('Chart image semantics missing');
  if(data.weights.length && !html.includes('<svg'))throw Error('Populated chart missing SVG');
+ if(data.weights.length && !html.includes(`weight trend in ${unit}`))throw Error('Chart unit label missing');
+ if(data === single && unit === 'kg' && !html.includes((single.weights[0].pounds*.45359237-.2).toFixed(1)))throw Error('Kilogram axis values were not converted');
  if(!data.weights.length && html.includes('<svg'))throw Error('Empty chart should show a simple prompt instead of placeholder axes');
  if(/<svg[^>]*accessible=/.test(html))throw Error('Native accessible prop leaked onto SVG');
  if(data === single && (!/d="M36,([\d.]+) L314,\1"/.test(html) || html.includes('First reading saved') || html.includes('09-03'))) throw Error('First weigh-in must show a flat single-day baseline without extra text or dates');

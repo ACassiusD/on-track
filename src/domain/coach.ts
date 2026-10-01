@@ -1,3 +1,5 @@
+import { formatWeight } from './weightUnits.ts';
+import type { WeightUnit } from './weightUnits.ts';
 import { addDays, emptyDay, checks, trend, twoWeeks } from './model.ts';
 import type { DataSet } from './model.ts';
 
@@ -33,18 +35,18 @@ export function nextAction(facts: ReviewFacts): string {
   if (facts.foodUnconfirmed) return 'Enter your current calorie total, then check whether anything is missing.';
   return 'Keep tonight’s food check at the same time. Correct the total if you eat afterward.';
 }
-export function reviewText(facts: ReviewFacts): string {
+export function reviewText(facts: ReviewFacts, unit: WeightUnit = 'lb'): string {
   return [
     `${facts.from}–${facts.through} (${facts.elapsedDays} elapsed days)`,
     `Food fully logged: ${facts.foodComplete}. Unconfirmed: ${facts.foodUnconfirmed}.`,
     `Within target: ${facts.withinTarget}. Over target: ${facts.overTarget}. Unknown: ${facts.unknownTarget}.`,
     `Workout completed: ${facts.workouts}. Creatine taken: ${facts.creatine}.`,
     `Corrections: ${facts.revisions} across ${facts.revisedDays} days. Corrections retain honest history.`,
-    facts.trend == null ? 'Weight trend: no readings.' : `Weight trend: ${facts.trend.toFixed(1)} lb from ${facts.measuredDays}/7 measurement days.`,
+    facts.trend == null ? 'Weight trend: no readings.' : `Weight trend: ${formatWeight(facts.trend, unit)} ${unit} from ${facts.measuredDays}/7 measurement days.`,
     `Next action: ${nextAction(facts)}`,
   ].join('\n');
 }
-export function chatGPTPrompt(facts: ReviewFacts): string {
-  return `Help me follow through on food logging and stay motivated. Use only the facts below. Unknown means unreported, not overeating. Do not shame me, diagnose me, prescribe a calorie target, or punish corrections. Give one short observation and one concrete evening action.\n\n${reviewText(facts)}`;
+export function chatGPTPrompt(facts: ReviewFacts, unit: WeightUnit = 'lb'): string {
+  return `Help me follow through on food logging and stay motivated. Use only the facts below. Unknown means unreported, not overeating. Do not shame me, diagnose me, prescribe a calorie target, or punish corrections. Give one short observation and one concrete evening action.\n\n${reviewText(facts, unit)}`;
 }
 export function recentReviewDate(today: string): string { return addDays(today, -6); }
