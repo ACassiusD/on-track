@@ -62,3 +62,18 @@ test('weight values do not affect mood and duplicate readings earn one check',()
   data.weights.forEach(w=>w.pounds=300);data.weights.push({...data.weights[0],id:'extra',pounds:150});
   assert.equal(buddyStatus(data,today).rate,before.rate);
 });
+
+test('pet reasons explain learning and coverage gates even with perfect habits',()=>{
+  assert.match(buddyStatus(emptyData(),today).reason,/five daily habits/);
+  assert.match(buddyStatus(days(3),today).reason,/3 of the first 7 days/);
+  assert.match(buddyStatus(days(7),today).reason,/100%.*Happy needs at least 10 days/);
+  assert.match(buddyStatus(days(11),today).reason,/100%.*Thriving needs at least 12 days/);
+  assert.match(buddyStatus(days(14),today).reason,/steady routine.*thrive/);
+});
+test('displayed percentages do not round a lower mood up to its next threshold',()=>{
+  const data=days(11,4);
+  data.days[today].creatine=false;
+  const status=buddyStatus(data,today);
+  assert.equal(status.mood,'normal');
+  assert.match(status.reason,/78%/);
+});

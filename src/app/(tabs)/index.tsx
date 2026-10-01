@@ -11,7 +11,7 @@ import { Button, Card, Label, Row, Screen } from '../../components/UI';
 import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
 import { DailyCaloriesInput } from '../../components/DailyCaloriesInput';
 import { DailyWeightInput } from '../../components/DailyWeightInput';
-import { ProgressBuddy } from '../../components/ProgressBuddy';
+import { HomeBuddy } from '../../components/HomeBuddy';
 import { formatWeight } from '../../domain/weightUnits';
 import { WeightChart } from '../../components/WeightChart';
 export default function Dashboard() {
@@ -32,7 +32,7 @@ export default function Dashboard() {
   const weightDone = data.weights.some(w => w.date === today);
   const withinDone = dailyTasks(data, today)[4].value === true;
   return <Screen title="" back={false} compact>
-    <ProgressBuddy featured compact />
+    <HomeBuddy />
     <View accessibilityLabel="Daily tasks" style={{ flexDirection: 'row', gap: 5 }}>
       {(['workout', 'creatine', 'food', 'weight', 'within'] as const).map(key => {
         const done = key === 'within' ? withinDone : key === 'weight' ? weightDone : key === 'food' ? day.food === true && day.calories !== null : day[key] === true;
