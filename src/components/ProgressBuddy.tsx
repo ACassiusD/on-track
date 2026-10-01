@@ -59,7 +59,7 @@ export function ProgressBuddy({ featured = false, compact = false, previewMood, 
     reactionTimer.current = setTimeout(() => setDelighted(false), 1300);
   };
   const color = status.mood === 'thriving' ? p.primary : status.mood === 'good' ? p.green : status.mood === 'bad' ? p.red : status.mood === 'low' || status.mood === 'normal' ? p.yellow : p.accent;
-  const hint = status.hint;
+  const summary = status.isNew ? 'Its happiness reflects your daily habits. Start with today’s tasks.' : `${Math.floor(status.rate * 100)}% of tasks completed over ${status.assessedDays} ${status.assessedDays === 1 ? 'day' : 'days'}.`;
   const size = sizeOverride ?? (featured ? 86 : 48);
   return <View style={artworkOnly ? { alignItems: 'center', justifyContent: 'center', minHeight: size + 32 } : { flexDirection: 'row', alignItems: 'center', gap: featured ? 12 : 5, minHeight: featured ? compact ? 94 : 98 : 48, ...(featured ? { paddingHorizontal: 8, ...(p.fantasy ? { backgroundColor: p.tile, borderRadius: 16, borderWidth: 1, borderColor: p.line, paddingVertical: 4 } : { borderBottomWidth: 1, borderBottomColor: p.line }) } : {}) }}>
     <Pressable accessibilityRole="button" accessibilityLabel={onInspect ? "Open your pet" : "Pet your buddy"} accessibilityHint={onInspect ? "See a larger pet, its mood, your habits and next milestone." : "Shows a playful reaction. Your progress score stays the same."} onPress={onInspect ?? pet} style={{ minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center' }}>
@@ -68,9 +68,9 @@ export function ProgressBuddy({ featured = false, compact = false, previewMood, 
       <BuddyEffects mood={taskReaction || delighted ? 'thriving' : status.mood} palette={p} size={size} reduceMotion={reduceMotion} />
       <Animated.Text pointerEvents="none" style={{ position: 'absolute', top: 0, right: 0, color: p.accent, fontSize: 18, opacity: reaction, transform: [{ translateY: reduceMotion ? 0 : reaction.interpolate({ inputRange: [0, 1], outputRange: [0, -5] }) }] }}>♥</Animated.Text>
     </Pressable>
-    {!artworkOnly ? <Pressable accessibilityRole="button" accessibilityLabel={`${status.label}. ${status.record}. ${status.hint} View details.`} onPress={onInspect ?? (() => router.push('/progress'))} style={{ flex: featured ? 1 : undefined, flexShrink: 1, gap: featured ? 3 : 0, minHeight: 44, justifyContent: 'center' }}>
+    {!artworkOnly ? <Pressable accessibilityRole="button" accessibilityLabel={`${status.label}. ${summary} View details.`} onPress={onInspect ?? (() => router.push('/progress'))} style={{ flex: featured ? 1 : undefined, flexShrink: 1, gap: featured ? 3 : 0, minHeight: 44, justifyContent: 'center' }}>
       <Text accessibilityLiveRegion="polite" style={{ color: taskReaction ? p.primary : color, fontSize: featured ? status.mood === 'unknown' ? 21 : 23 : 13, fontWeight: '700' }}>{taskReaction ? taskReactionCopy[taskReaction].title : status.label}</Text>
-      <Text style={{ color: p.text, fontSize: featured ? 13 : 10, lineHeight: featured ? 18 : 14 }}>{taskReaction ? taskReactionCopy[taskReaction].caption : featured ? hint : '14-day habits'}</Text>{featured && !status.isNew ? <Text style={{ color: p.muted, fontSize: 11, marginTop: 2 }}>Happiness · past 14 days</Text> : null}
+      <Text style={{ color: p.text, fontSize: featured ? 13 : 10, lineHeight: featured ? 18 : 14 }}>{taskReaction ? taskReactionCopy[taskReaction].caption : summary}</Text>
     </Pressable> : null}
   </View>;
 }
