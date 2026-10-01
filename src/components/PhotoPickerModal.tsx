@@ -14,6 +14,7 @@ export function PhotoPickerModal({ kind, today, date, photos, selectedId, onDate
   onDate: (date: string) => void; onPhoto: (id: string) => void; onClose: () => void;
 }) {
   const { palette: p } = useApp();
+  const savedDates = new Set(photos.map(photo => photo.date));
   const [month, setMonth] = useState(() => date.slice(0, 7) + '-01');
   const monthDate = parseDate(month);
   const offset = (monthDate.getDay() + 6) % 7;
@@ -31,7 +32,7 @@ export function PhotoPickerModal({ kind, today, date, photos, selectedId, onDate
             if (day < 1 || day > days) return <View key={i} style={{ width: `${100 / 7}%`, height: 44 }} />;
             const value = month.slice(0, 8) + String(day).padStart(2, '0');
             const selected = value === date;
-            return <Pressable key={i} disabled={value > today} accessibilityRole="button" accessibilityLabel={parseDate(value).toLocaleDateString(undefined, { dateStyle: 'full' })} accessibilityState={{ selected, disabled: value > today }} onPress={() => onDate(value)} style={{ width: `${100 / 7}%`, minHeight: 44, justifyContent: 'center', alignItems: 'center', backgroundColor: selected ? p.primary : 'transparent', borderRadius: p.retro ? 0 : 8, opacity: value > today ? .3 : 1 }}><Text style={{ color: selected ? p.bg : p.text, fontSize: 16 }}>{day}</Text></Pressable>;
+            return <Pressable key={i} disabled={value > today} accessibilityRole="button" accessibilityLabel={`${parseDate(value).toLocaleDateString(undefined, { dateStyle: 'full' })}${savedDates.has(value) ? ', photo saved' : ''}`} accessibilityState={{ selected, disabled: value > today }} onPress={() => onDate(value)} style={{ width: `${100 / 7}%`, minHeight: 44, justifyContent: 'center', alignItems: 'center', backgroundColor: selected ? p.primary : 'transparent', borderRadius: p.retro ? 0 : 8, opacity: value > today ? .3 : 1 }}><Text style={{ color: selected ? p.bg : p.text, fontSize: 16 }}>{day}</Text><View style={{ width: 4, height: 4, marginTop: 2, borderRadius: 2, backgroundColor: savedDates.has(value) ? selected ? p.bg : p.primary : 'transparent' }} /></Pressable>;
           })}</View>
           <Button title="Use today" onPress={() => onDate(today)} />
         </> : <ScrollView style={{ flexShrink: 1 }} contentContainerStyle={{ gap: 8 }}>
