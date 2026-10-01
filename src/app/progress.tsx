@@ -30,17 +30,17 @@ export default function Progress() {
   return <Screen title="Progress">
     <Card>
       <ProgressBuddy featured />
-      <Row><Label small>{buddy.logged}/14 days logged</Label><Label small>{buddy.within}/{buddy.assessed} within target</Label></Row>
+      {buddy.logged > 0 ? <Row><Label small>{buddy.logged}/14 days logged</Label>{buddy.assessed > 0 ? <Label small>{buddy.within}/{buddy.assessed} within target</Label> : null}</Row> : null}
       <Details title="How your buddy feels">
         <Label small>{buddy.from} → {today}</Label>
-        <Label small>On track: at least 10 days logged with a target, and at least 80% within it.</Label>
-        <Label small>Mixed: at least 7 reported days, without meeting the on-track or off-track rule.</Label>
-        <Label small>Off track: at least 7 reported days, with fewer than half within target.</Label>
-        <Label small>Checking in: fewer than 7 days logged with a target.</Label>
+        <Label small>Feeling good: at least 10 days logged with a target, and at least 80% within it.</Label>
+        <Label small>Doing okay: at least 7 reported days, without meeting the on-track or off-track rule.</Label>
+        <Label small>Needs a boost: at least 7 reported days, with fewer than half within target.</Label>
+        <Label small>Getting started: fewer than 7 days logged with a target.</Label>
         <Label small>Missing logs, weight fluctuations, and rest days don’t count as calorie successes or failures.</Label>
       </Details>
     </Card>
-    <Card>
+    {data.weights.length ? (<Card>
       <Row><Label>Weight trend</Label><Button title="Weigh-ins" onPress={() => router.push('/weight')} /></Row>
       <Row><Label big>{weight.current.average?.toFixed(1) ?? '—'}<Label small> lb</Label></Label><View style={{ gap: 3 }}><Label small>7-day average</Label><Label small>{weight.current.coverage}/7 days measured</Label></View></Row>
       <View accessibilityLabel="Chart range" style={{ flexDirection: 'row', backgroundColor: p.bg, borderRadius: p.retro ? 0 : 8, padding: 3, gap: 3 }}>
@@ -55,10 +55,10 @@ export default function Progress() {
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>{weight.milestones.map(n => <Text key={n} style={{ paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, backgroundColor: p.grey, color: weight.reached.includes(n) ? p.primary : p.text, fontSize: 14 }}>{weight.reached.includes(n) ? '✓ ' : ''}{n} lb</Text>)}</View>
         <Label small>Checkpoints require at least {TREND_COVERAGE}/7 measured days. Estimates stay provisional below that; checkpoints are not permanent awards.</Label>
       </Details>
-    </Card>
+    </Card>) : <Card><Row><Label>Weight</Label><Button title="Add weight" primary onPress={() => router.push('/weight')} /></Row><Label small>Your trend starts with your first weigh-in.</Label></Card>}
     <Card>
       <Label>Daily tasks</Label><Label small>This week + last week · {tasks.dates.length} days</Label>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>{tasks.totals.map(t => <View key={t.label} style={{ width: '47%', flexGrow: 1, backgroundColor: p.bg, padding: 10, borderRadius: p.retro ? 0 : 8, gap: 6 }}><Text style={{ color: p.muted, fontSize: 13 }}>{t.label === 'Weight entered' ? 'Weight' : t.label}</Text><Text style={{ color: p.text, fontSize: 22, fontWeight: '700' }}>{t.done}<Text style={{ color: p.muted, fontSize: 13 }}> / {t.days}</Text></Text><View style={{ height: 4, backgroundColor: p.grey, borderRadius: 3, overflow: 'hidden' }}><View style={{ height: 4, width: `${t.done / t.days * 100}%`, backgroundColor: p.primary }} /></View></View>)}</View>
+      {tasks.totals.some(t => t.known > 0) ? <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>{tasks.totals.map(t => <View key={t.label} style={{ width: '47%', flexGrow: 1, backgroundColor: p.bg, padding: 10, borderRadius: p.retro ? 0 : 8, gap: 6 }}><Text style={{ color: p.muted, fontSize: 13 }}>{t.label === 'Weight entered' ? 'Weight' : t.label}</Text><Text style={{ color: p.text, fontSize: 22, fontWeight: '700' }}>{t.done}<Text style={{ color: p.muted, fontSize: 13 }}> / {t.days}</Text></Text><View style={{ height: 4, backgroundColor: p.grey, borderRadius: 3, overflow: 'hidden' }}><View style={{ height: 4, width: `${t.done / t.days * 100}%`, backgroundColor: p.primary }} /></View></View>)}</View> : <Label small>Complete today’s tasks to start your history.</Label>}
       <Details title="Logging details">
         <Label small>{period.dates[0]} → {today} · future days excluded</Label>
         {tasks.totals.map(t => <Label key={t.label} small>{t.label}: {t.known} reported · {t.unknown} unknown</Label>)}

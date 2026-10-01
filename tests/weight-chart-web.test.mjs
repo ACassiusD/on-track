@@ -32,7 +32,9 @@ const single = { ...initial.real, weights: initial.demo.weights.filter(w => w.da
 for(const data of [initial.real,initial.demo,single]){
  state={data,today:'2026-09-30',palette:themes['Neon Arcade']};
  const html=renderToStaticMarkup(React.createElement(WeightChart));
- if(!html.includes('role="img"')||!html.includes('<svg'))throw Error('Chart semantic image or svg missing');
+ if(!html.includes('role="img"'))throw Error('Chart image semantics missing');
+ if(data.weights.length && !html.includes('<svg'))throw Error('Populated chart missing SVG');
+ if(!data.weights.length && html.includes('<svg'))throw Error('Empty chart should show a simple prompt instead of placeholder axes');
  if(/<svg[^>]*accessible=/.test(html))throw Error('Native accessible prop leaked onto SVG');
  if(data === single && (!/d="M36,([\d.]+) L314,\1"/.test(html) || html.includes('First reading saved') || html.includes('09-03'))) throw Error('First weigh-in must show a flat single-day baseline without extra text or dates');
 }

@@ -9,6 +9,6 @@ export function buddyStatus(data: DataSet, today: string) {
   const rate = assessed.length ? within / assessed.length : 0;
   // Unknown days never count as successes. A happy state requires broad coverage.
   const mood: BuddyMood = assessed.length < 7 ? 'unknown' : rate < .5 ? 'bad' : assessed.length >= 10 && rate >= .8 ? 'good' : 'normal';
-  const label = { good: 'On track', normal: 'Mixed', bad: 'Off track', unknown: 'Checking in' }[mood];
+  const label = { good: 'Feeling good', normal: 'Doing okay', bad: 'Needs a boost', unknown: 'Getting started' }[mood];
   return { mood, label, from, through: today, logged: logs.length, assessed: assessed.length, within, rate };
 }

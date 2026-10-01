@@ -11,7 +11,7 @@ export function WeightChart({ range=28, compact=false }: { range?: TrendRange; c
   const measured = estimates.filter(point => data.weights.some(w => w.date === point.date));
   const singleDay = measured.length === 1;
   const points = singleDay ? measured : estimates;
-  if (!points.length) return <View accessible accessibilityRole="image" accessibilityLabel="Weight chart: no weigh-ins yet"><Svg width="100%" height={100} viewBox="0 0 326 100">{[20,50,80].map(y => <Line key={y} x1={0} x2={326} y1={y} y2={y} stroke={p.line} strokeDasharray="4 5" />)}<SvgText x={163} y={55} textAnchor="middle" fontSize={12} fill={p.muted}>No weigh-ins yet</SvgText></Svg><Label small>Add your first weight to start the graph.</Label></View>;
+  if (!points.length) return <View accessible accessibilityRole="image" accessibilityLabel="Weight chart: no weigh-ins yet" style={{ paddingVertical: 8 }}><Label small>Your trend starts with your first weigh-in.</Label></View>;
   const values=points.map(point=>point.average!); const lo=Math.min(...values)-.2; const hi=Math.max(...values)+.2;
   const start=singleDay || range==='all'?points[0].date:addDays(today,-range+1); const end=singleDay?start:today;
   const instant=(date:string)=>Date.parse(date+'T12:00:00Z'); const span=Math.max(86400000,instant(end)-instant(start));
