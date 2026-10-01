@@ -5,12 +5,12 @@ import { emptyDay } from '../domain/model';
 import { saveDailyCalories } from '../domain/calorieEntry';
 import { Button, Field, Label } from './UI';
 
-export function DailyCaloriesInput({ date, onSaved }: { date?: string; onSaved: () => void }) {
+export function DailyCaloriesInput({ date, onSaved, onCancel }: { date?: string; onSaved: () => void; onCancel?: () => void }) {
   const { today, state } = useApp();
   const selectedDate = date ?? today;
-  return <Entry key={`${selectedDate}:${state.mode}`} date={selectedDate} onSaved={onSaved} />;
+  return <Entry key={`${selectedDate}:${state.mode}`} date={selectedDate} onSaved={onSaved} onCancel={onCancel} />;
 }
-function Entry({ date, onSaved }: { date: string; onSaved: () => void }) {
+function Entry({ date, onSaved, onCancel }: { date: string; onSaved: () => void; onCancel?: () => void }) {
   const { today, data, target, commit, palette: p } = useApp();
   const day = data.days[date] ?? emptyDay(date, target);
   const [input, setInput] = useState(String(day.calories ?? ''));
@@ -25,15 +25,13 @@ function Entry({ date, onSaved }: { date: string; onSaved: () => void }) {
     finally { setSaving(false); }
   };
   return <View style={{ gap: 10 }}>
-    <Label>{date === today ? 'Today’s calories' : 'Calories'}</Label>
+    <Label>Calories</Label>
     {date !== today ? <Label small>{date}</Label> : null}
-    <Field value={input} onChangeText={value => { setInput(value); setComplete(false); }} placeholder="Daily total · kcal" numeric autoFocus />
-    <Label small>{day.target == null && target == null ? 'Set your target in Settings' : `Target: ${day.target ?? target} kcal`}</Label>
+    <Field value={input} onChangeText={value => { setInput(value); setComplete(false); }} placeholder="Total calories" numeric autoFocus />
     <Pressable accessibilityRole="checkbox" accessibilityLabel={date === today ? 'Done logging today' : 'Done logging'} accessibilityState={{ checked: complete, disabled: saving }} disabled={saving} onPress={() => setComplete(!complete)} style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48, padding: 10, borderWidth: 1.5, borderColor: complete ? p.primary : p.accent, borderRadius: p.retro ? 0 : 10, opacity: pressed ? .7 : 1 })}>
       <View style={{ width: 24, height: 24, borderWidth: 2, borderColor: p.primary, backgroundColor: complete ? p.primary : 'transparent', borderRadius: p.retro ? 0 : 5, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: p.bg, fontWeight: '800', fontSize: 16 }}>{complete ? '✓' : ''}</Text></View>
       <Text style={{ flex: 1, color: p.text, fontSize: 16, fontWeight: '600' }}>{date === today ? 'Done logging today' : 'Done logging'}</Text>
     </Pressable>
-    <Label small>Include all food and drinks for the day.</Label>
-    <Button title={saving ? 'Saving…' : 'Save'} primary disabled={saving || !input.trim()} onPress={() => { void save(); }} />
+    <View style={{ flexDirection: 'row', gap: 8 }}>{onCancel ? <View style={{ flex: 1 }}><Button title="Cancel" disabled={saving} onPress={onCancel} /></View> : null}<View style={{ flex: 1 }}><Button title={saving ? 'Saving…' : 'Save'} primary disabled={saving || !input.trim()} onPress={() => { void save(); }} /></View></View>
   </View>;
 }
