@@ -33,6 +33,7 @@ export default function Progress() {
       {buddy.logged > 0 ? <Row><Label small>{buddy.logged}/14 days logged</Label>{buddy.assessed > 0 ? <Label small>{buddy.within}/{buddy.assessed} within target</Label> : null}</Row> : null}
       <Details title="How your buddy feels">
         <Label small>{buddy.from} → {today}</Label>
+        <Label small>Daily checks show completion. Your pet follows calorie-target consistency over 14 days; workouts, creatine, and weight entries don’t change its mood.</Label>
         <Label small>Thriving: at least 12 days logged with a target, and at least 90% within it.</Label>
         <Label small>Happy: at least 10 days logged with a target, and at least 80% within it.</Label>
         <Label small>Doing okay: at least 7 reported days and at least half within target, while building toward Happy.</Label>

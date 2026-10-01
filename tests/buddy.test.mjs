@@ -18,3 +18,31 @@ test('one rough day cannot turn a thriving pet unhappy', () => {
   assert.equal(buddyStatus(days(14,1),today).mood,'thriving');
   assert.equal(buddyStatus(days(14,2),today).mood,'good');
 });
+
+test('next-mood advice shows the actual threshold, coverage and today’s credit', () => {
+  const data = days(14,10);
+  data.days[today].calories = 1600;
+  data.days[addDays(today,-10)].calories = 1900;
+  const status = buddyStatus(data,today);
+  assert.equal(status.mood,'bad');
+  assert.equal(status.within,4);
+  assert.equal(status.nextMood,'low');
+  assert.equal(status.requiredWithin,5);
+  assert.equal(status.requiredLogs,14);
+  assert.match(status.hint,/Today counts!.*5\/14.*Needs care/);
+  assert.match(status.record,/4\/14 calorie logs on target/);
+  assert.equal(buddyStatus(days(10,6),today).requiredWithin,5);
+  assert.equal(buddyStatus(days(10,3),today).requiredWithin,8);
+  assert.equal(buddyStatus(days(14,2),today).requiredWithin,13);
+});
+test('coverage advice never promises happiness from a single extra log', () => {
+  const status = buddyStatus(days(7),today);
+  assert.equal(status.mood,'normal');
+  assert.equal(status.requiredLogs,10);
+  assert.equal(status.requiredWithin,8);
+  assert.match(status.hint,/8\/10/);
+  assert.match(buddyStatus(days(6),today).hint,/1 more calorie day/);
+  const data=days(7);Object.values(data.days).forEach(d=>d.target=null);
+  assert.match(buddyStatus(data,today).hint,/Set a calorie target/);
+  assert.equal(buddyStatus(days(14),today).nextMood,null);
+});
