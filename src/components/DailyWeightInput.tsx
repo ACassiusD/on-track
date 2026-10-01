@@ -18,5 +18,5 @@ function Entry({ initial, time, onSaved }: { initial: string; time: string; onSa
     catch (e) { Alert.alert('Could not save weight', String(e)); }
     finally { setSaving(false); }
   };
-  return <View style={{ gap: 6 }}><Label>Today’s weight · lb</Label><View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><View style={{ flex: 1 }}><Field value={value} onChangeText={setValue} placeholder="Enter today’s weight" numeric /></View><Button title={saving ? 'Saving…' : 'Save'} primary disabled={saving || !value.trim() || value === initial} onPress={() => { void save(); }} /></View></View>;
+  return <View style={{ gap: 6 }}><Label>Today’s weight · lb</Label><View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><View style={{ flex: 1 }}><Field value={value} onChangeText={setValue} placeholder="Enter today’s weight" numeric autoFocus /></View><Button title={saving ? 'Saving…' : 'Save'} primary disabled={saving || !value.trim() || value === initial} onPress={() => { void save(); }} /></View></View>;
 }

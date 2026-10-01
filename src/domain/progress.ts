@@ -1,4 +1,5 @@
 import { addDays, checks, emptyDay, score, trend, twoWeeks } from './model.ts';
+import { taskSummary } from './dailyTasks.ts';
 import type { DataSet, State } from './model.ts';
 export const TREND_COVERAGE = 4; // Display rule, not a persisted award or health assessment.
 export function periodSummary(data: DataSet, today: string) {
@@ -25,8 +26,8 @@ export function milestoneProgress(data: DataSet, state: Pick<State,'mode'|'goal'
   return { current, baseline, baselineDate, goal, milestones, qualified, next, remaining: next!==null&&current.average!==null ? Math.max(0,current.average-next) : null, fraction, reached: qualified ? milestones.filter(n=>current.average!<=n) : [] };
 }
 export function shareSummary(data: DataSet, state: Pick<State,'mode'|'goal'|'milestones'>, today: string): string {
-  const period=periodSummary(data,today); const weight=milestoneProgress(data,state,today);
-  return `${state.mode==='demo'?'DEMO · ':''}ON TRACK · ${period.dates[0]} to ${today}\n${period.completeDays}/${period.dates.length} days with all four checks complete\n${period.totals.map(t=>`${t.label}: ${t.done} done · ${t.known}/${t.days} reported`).join('\n')}\nWeight trend: ${weight.current.average===null?'No readings in the past seven days':`${weight.current.average.toFixed(1)} lb · ${weight.current.coverage}/7 days measured${weight.qualified?'':' · provisional'}`}\n${period.revisionCount} calorie corrections on ${period.revisedDays} days\nUnknown checks remain unknown. Photos are excluded.`;
+  const period=periodSummary(data,today); const tasks=taskSummary(data,today); const weight=milestoneProgress(data,state,today);
+  return `${state.mode==='demo'?'DEMO · ':''}ON TRACK · ${period.dates[0]} to ${today}\n${tasks.completeDays}/${period.dates.length} days with all four daily tasks complete\n${tasks.totals.map(t=>`${t.label}: ${t.done} done · ${t.known}/${t.days} reported`).join('\n')}\nWeight trend: ${weight.current.average===null?'No readings in the past seven days':`${weight.current.average.toFixed(1)} lb · ${weight.current.coverage}/7 days measured${weight.qualified?'':' · provisional'}`}\n${period.revisionCount} calorie corrections on ${period.revisedDays} days\nUnknown checks remain unknown. Photos are excluded.`;
 }
 
 export type TrendRange = 28 | 90 | 'all';

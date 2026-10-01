@@ -29,3 +29,7 @@ Removed the dashboard header, date line, all-done summary and calendar footer. W
 ## Progress buddy prototype and Arcade Pop
 
 Added a reduced-motion-aware SVG buddy beside the calendar, with rolling 14-day food-log/target consistency and explicit unknown coverage. Provisional mood thresholds are explained in Progress. Rest days and individual weight readings do not affect mood. Arcade Pop adds yellow/pink accents, outlined cards and arcade numerals without changing the Neon Arcade default. Domain tests cover mood boundaries, missing/future data and theme hydration. Device animation and visual QA remain pending.
+
+## Calendar alignment, weight modal, retro theme and demo profiles
+
+Calendar/day details/progress/share summaries now use the same four tasks as the dashboard, including weight. Nutrition target assessment is separate. Tests verify 3/4 → 4/4 after weight save without a target, date identity and honest over-target task credit. Extreme manual input mistakes outside 50–1000 lb are rejected; existing records are never silently altered. Demo profile tests cover all four moods and personal-data isolation. The optional retro theme adds an original code-rendered bitmap alphabet, neon pixel frames, CRT grid, segmented bar and pixel buddy. Native modal, keyboard, readability and animation still need physical-device checks.

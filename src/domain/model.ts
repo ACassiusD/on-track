@@ -8,7 +8,7 @@ export type WeightReading = { id: string; date: string; pounds: number; time?: s
 export type Photo = { id: string; date: string; uri: string; scale: number; x: number; y: number };
 export type Reminder = { id: string; label: string; time: string; weekendTime?: string; dayOffset?: 0 | -1; enabled: boolean };
 export type DataSet = { days: Record<string, DailyRecord>; confirmations: Confirmation[]; revisions: Revision[]; weights: WeightReading[]; photos: Photo[]; photoReviewedDates: string[] };
-export type State = { version: 1; mode: 'real' | 'demo'; theme: ThemeName; target: number | null; goal: number | null; milestones: number[]; reminders: Reminder[]; notificationResponseIds?: string[]; nativeActionIds?: string[]; weighInTime?: string; real: DataSet; demo: DataSet };
+export type State = { version: 1; mode: 'real' | 'demo'; theme: ThemeName; target: number | null; goal: number | null; milestones: number[]; reminders: Reminder[]; notificationResponseIds?: string[]; nativeActionIds?: string[]; weighInTime?: string; demoProfile?: 'good' | 'mixed' | 'bad' | 'new'; real: DataSet; demo: DataSet };
 export function emptyData(): DataSet { return { days: {}, confirmations: [], revisions: [], weights: [], photos: [], photoReviewedDates: [] }; }
 export function emptyDay(date: string, target: number | null): DailyRecord { return { date, calories: null, target, food: null, workout: null, creatine: null, sources: [] }; }
 export function localDate(d = new Date()): string { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }

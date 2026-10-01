@@ -62,3 +62,7 @@ Add Expo dependencies with `npx expo install`. Read [AGENTS.md](AGENTS.md) befor
 ## Dashboard update
 
 Today, Photos and Settings use bottom tabs. Add/Edit weight is on the dashboard; manual entries record a time and default to the configurable 14:00 preference. The weight chart shows an empty grid, then a first reading, then the seven-day average line. Calories open a single total field with Save and a Food logged check; history is collapsed. Editing the total reopens the food check and retains corrections.
+
+## Task calendar and retro theme
+
+The four calendar tasks are Workout, Creatine, Food logged and Weight entered. Calorie-target results remain separate in the calorie card and buddy; a logged over-target day still earns food completion. Weight entry opens a modal. Arcade Pop uses bitmap lettering, squared neon frames, a CRT grid and a pixel buddy. Settings → Demo mode offers Good, Mixed, Bad and New profiles; choosing a profile replaces demo data only.

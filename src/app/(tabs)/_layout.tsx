@@ -8,9 +8,9 @@ function Icon({ name, color }: { name: string; color: string }) {
 }
 export default function TabLayout() {
   const { palette: p, data, today } = useApp();
-  return <Tabs screenOptions={({ route }) => ({ headerShown: false, tabBarActiveTintColor: p.primary, tabBarInactiveTintColor: p.muted, tabBarStyle: { backgroundColor: p.tile, borderTopColor: p.line }, tabBarLabelStyle: { fontSize: 12, fontWeight: '600' }, tabBarIcon: ({ color }) => <Icon name={route.name} color={String(color)} /> })}>
-    <Tabs.Screen name="index" options={{ title: 'Today' }} />
-    <Tabs.Screen name="photos" options={{ title: 'Photos', tabBarBadge: data.photos.length && !data.photoReviewedDates.includes(today) ? '•' : undefined }} />
-    <Tabs.Screen name="settings" options={{ title: 'Settings' }} />
+  return <Tabs screenOptions={({ route }) => ({ headerShown: false, tabBarActiveTintColor: p.primary, tabBarInactiveTintColor: p.muted, tabBarStyle: { backgroundColor: p.tile, borderTopColor: p.line }, tabBarLabelStyle: { fontSize: 12, fontWeight: '600', fontFamily: p.retro ? 'monospace' : undefined }, tabBarIcon: ({ color }) => <Icon name={route.name} color={String(color)} /> })}>
+    <Tabs.Screen name="index" options={{ title: p.retro ? 'TODAY' : 'Today' }} />
+    <Tabs.Screen name="photos" options={{ title: p.retro ? 'PHOTOS' : 'Photos', tabBarBadge: data.photos.length && !data.photoReviewedDates.includes(today) ? '•' : undefined }} />
+    <Tabs.Screen name="settings" options={{ title: p.retro ? 'SETTINGS' : 'Settings' }} />
   </Tabs>;
 }

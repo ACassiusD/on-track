@@ -3,12 +3,13 @@ import { Alert, Switch } from 'react-native';
 import { router } from 'expo-router';
 import { useApp } from '../../store/AppStore';
 import { useIPhone } from '../../store/IPhoneStore';
+import { selectDemoProfile } from '../../domain/demoProfiles';
 import { validTime } from '../../domain/reminders';
 import type { ThemeName } from '../../domain/model';
 import { Button, Card, Field, Label, Row, Screen } from '../../components/UI';
 import { themes } from '../../components/themes';
 export default function Settings() {
-  const { state, commit, update } = useApp(); const iphone = useIPhone();
+  const { state, commit, update, today } = useApp(); const iphone = useIPhone();
   const [target, setTarget] = useState(String(state.target ?? ''));
   const [goal, setGoal] = useState(String(state.goal ?? ''));
   const [milestones, setMilestones] = useState(state.milestones.join(', '));
@@ -30,6 +31,6 @@ export default function Settings() {
     <Card><Button title="Progress & sharing" onPress={() => router.push('/progress')} /><Button title="Check-in & ChatGPT" onPress={() => router.push('/coach')} /><Button title="Progress photos" onPress={() => router.push('/photos')} /></Card>
     <Card><Label>Theme</Label>{(Object.keys(themes) as ThemeName[]).map(theme => <Button key={theme} title={theme} selected={state.theme === theme} onPress={() => update(s => ({ ...s, theme }))} />)}</Card>
     <Card><Label>Personal targets</Label><Label small>Usual weigh-in time</Label><Field value={weighInTime} onChangeText={setWeighInTime} placeholder="Weigh-in time HH:MM" /><Label small>14:00 = 2 pm · recorded time can be changed per weigh-in.</Label><Field value={target} onChangeText={setTarget} placeholder="Daily calorie target" numeric /><Field value={goal} onChangeText={setGoal} placeholder="Goal weight in pounds" numeric /><Field value={milestones} onChangeText={setMilestones} placeholder="Milestones in pounds, comma separated" /><Button title={saving ? 'Saving…' : 'Save targets'} primary disabled={saving} onPress={() => { void save(); }} /><Label small>Targets are your choice. Demo numbers are illustrative.</Label></Card>
-    <Card><Row><Label>Demo mode</Label><Switch accessibilityLabel="Demo mode" value={state.mode === 'demo'} onValueChange={value => update(s => ({ ...s, mode: value ? 'demo' : 'real' }))} /></Row><Label small>Personal and demo records stay separate. Cloud backup uses personal records only.</Label></Card>
+    <Card><Row><Label>Demo mode</Label><Switch accessibilityLabel="Demo mode" value={state.mode === 'demo'} onValueChange={value => update(s => ({ ...s, mode: value ? 'demo' : 'real' }))} /></Row><Row>{(['good','mixed','bad','new'] as const).map(profile => <Button key={profile} title={profile[0].toUpperCase()+profile.slice(1)} selected={state.mode === 'demo' && state.demoProfile === profile} onPress={() => update(s => selectDemoProfile(s,profile,today))} />)}</Row><Label small>Profiles replace demo data only. Personal records stay separate.</Label></Card>
   </Screen>;
 }
