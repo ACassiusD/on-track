@@ -33,3 +33,7 @@ Added a reduced-motion-aware SVG buddy beside the calendar, with rolling 14-day 
 ## Calendar alignment, weight modal, retro theme and demo profiles
 
 Calendar/day details/progress/share summaries now use the same four tasks as the dashboard, including weight. Nutrition target assessment is separate. Tests verify 3/4 → 4/4 after weight save without a target, date identity and honest over-target task credit. Extreme manual input mistakes outside 50–1000 lb are rejected; existing records are never silently altered. Demo profile tests cover all four moods and personal-data isolation. The optional retro theme adds an original code-rendered bitmap alphabet, neon pixel frames, CRT grid, segmented bar and pixel buddy. Native modal, keyboard, readability and animation still need physical-device checks.
+
+## Arcade readability and Fantasy RPG
+
+Arcade action labels now use larger native text while headings and key numbers retain bitmap lettering. Daily task/mood labels are also readable native text. Fantasy RPG is a separate selectable palette with gilt double frames, corner jewels, serif headings, star/rune backdrop and a winged familiar. Shared tracking behavior remains covered by the domain tests. Native typography and visual QA remain pending.
