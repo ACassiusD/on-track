@@ -1,6 +1,6 @@
 export type Answer = boolean | null;
 export type ThemeName = 'Neon Arcade' | 'Cozy Quest' | 'Pocket Arcade' | 'Classic';
-export type Source = { kind: 'manual' | 'healthkit' | 'notification'; id: string; observedAt: string; timezone: string };
+export type Source = { kind: 'manual' | 'healthkit' | 'notification' | 'app-intent'; id: string; observedAt: string; timezone: string; providerBundleId?: string; providerName?: string };
 export type DailyRecord = { date: string; calories: number | null; target: number | null; food: Answer; workout: Answer; creatine: Answer; confirmationId?: string; sources: Source[] };
 export type Confirmation = { id: string; date: string; total: number; at: string; timezone: string };
 export type Revision = { id: string; date: string; oldTotal: number; newTotal: number; at: string; reason: string; confirmationId: string; source: Source };
@@ -8,7 +8,7 @@ export type WeightReading = { id: string; date: string; pounds: number; source: 
 export type Photo = { id: string; date: string; uri: string; scale: number; x: number; y: number };
 export type Reminder = { id: string; label: string; time: string; weekendTime?: string; dayOffset?: 0 | -1; enabled: boolean };
 export type DataSet = { days: Record<string, DailyRecord>; confirmations: Confirmation[]; revisions: Revision[]; weights: WeightReading[]; photos: Photo[]; photoReviewedDates: string[] };
-export type State = { version: 1; mode: 'real' | 'demo'; theme: ThemeName; target: number | null; goal: number | null; milestones: number[]; reminders: Reminder[]; notificationResponseIds?: string[]; real: DataSet; demo: DataSet };
+export type State = { version: 1; mode: 'real' | 'demo'; theme: ThemeName; target: number | null; goal: number | null; milestones: number[]; reminders: Reminder[]; notificationResponseIds?: string[]; nativeActionIds?: string[]; real: DataSet; demo: DataSet };
 export function emptyData(): DataSet { return { days: {}, confirmations: [], revisions: [], weights: [], photos: [], photoReviewedDates: [] }; }
 export function emptyDay(date: string, target: number | null): DailyRecord { return { date, calories: null, target, food: null, workout: null, creatine: null, sources: [] }; }
 export function localDate(d = new Date()): string { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
@@ -46,6 +46,8 @@ export function validateStored(value: unknown): State {
   for (const data of [s.real, s.demo]) { if (!data || !data.days || !Array.isArray(data.confirmations) || !Array.isArray(data.revisions) || !Array.isArray(data.weights) || !Array.isArray(data.photos)) throw new Error('Saved data is incomplete.'); if (!data.photoReviewedDates) data.photoReviewedDates = []; if (!Array.isArray(data.photoReviewedDates)) throw new Error('Invalid photo review history.'); }
   s.reminders = s.reminders.map(r => ({ ...r, weekendTime: r.weekendTime ?? r.time, dayOffset: r.dayOffset ?? (r.id === 'food' && r.time < '06:00' ? -1 : 0) }));
   s.notificationResponseIds ??= [];
+  s.nativeActionIds ??= [];
+  if (!Array.isArray(s.nativeActionIds) || s.nativeActionIds.some(id => typeof id !== 'string')) throw new Error('Invalid native action history.');
   if (!Array.isArray(s.notificationResponseIds) || s.notificationResponseIds.some(id => typeof id !== 'string')) throw new Error('Invalid reminder response history.');
   return s;
 }

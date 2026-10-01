@@ -2,8 +2,31 @@ import React, { useState } from 'react';
 import { Alert, Switch } from 'react-native';
 import { router } from 'expo-router';
 import { useApp } from '../store/AppStore';
-import { ThemeName } from '../domain/model';
+import { useIPhone } from '../store/IPhoneStore';
+import type { ThemeName } from '../domain/model';
 import { Button, Card, Field, Label, Row, Screen } from '../components/UI';
 import { themes } from '../components/themes';
-import { capabilities } from '../native/capabilities';
-export default function Settings() { const { state, update } = useApp(); const [target, setTarget] = useState(String(state.target ?? '')); const [goal, setGoal] = useState(String(state.goal ?? '')); const [milestones, setMilestones] = useState(state.milestones.join(', ')); return <Screen title="Settings"><Card><Label>Stay on track. Stay motivated.</Label><Label small>Daily follow-through and visual progress.</Label><Row><Label>Demo mode</Label><Switch accessibilityLabel="Demo mode" value={state.mode === 'demo'} onValueChange={value => update(s => ({ ...s, mode: value ? 'demo' : 'real' }))} /></Row><Label small>Demo and personal records are stored separately. Personal mode starts empty.</Label></Card><Card><Label>Theme</Label>{(Object.keys(themes) as ThemeName[]).map(theme => <Button key={theme} title={theme} selected={state.theme === theme} onPress={() => update(s => ({ ...s, theme }))} />)}</Card><Card><Label>Personal targets</Label><Label small>Your target is your choice. Demo calories are illustrative.</Label><Field value={target} onChangeText={setTarget} placeholder="Daily calorie target" numeric /><Field value={goal} onChangeText={setGoal} placeholder="Goal weight in pounds" numeric /><Field value={milestones} onChangeText={setMilestones} placeholder="Milestones in pounds, comma separated" /><Button title="Save targets" primary onPress={() => { const t = target.trim() ? Number(target) : null; const g = goal.trim() ? Number(goal) : null; const ms = milestones.trim() ? milestones.split(',').map(n => Number(n.trim())) : []; if ((t !== null && (!Number.isInteger(t) || t <= 0)) || (g !== null && (!Number.isFinite(g) || g <= 0)) || ms.some(m => !Number.isFinite(m) || m <= 0)) { Alert.alert('Enter positive targets'); return; } update(s => ({ ...s, target: t, goal: g, milestones: [...new Set(ms)].sort((a, b) => b - a) })); Alert.alert('Targets saved', 'New daily records use the new target. Existing days retain their recorded target.'); }} /></Card><Button title="Reminders" onPress={() => router.push('/reminders')} /><Card><Label>Connections</Label>{capabilities.map(c => <React.Fragment key={c.name}><Label>{c.name}</Label><Label small>Not implemented · {c.detail}</Label></React.Fragment>)}</Card></Screen>; }
+export default function Settings() {
+  const { state, commit, update } = useApp(); const iphone = useIPhone();
+  const [target, setTarget] = useState(String(state.target ?? ''));
+  const [goal, setGoal] = useState(String(state.goal ?? ''));
+  const [milestones, setMilestones] = useState(state.milestones.join(', '));
+  const [saving, setSaving] = useState(false);
+  const save = async () => {
+    const t = target.trim() ? Number(target) : null;
+    const g = goal.trim() ? Number(goal) : null;
+    const ms = milestones.trim() ? milestones.split(',').map(n => Number(n.trim())) : [];
+    if ((t !== null && (!Number.isSafeInteger(t) || t <= 0)) || (g !== null && (!Number.isFinite(g) || g <= 0)) || ms.some(m => !Number.isFinite(m) || m <= 0)) { Alert.alert('Enter positive targets'); return; }
+    setSaving(true);
+    try { await commit(s => ({ ...s, target: t, goal: g, milestones: [...new Set(ms)].sort((a,b) => b-a) })); Alert.alert('Targets saved', 'New days use the new calorie target. Existing days retain their recorded target.'); }
+    catch (e) { Alert.alert('Could not save', String(e)); }
+    finally { setSaving(false); }
+  };
+  return <Screen title="Settings">
+    <Card><Button title="Account & cloud backup" onPress={() => router.push('/account')} /><Button title="iPhone connections" onPress={() => router.push('/connections')} /><Button title="Reminders" onPress={() => router.push('/reminders')} />{iphone.error ? <Label small>{iphone.error}</Label> : null}</Card>
+    <Card><Button title="Progress & sharing" onPress={() => router.push('/progress')} /><Button title="Check-in & ChatGPT" onPress={() => router.push('/coach')} /><Button title="Progress photos" onPress={() => router.push('/photos')} /></Card>
+    <Card><Label>Theme</Label>{(Object.keys(themes) as ThemeName[]).map(theme => <Button key={theme} title={theme} selected={state.theme === theme} onPress={() => update(s => ({ ...s, theme }))} />)}</Card>
+    <Card><Label>Personal targets</Label><Field value={target} onChangeText={setTarget} placeholder="Daily calorie target" numeric /><Field value={goal} onChangeText={setGoal} placeholder="Goal weight in pounds" numeric /><Field value={milestones} onChangeText={setMilestones} placeholder="Milestones in pounds, comma separated" /><Button title={saving ? 'Saving…' : 'Save targets'} primary disabled={saving} onPress={() => { void save(); }} /><Label small>Targets are your choice. Demo numbers are illustrative.</Label></Card>
+    <Card><Row><Label>Demo mode</Label><Switch accessibilityLabel="Demo mode" value={state.mode === 'demo'} onValueChange={value => update(s => ({ ...s, mode: value ? 'demo' : 'real' }))} /></Row><Label small>Personal and demo records stay separate. Cloud backup uses personal records only.</Label></Card>
+  </Screen>;
+}

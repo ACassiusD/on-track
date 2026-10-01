@@ -1,12 +1,18 @@
 import React from 'react';
-import Svg, { Line, Path, Text as SvgText } from 'react-native-svg';
+import Svg, { Circle, Line, Path, Text as SvgText } from 'react-native-svg';
 import { useApp } from '../store/AppStore';
-import { addDays, trend } from '../domain/model';
+import { addDays } from '../domain/model';
+import { trendSeries } from '../domain/progress';
+import type { TrendRange } from '../domain/progress';
 import { Label } from './UI';
-export function WeightChart() {
-  const { data, today, palette: p } = useApp(); const points = Array.from({ length: 28 }, (_, i) => { const date = addDays(today, i - 27); return { date, ...trend(data.weights, date) }; }).filter(point => point.average !== null);
-  if (points.length < 2) return <Label small>Add weigh-ins to see your seven-day average line.</Label>;
-  const values = points.map(point => point.average!); const lo = Math.min(...values) - .2; const hi = Math.max(...values) + .2; const x = (date: string) => 36 + (Date.parse(date + 'T12:00:00Z') - Date.parse(addDays(today, -27) + 'T12:00:00Z')) / 86400000 / 27 * 278; const y = (v: number) => 12 + (hi - v) / (hi - lo) * 77;
-  const path = points.map((pt, i) => `${i ? 'L' : 'M'}${x(pt.date)},${y(pt.average!)}`).join(' ');
-  return <Svg width="100%" height={112} viewBox="0 0 326 112" accessibilityLabel="Seven-day average weight trend across the last 28 days" accessible>{[lo, (lo + hi) / 2, hi].map(v => <React.Fragment key={v}><Line x1={36} x2={314} y1={y(v)} y2={y(v)} stroke={p.line} /><SvgText x={0} y={y(v) + 4} fontSize={10} fill={p.muted}>{v.toFixed(1)}</SvgText></React.Fragment>)}<Path d={path} stroke={p.primary} strokeWidth={3} fill="none" /><SvgText x={36} y={108} fontSize={10} fill={p.muted}>{addDays(today, -27).slice(5)}</SvgText><SvgText x={314} y={108} textAnchor="end" fontSize={10} fill={p.muted}>{today.slice(5)}</SvgText></Svg>;
+export function WeightChart({ range=28 }: { range?: TrendRange }) {
+  const { data, today, palette:p }=useApp(); const points=trendSeries(data,today,range);
+  if(points.length<2)return <Label small>Add weigh-ins on different days to see your trend line.</Label>;
+  const values=points.map(point=>point.average!); const lo=Math.min(...values)-.2; const hi=Math.max(...values)+.2;
+  const start=range==='all'?points[0].date:addDays(today,-range+1); const end=today;
+  const instant=(date:string)=>Date.parse(date+'T12:00:00Z'); const span=Math.max(86400000,instant(end)-instant(start));
+  const x=(date:string)=>36+(instant(date)-instant(start))/span*278; const y=(value:number)=>12+(hi-value)/(hi-lo)*77;
+  // Missing measurement gaps longer than the average window are not drawn as a trend.
+  const path=points.map((point,i)=>`${i===0||instant(point.date)-instant(points[i-1].date)>7*86400000?'M':'L'}${x(point.date)},${y(point.average!)}`).join(' ');
+  return <Svg width="100%" height={112} viewBox="0 0 326 112" accessibilityLabel={`Seven-day average weight trend, ${start} to ${end}. ${points.length} trend estimates. Gaps over seven days are disconnected.`} accessible>{[lo,(lo+hi)/2,hi].map(value=><React.Fragment key={value}><Line x1={36} x2={314} y1={y(value)} y2={y(value)} stroke={p.line}/><SvgText x={0} y={y(value)+4} fontSize={10} fill={p.muted}>{value.toFixed(1)}</SvgText></React.Fragment>)}<Path d={path} stroke={p.primary} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" fill="none"/>{points.map(point=><Circle key={point.date} cx={x(point.date)} cy={y(point.average!)} r={2} fill={p.primary}/>)}<SvgText x={36} y={108} fontSize={10} fill={p.muted}>{range==='all'?start:start.slice(5)}</SvgText><SvgText x={314} y={108} textAnchor="end" fontSize={10} fill={p.muted}>{range==='all'?end:end.slice(5)}</SvgText></Svg>;
 }

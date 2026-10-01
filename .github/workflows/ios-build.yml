@@ -1,0 +1,46 @@
+name: iOS simulator build
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'modules/**'
+      - 'plugins/**'
+      - 'app.json'
+      - 'package*.json'
+      - '.github/workflows/ios-build.yml'
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ios-build-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: xcodebuild -version
+      - name: Generate native project
+        run: npx expo prebuild --platform ios --no-install
+      - name: Install CocoaPods
+        run: pod install --project-directory=ios
+      - name: Build unsigned simulator app and widget
+        run: >-
+          xcodebuild
+          -workspace ios/ONTRACK.xcworkspace
+          -scheme ONTRACK
+          -configuration Debug
+          -sdk iphonesimulator
+          -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath build/ios
+          CODE_SIGNING_ALLOWED=NO
+          build
+          -quiet

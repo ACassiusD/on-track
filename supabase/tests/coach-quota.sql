@@ -1,0 +1,20 @@
+begin;
+create temporary table ontrack_quota_ids(a uuid,b uuid);
+insert into ontrack_quota_ids values(gen_random_uuid(),gen_random_uuid());
+grant select on ontrack_quota_ids to authenticated;
+insert into auth.users(id) select a from ontrack_quota_ids union all select b from ontrack_quota_ids;
+select set_config('request.jwt.claim.sub',(select a::text from ontrack_quota_ids),true);
+set local role authenticated;
+do $$ begin
+ for i in 1..5 loop if not public.claim_on_track_coach_request() then raise exception 'Quota rejected allowed request %',i;end if;end loop;
+ if public.claim_on_track_coach_request() then raise exception 'Quota exceeded five';end if;
+ begin update on_track_private.coach_request_limits set attempts=1; raise exception 'Client reset counter unexpectedly succeeded';exception when insufficient_privilege then null;end;
+end $$;
+select set_config('request.jwt.claim.sub',(select b::text from ontrack_quota_ids),true);
+do $$ begin if not public.claim_on_track_coach_request() then raise exception 'Second owner quota leaked';end if;end $$;
+reset role;
+set local role anon;
+do $$ begin begin perform public.claim_on_track_coach_request();raise exception 'Anon quota unexpectedly allowed';exception when insufficient_privilege then null;end;end $$;
+reset role;
+rollback;
+select 'Quota five-per-UTC-day, owner isolation, counter protection and anonymous denial passed; rolled back' as result;

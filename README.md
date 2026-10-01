@@ -1,71 +1,60 @@
-# ON TRACK — native starter
+# ON TRACK
 
 **Stay on track. Stay motivated.**
 
-A native React Native + TypeScript iPhone starter, built from the approved Neon Arcade dashboard. Uses Expo Router and Expo SDK 57 (stable official blank template); no WebView. Real mode starts empty with no calorie target. Four themes are selectable in Settings.
+An iPhone-first React Native accountability app built with Expo SDK 57, Expo Router and TypeScript. Neon Arcade is the default theme. The shared screens also run on Android; Apple integrations require an iPhone development build.
 
 ## Run
 
-Node 22.13+ is required by SDK 57. From this directory:
+Use Node 24 and the committed lockfile:
 
 ```sh
+git clone https://github.com/ACassiusD/on-track.git
+cd on-track
 npm ci
 npm start
 ```
 
-Scan with the SDK-compatible Expo Go app for this local slice, or run `npm run ios` on a Mac with the iOS Simulator. HealthKit, AlarmKit, widgets, and Live Activities will require a later development build/native extensions; they are **not implemented**. No cloud account or backend is needed for the current slice. Use Settings → Demo mode to see clearly separated illustrative records. Set your own targets in personal mode.
+On Windows, use an Android emulator for shared-screen testing. Expo Go supports the manual flows; HealthKit, widgets, Siri, Live Activities and AlarmKit require a development build. See [device setup](docs/DEVICE-SETUP.md). No cloud account is required for local tracking. Real mode starts empty, with no calorie target; demo data is isolated.
 
-## Included
+## Implemented
 
-- Prominent calorie bar, seven-day average weight chart, previous/current calendar week.
-- Workout/creatine Yes/No prompts hide after either answer; Edit checks restores them.
-- Day detail with four independent checks and explicit unknown results.
-- Calorie editing (today/yesterday), short food audit, immutable confirmation/revision history.
-- Private system photo picker, persistent local original copies, timeline, side-by-side/flip/opacity overlay, uniform alignment. No photos are uploaded.
-- Manual weights, goals/milestones config, four themes, opt-in actionable local iPhone reminders.
-- AsyncStorage durable state with isolated demo/real data and a startup hydration gate.
+- Prominent daily calorie total and bar, seven-day weight trend, fixed previous/current Monday–Sunday calendar.
+- Four independent checks: workout, creatine, complete food log, and calories within the saved target. Missing data stays unknown. Top habit prompts disappear after an answer and can be corrected.
+- Daily totals without duplicating MyFitnessPal's food database. Explicit snack/drink audit, earlier-date corrections, immutable confirmation and revision history. Imported totals never prove completeness.
+- Progress over 28/90/all days, measured-day coverage, trend-based checkpoints, consistency and correction summaries. Checkpoints need at least four weigh-ins in the seven-day window.
+- Private local photo copies, daily review, timeline, side-by-side/flip/scrub comparison, uniform scale/position alignment, explicit original export and app-copy deletion. No body reshaping or automatic landmark alignment.
+- Four themes and reduced-motion-aware feedback. Factual local coaching and explicitly previewed progress sharing.
+- Opt-in weekday/weekend reminders, intentional overnight date mapping, habit actions and bounded snooze. Finite 14-day schedules refill when the app runs.
+- Optional Supabase accounts with Keychain-backed sessions, explicit versioned backups, previewed conflict-safe restore and local recovery. Photos remain local; this is manual backup, not automatic synchronization.
+- Read-only HealthKit preview/import, Home/Lock Screen widgets, Siri habit shortcuts with durable receipts, an explicit evening Live Activity, and one-off iOS 26 AlarmKit alerts. See [native implementation and limits](docs/IPHONE-NATIVE.md).
+- Optional authenticated AI review endpoint with consent, bounded factual input and daily quota. Generation remains disabled until server-side OpenAI secrets are configured.
 
-## Validation
+## Validation and remaining work
+
+Typecheck, lint and 46 domain/contract tests pass in UTC and America/Toronto. iOS/Android JavaScript exports and isolated iOS project generation are checked separately from native compilation. See [executed validation](VALIDATION.md).
+
+This is implemented source, not a device-tested release. The GitHub iOS workflow attempts an unsigned simulator build; physical iPhone testing and Apple provisioning are still required. Health permission/source behavior, Siri discovery, widgets, AlarmKit, Live Activities, notification delivery, Keychain/auth and photo gestures need hardware verification. Dashboard content scrolls on small screens or larger text.
+
+No automatic background Health sync, cloud photo backup, direct background widget actions, recurring AlarmKit schedule, APNs service or permanent XP awards are claimed. Local JSON and photo copies are app-private but not separately encrypted.
+
+## Development
 
 ```sh
 npm run typecheck
 npm run lint
 npm test
 TZ=America/Toronto npm test
-npx expo export --platform ios
+npx expo export --platform ios --platform android
 ```
 
-The tests cover scoring, partial totals, revisions, fixed calendar windows/month/year changes, DST and midnight, empty real-mode serialization, and weight sample source deduplication. See VALIDATION.md for actual executed results.
+Add Expo dependencies with `npx expo install`. Read [AGENTS.md](AGENTS.md) before changes. Generated native projects are produced through config plugins; do not edit generated iOS files directly.
 
-## Important next work
+## Documentation
 
-This is an initial local slice, not a device-tested release or a pixel-perfect finished port. Check iPhone layout, VoiceOver, larger text, contrast, and keyboard behavior on real hardware. The dashboard scrolls rather than clipping; no promise all cards fit every iPhone/text-size combination. Touch targets are at least 44 points.
-
-Settings → Reminders saves weekday/weekend times and the intended same/previous day, requests iOS permission explicitly, and reports scheduled alerts/errors. Taken/Done invokes dated shared business actions; food reminders open the existing audit without auto-confirming. Later snoozes 30 minutes, at most twice per alert. All reminders default off and demo mode cancels real alerts. A rolling finite 14-day delivery queue is refilled on app open/foreground/day change and preference/data updates: reopen at least every two weeks. Schedule horizon refers to delivery only; the dashboard remains fixed previous/current weeks. Ordinary notifications can be silenced by Focus. Startup responses are handled after hydration/navigation readiness; durable bounded IDs deduplicate repeated callbacks. Permissions, delivery, terminated-app actions and actual iOS queue behavior still need real-device testing. Nutrition import/reconciliation needs a dedicated source-overlap spike; imported totals must never prove completeness. Weight upsert supports source IDs; Apple Health isn't connected.
-
-Photos are app-private copies but not separately encrypted. OS backup policy, app lock, photo removal/export, backup/recovery, and secure deletion need production design. Daily photo review dates are stored independently of food confirmation. Photo overlay is opacity-based; scrub slider/automatic alignment/guided camera capture remain future work.
-
-Targets apply to new daily records; existing days (including today once recorded) retain their saved target. Calorie edits support today/yesterday only; extend the date picker for earlier corrections. Goal/milestone settings are present, but milestone awards wait for an agreed coverage rule. Native animation/haptics/game polish, status aggregation, and richer stats remain future slices. No fabricated XP or health score.
-
-State storage is unencrypted local JSON. Parse failure preserves the original saved data and blocks edits to avoid overwriting it; a recovery/export UI is still needed. A save failure is shown in-app, with retry on the next change. No automated React/native interaction tests or on-device persistence checks have been run.
-
-## Source map
-
-- `src/domain/model.ts`: pure records, dates, score, calories/confirmation/revision actions, weight trend and source identity.
-- `src/store/AppStore.tsx`: hydration, ordered persistence, foreground/day-change handling, real/demo separation.
-- `src/app/`: native Router screens.
-- `src/components/`: shared controls, palettes, trend chart.
-- `src/domain/reminders.ts`: pure dated planner, snooze and reconciliation rules.
-- `src/native/localReminders.ts`: Expo iOS permission, categories and notification queue adapter.
-- `src/store/ReminderStore.tsx`: serialized scheduling, foreground refresh and deduplicated response handling.
-- `src/native/capabilities.ts`: implementation boundaries; reminder status lives in Reminders.
-
-Business actions must be shared by widgets/native adapters. Do not create an independent widget calorie total or auto-confirm food on import. Before adding native APIs, read docs/IOS-FEATURE-PLAN.md and the SDK-specific docs referenced by AGENTS.md.
-
-Official tooling/docs checked: https://docs.expo.dev/get-started/create-a-project/ and https://docs.expo.dev/versions/v57.0.0/ . All dependencies should be added with `npx expo install` for compatible versions.
-
-## Design and planning
-
+- [Device setup](docs/DEVICE-SETUP.md)
+- [iPhone integrations](docs/IPHONE-NATIVE.md)
+- [Backend implementation](supabase/README.md)
 - [Coding handoff](docs/CODING-AGENT-HANDOFF.md)
 - [iOS feature plan](docs/IOS-FEATURE-PLAN.md)
-- [Theme references](design/) (illustrative HTML, not production screens)
+- [Original theme references](design/) — illustrative HTML, not production screens

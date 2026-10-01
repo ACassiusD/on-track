@@ -1,35 +1,19 @@
-# Initial native slice validation — September 30, 2026
+# Implementation validation — October 1, 2026
 
-## Passed
+## Passed locally
 
-- `npm run typecheck` — TypeScript, no errors.
-- `npm run lint` — Expo/ESLint, no errors or warnings.
-- `TZ=America/Toronto npm test` — 9/9 domain tests passed.
-- `npm test` — 9/9 domain tests passed under execution environment timezone.
-- `EXPO_OFFLINE=1 npx expo export --platform ios` — Metro compiled 1,255 modules into an iOS Hermes JS bundle. This validates bundling, not an iOS binary or device behavior.
-- `EXPO_OFFLINE=1 npx expo install --check` — bundled SDK compatibility table reports dependencies up to date.
-- `npm ls --depth=0` — direct dependency tree resolves successfully.
+- TypeScript typecheck and Expo lint, no errors.
+- 46/46 tests in the execution timezone and America/Toronto. Coverage includes calorie completeness/scoring, revisions, fixed weeks/DST/midnight, progress coverage and gaps, cloud snapshot validation, secure session chunks, consent/auth/quota gates, native projections, durable receipt actions and reminder reconciliation.
+- Expo SDK compatibility check reports dependencies up to date using the installed SDK's offline compatibility table. Online lookup was unavailable.
+- Isolated iOS prebuild and native module autolinking: generated app includes Siri source, HealthKit/App Group entitlements and usage descriptions; widget target includes the expected families and shared App Group. This validates generation, not Swift compilation.
+- Supabase owner/cross-owner backup and private-photo policies, plus five-per-UTC-day AI quota, tested with synthetic fixtures and rollback. Security/performance advisors reported no findings. Deployed unauthenticated AI request returns 401. No OpenAI paid call made.
 
-## Tooling notes
+- Final integrated `EXPO_OFFLINE=1 npx expo export --platform ios --platform android` passed: iOS 1,493 modules (3.8 MB Hermes bundle), Android 1,616 modules (4 MB). This is bundling validation, not a native binary.
 
-Project generated using `npx create-expo-app@latest ... --template blank-typescript --no-install --yes` and official SDK 57 versioned documentation. Initial requested folder name `react-native` was rejected as a dependency name; generated under `on-track-native` and renamed the folder. Package name remains `on-track-native`.
+## Pending native and runtime checks
 
-Online Expo compatibility lookup timed out via the environment proxy; retried with Expo offline mode, which resolves versions from the installed SDK's bundled compatibility table. Online React Native Directory checks were unavailable. Transitive optional dependencies initially picked newer react-dom/worklets versions; explicit SDK-compatible versions added with `expo install` resolved these conflicts. No `--force` or `--legacy-peer-deps` used. Lockfile included.
+No signed iPhone app has been built or installed in this environment. No Xcode/Swift compilation or simulator execution has been completed locally. The committed GitHub Actions macOS workflow attempts an unsigned iOS simulator build; its result must be checked separately.
 
-Node warns about inferred ES module type when running the domain .ts tests; tests pass. Environment emits npm proxy config and NO_COLOR warnings. No user data, secrets, cloud accounts, or remote writes involved.
+Physical-device tests remain for permission prompts/denial, Health source reconciliation, Siri discovery and terminated-app receipt handling, widget serialization/refresh, Live Activity lifecycle, AlarmKit delivery/cancellation, local notifications under Focus, Keychain/account backup roundtrip, photo persistence/gestures/export/deletion, VoiceOver and large text. JavaScript bundles and pure tests do not establish these behaviors.
 
-## Not tested / not implemented
-
-No macOS/Xcode/iOS Simulator or physical iPhone execution. No native binary built, installed, or signed. No UI screenshot/device visual QA, VoiceOver, larger-font layout, system photo picker, native file persistence, app background/relaunch persistence, widget extension, permissions or notification delivery tested.
-
-State serialization/migration tests pass, but actual AsyncStorage hydration and ordered writes still need device integration tests. Source reconciliation tests cover weight identity replacement only; nutrition import remains intentionally unavailable.
-
-HealthKit, AlarmKit, widgets, App Intents, Live Activities, and AI remain future adapters. Actionable local iPhone reminders now have implementation code, but actual delivery, permission prompts, foreground/background/terminated startup responses and system queue limits have not been device-tested. Photos use side-by-side, flip, or fixed-opacity overlay; the reference scrub slider isn't implemented yet. Milestone awards and richer status aggregation need settled rules. No claim of all-screen fit or pixel-perfect port; dashboard uses scrolling and native text scaling.
-
-## Actionable reminders slice — September 30, 2026
-
-Opt-in weekday/weekend local schedules, explicit same/previous-day mapping, permission/status UI, saved-state serialization, 14-day bounded refill, Taken/Done dated actions, food-audit routing, twice-bounded 30-minute snooze, cancellation on resolution/settings/demo, startup response handling and persisted deduplication implemented. Native calls run through a serial queue and read the authoritative persisted store; failed persistence does not apply the change. No server, APNs token or cloud account required.
-
-Passed fresh typecheck and lint; 19/19 domain tests under America/Toronto and execution timezone, including planner, DST spring gap, midnight snooze identity, known No, confirmed versus incomplete food, stale responses, idempotent completions and queue reconciliation. The tests exercise pure domain behavior rather than mocking away native delivery. Fresh `EXPO_OFFLINE=1 npx expo export --platform ios` passed (1,317 modules, Hermes JS bundle; not an iOS binary). `EXPO_OFFLINE=1 npx expo install --check` reported dependencies up to date using the installed SDK compatibility table.
-
-Still requires physical iPhone tests: permission denied/re-enabled, app foreground/background/terminated response, duplicate callback delivery, rapid edits against schedule synchronization, midnight/weekend/DST fall-back timing, system Focus, and real notification cancellation. Habit buttons intentionally foreground the app to run the shared persisted JS actions reliably; they do not promise background execution when JS is stopped. No AlarmKit or critical-alert behavior. Scheduling expires without app reopening after the 14-day horizon.
+AI generation is deliberately unavailable until server-side OPENAI_API_KEY and OPENAI_MODEL are configured. Cloud backups are explicit snapshots; local photos are excluded. Health reads are bounded previews, not background anchored synchronization. AlarmKit is one-off. Widgets deep-link for edits rather than claiming background direct habit actions. Live Activity stale dates do not guarantee timed background termination.

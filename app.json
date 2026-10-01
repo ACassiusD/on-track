@@ -7,7 +7,8 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "com.acassiusd.ontrack"
     },
     "android": {
       "adaptiveIcon": {
@@ -16,7 +17,8 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.acassiusd.ontrack"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -33,7 +35,35 @@
         }
       ],
       "expo-status-bar",
-      "expo-notifications"
+      "expo-notifications",
+      "expo-secure-store",
+      [
+        "./plugins/with-on-track-iphone",
+        {
+          "groupIdentifier": "group.com.acassiusd.ontrack"
+        }
+      ],
+      [
+        "expo-widgets",
+        {
+          "groupIdentifier": "group.com.acassiusd.ontrack",
+          "widgets": [
+            {
+              "name": "OnTrackProgress",
+              "displayName": "ON TRACK",
+              "description": "Calories, weight trend, and daily checks",
+              "ios": {
+                "supportedFamilies": [
+                  "systemSmall",
+                  "systemMedium",
+                  "accessoryRectangular",
+                  "accessoryInline"
+                ]
+              }
+            }
+          ]
+        }
+      ]
     ]
   }
 }
