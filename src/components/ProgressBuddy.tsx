@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, Platform, Pressable, Text, View } from 'react-native';
+import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { router } from 'expo-router';
 import { useApp } from '../store/AppStore';
 import { buddyStatus } from '../domain/buddy';
@@ -53,6 +54,7 @@ export function ProgressBuddy({ featured = false, compact = false }: { featured?
   const size = featured ? 86 : 48;
   return <View style={{ flexDirection: 'row', alignItems: 'center', gap: featured ? 12 : 5, minHeight: featured ? compact ? 94 : 98 : 48, ...(featured ? { paddingHorizontal: 8, ...(p.fantasy ? { backgroundColor: p.tile, borderRadius: 16, borderWidth: 1, borderColor: p.line, paddingVertical: 4 } : { borderBottomWidth: 1, borderBottomColor: p.line }) } : {}) }}>
     <Pressable accessibilityRole="button" accessibilityLabel="Pet your buddy" accessibilityHint="Shows a playful reaction. Your progress score stays the same." onPress={pet} style={{ minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center' }}>
+      {p.realm === 'heaven' ? <View pointerEvents="none" style={{ position: 'absolute', inset: -6 }}><Svg width="100%" height="100%"><Defs><RadialGradient id="petHeavenGlow"><Stop stopColor="#ffe6a3" stopOpacity=".32" /><Stop offset="1" stopColor="#ffe6a3" stopOpacity="0" /></RadialGradient></Defs><Rect width="100%" height="100%" fill="url(#petHeavenGlow)" /></Svg></View> : null}
       <Animated.View style={{ transform: [{ translateY: reduceMotion ? 0 : Animated.add(bob.interpolate({ inputRange: [0, 1], outputRange: [0, status.mood === 'good' ? -4 : -2] }), reaction.interpolate({ inputRange: [0, 1], outputRange: [0, -9] })) }, { rotate: reduceMotion ? '0deg' : bob.interpolate({ inputRange: [0, 1], outputRange: ['-1.5deg', '1.5deg'] }) }, { scaleX: reduceMotion ? 1 : breath.interpolate({ inputRange: [0, 1], outputRange: [1, 1.035] }) }, { scaleY: reduceMotion ? 1 : breath.interpolate({ inputRange: [0, 1], outputRange: [1, .975] }) }] }}><BuddyArtwork palette={p} mood={status.mood} blink={blink && !reduceMotion} delighted={delighted} size={size} /></Animated.View>
       <Animated.Text pointerEvents="none" style={{ position: 'absolute', top: 0, right: 0, color: p.accent, fontSize: 18, opacity: reaction, transform: [{ translateY: reduceMotion ? 0 : reaction.interpolate({ inputRange: [0, 1], outputRange: [0, -5] }) }] }}>♥</Animated.Text>
     </Pressable>

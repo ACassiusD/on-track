@@ -5,8 +5,9 @@ export function RealmBackdrop({ realm }: { realm: 'heaven' | 'astral' }) {
   const heaven = realm === 'heaven';
   return <Svg width="100%" height="100%" viewBox="0 0 400 900" preserveAspectRatio="xMidYMin slice">
     <Defs>
-      <LinearGradient id="realmSky" x1="0%" y1="0%" x2="70%" y2="100%">{(heaven ? [['0','#97927b'],['.3','#b5ac89'],['.65','#879590'],['1','#465b68']] : [['0','#141c48'],['.4','#302c64'],['1','#0c102a']]).map(([offset,color])=><Stop key={offset} offset={offset} stopColor={color} />)}</LinearGradient>
+      <LinearGradient id="realmSky" x1="0%" y1="0%" x2="70%" y2="100%">{(heaven ? [['0','#a59770'],['.3','#cbbb82'],['.65','#9ca18a'],['1','#526b68']] : [['0','#141c48'],['.4','#302c64'],['1','#0c102a']]).map(([offset,color])=><Stop key={offset} offset={offset} stopColor={color} />)}</LinearGradient>
       <RadialGradient id="realmGlow" cx="70%" cy="18%" r="65%"><Stop stopColor={heaven?'#fff3ca':'#a195ec'} stopOpacity={heaven?.35:.28} /><Stop offset="1" stopColor={heaven?'#d2c596':'#343f89'} stopOpacity="0" /></RadialGradient>
+      <RadialGradient id="templeAura"><Stop stopColor="#fff0ba" stopOpacity=".48" /><Stop offset="1" stopColor="#ffdf94" stopOpacity="0" /></RadialGradient>
       <LinearGradient id="realmRock" x1="0%" y1="0%" x2="85%" y2="100%"><Stop stopColor="#a6a17a" /><Stop offset="1" stopColor="#666c4b" /></LinearGradient>
       <LinearGradient id="realmWhale" x1="0%" y1="0%" x2="85%" y2="100%"><Stop stopColor="#90c6ec" stopOpacity=".35" /><Stop offset=".5" stopColor="#c6a9ec" stopOpacity=".22" /><Stop offset="1" stopColor="#50578d" stopOpacity=".1" /></LinearGradient>
     </Defs>
@@ -21,7 +22,7 @@ export function RealmBackdrop({ realm }: { realm: 'heaven' | 'astral' }) {
       <Path d="M217 474q-105 34-31 75t-27 60q-82 34-19 78t-40 59" fill="none" stroke="#d5ce9d" strokeWidth={9} opacity={.22} />
       <Path d="M-20 487q125-21 215-4t226-28m-415 177q121-21 203-6t188-16" fill="none" stroke="#e9e4bd" strokeWidth={16} opacity={.09} />
       <Path d="M262 42 172 474h32L299 48m-16-3 43 384h16L299 48" fill="#fff2c0" opacity={.055} />
-      {[[13,287,.65],[267,382,.9],[43,578,.55],[314,709,.6]].map(([x,y,s],i)=><React.Fragment key={i}><Path d={`M${x} ${y}h${97*s}l${-16*s} ${32*s}-${32*s} ${53*s}-${17*s}-${35*s}-${18*s}-${21*s}Z`} fill="url(#realmRock)" opacity={.6} /><Ellipse cx={x+48*s} cy={y} rx={50*s} ry={10*s} fill="#95b969" opacity={.85} /><Path d={`M${x+30*s} ${y}v${-55*s}l${18*s}-${26*s} ${18*s} ${26*s}v${55*s}m${-25*s} 0v${-35*s}h${15*s}v${35*s}`} fill="#e8e0bd" stroke="#929272" strokeWidth={1} /><Path d={`M${x+48*s} ${y-64*s}v${-38*s}`} stroke="#f8f7ff" strokeWidth={2} opacity={.6} /><Circle cx={x+48*s} cy={y-80*s} r={3} fill="#fff6d4" /></React.Fragment>)}
+      {[[13,287,.65],[267,382,.9],[43,578,.55],[314,709,.6]].map(([x,y,s],i)=><React.Fragment key={i}><Circle cx={x+48*s} cy={y-38*s} r={65*s} fill="url(#templeAura)" /><Path d={`M${x} ${y}h${97*s}l${-16*s} ${32*s}-${32*s} ${53*s}-${17*s}-${35*s}-${18*s}-${21*s}Z`} fill="url(#realmRock)" opacity={.6} /><Ellipse cx={x+48*s} cy={y} rx={50*s} ry={10*s} fill="#95b969" opacity={.85} /><Path d={`M${x+30*s} ${y}v${-55*s}l${18*s}-${26*s} ${18*s} ${26*s}v${55*s}m${-25*s} 0v${-35*s}h${15*s}v${35*s}`} fill="#e8e0bd" stroke="#929272" strokeWidth={1} /><Path d={`M${x+48*s} ${y-64*s}v${-38*s}`} stroke="#f8f7ff" strokeWidth={2} opacity={.6} /><Circle cx={x+48*s} cy={y-80*s} r={3} fill="#fff6d4" /></React.Fragment>)}
       <Path d="M-20 631q16-39 60-30 24-42 70-17 37-25 70 10 47-19 62 18 27-9 42 15 59-30 137-1v43H-20Z" fill="#eee8d4" opacity={.17} />
       <Path d="M-20 757q26-37 70-20 18-32 59-14 46-34 75 2 36-17 69 10 50-35 95-4 37-12 73 10v42H-20Z" fill="#f6efdc" opacity={.17} />
       <Path d="M-20 888q43-34 79-22 31-42 74-14 50-26 85 6 42-29 79 4 56-26 124 10v30H-20Z" fill="#f6efdc" opacity={.23} />
