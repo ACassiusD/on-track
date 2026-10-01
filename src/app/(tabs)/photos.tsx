@@ -40,7 +40,10 @@ export default function Photos() {
           {mode === 'Side by side' ? <>
             <View style={{ flex: 1, overflow: 'hidden', borderRadius: 10, backgroundColor: p.bg }}>{picture(reference)}</View><View style={{ flex: 1, overflow: 'hidden', borderRadius: 10, backgroundColor: p.bg }}>{picture(selected)}</View>
           </> : <View style={{ flex: 1, overflow: 'hidden', borderRadius: 10, backgroundColor: p.bg }}>
-            {picture(mode === 'Flip' && flip ? reference : selected)}
+            {mode === 'Flip' ? <>
+              <View key={`comparison-${selected?.id}`} collapsable={false} pointerEvents="none" accessibilityElementsHidden={flip} importantForAccessibility={flip ? 'no-hide-descendants' : 'auto'} style={{ position: 'absolute', inset: 0, opacity: flip ? 0 : 1 }}>{picture(selected)}</View>
+              <View key={`reference-${reference?.id}`} collapsable={false} pointerEvents="none" accessibilityElementsHidden={!flip} importantForAccessibility={!flip ? 'no-hide-descendants' : 'auto'} style={{ position: 'absolute', inset: 0, opacity: flip ? 1 : 0 }}>{picture(reference)}</View>
+            </> : picture(selected)}
             {mode === 'Slider' ? <><View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: `${position}%`, overflow: 'hidden' }}><View style={{ width, height: '100%' }}>{picture(reference)}</View></View><View pointerEvents="none" style={{ position: 'absolute', left: `${position}%`, top: 0, bottom: 0, width: 2, backgroundColor: p.primary }} /></> : null}
           </View>}
         </View>
