@@ -9,3 +9,7 @@ export function saveManualWeight(data: DataSet, date: string, pounds: number, ti
   const base = { ...data, weights: data.weights.filter(w => w.date !== date || w.source.kind !== 'manual') };
   return upsertWeight(base, { id: prior?.id ?? makeId(), date, pounds, time, source });
 }
+
+export function clearManualWeight(data: DataSet, date: string): DataSet {
+  return { ...data, weights: data.weights.filter(w => w.date !== date || w.source.kind !== 'manual') };
+}
