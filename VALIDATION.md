@@ -21,3 +21,7 @@ AI generation is deliberately unavailable until server-side OPENAI_API_KEY and O
 ## Dashboard usability revision
 
 Typecheck, lint and 49 tests pass. Added daily manual-weight correction, date/time validation and legacy preference migration tests. Web export passes after bottom-tab routing changes. Native visual/device validation remains pending. Weigh-in time defaults to 14:00 and is recorded independently from the source observation timestamp.
+
+## Compact task row and SVG web warning
+
+Removed the dashboard header, date line, all-done summary and calendar footer. Workout, Creatine and Food logged remain in a single checkbox row; tapping toggles completion and holding opens dated edits. The chart’s accessibility metadata is on the View container, not the SVG DOM element. Empty and populated charts rendered through React DOM with react-native-web and the installed SVG web elements emit no console errors and retain image semantics. Typecheck, lint and domain tests pass.
