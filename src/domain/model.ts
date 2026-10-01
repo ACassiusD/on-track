@@ -1,5 +1,5 @@
 export type Answer = boolean | null;
-export type ThemeName = 'Neon Arcade' | 'Cozy Quest' | 'Pocket Arcade' | 'Classic';
+export type ThemeName = 'Neon Arcade' | 'Cozy Quest' | 'Pocket Arcade' | 'Classic' | 'Arcade Pop';
 export type Source = { kind: 'manual' | 'healthkit' | 'notification' | 'app-intent'; id: string; observedAt: string; timezone: string; providerBundleId?: string; providerName?: string };
 export type DailyRecord = { date: string; calories: number | null; target: number | null; food: Answer; workout: Answer; creatine: Answer; confirmationId?: string; sources: Source[] };
 export type Confirmation = { id: string; date: string; total: number; at: string; timezone: string };
@@ -42,7 +42,7 @@ export function initialState(today = localDate()): State {
 export function activeTarget(s: State): number | null { return s.mode === 'demo' ? 1950 : s.target; }
 export function validateStored(value: unknown): State {
   const s = value as State;
-  if (!s || s.version !== 1 || !['real', 'demo'].includes(s.mode) || !['Neon Arcade', 'Cozy Quest', 'Pocket Arcade', 'Classic'].includes(s.theme) || !Array.isArray(s.reminders) || !Array.isArray(s.milestones)) throw new Error('Unsupported or invalid saved data.');
+  if (!s || s.version !== 1 || !['real', 'demo'].includes(s.mode) || !['Neon Arcade', 'Cozy Quest', 'Pocket Arcade', 'Classic', 'Arcade Pop'].includes(s.theme) || !Array.isArray(s.reminders) || !Array.isArray(s.milestones)) throw new Error('Unsupported or invalid saved data.');
   for (const data of [s.real, s.demo]) { if (!data || !data.days || !Array.isArray(data.confirmations) || !Array.isArray(data.revisions) || !Array.isArray(data.weights) || !Array.isArray(data.photos)) throw new Error('Saved data is incomplete.'); if (!data.photoReviewedDates) data.photoReviewedDates = []; if (!Array.isArray(data.photoReviewedDates)) throw new Error('Invalid photo review history.'); }
   s.reminders = s.reminders.map(r => ({ ...r, weekendTime: r.weekendTime ?? r.time, dayOffset: r.dayOffset ?? (r.id === 'food' && r.time < '06:00' ? -1 : 0) }));
   s.weighInTime = typeof s.weighInTime === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(s.weighInTime) ? s.weighInTime : '14:00';

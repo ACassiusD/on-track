@@ -28,11 +28,13 @@ const {initialState}=require(root+'/src/domain/model.ts');
 const {themes}=require(root+'/src/components/themes.ts');
 const initial=initialState('2026-09-30');
 const errors=[];const previous=console.error;console.error=(...args)=>errors.push(args.join(' '));
-for(const data of [initial.real,initial.demo]){
+const single = { ...initial.real, weights: initial.demo.weights.filter(w => w.date === '2026-09-30') };
+for(const data of [initial.real,initial.demo,single]){
  state={data,today:'2026-09-30',palette:themes['Neon Arcade']};
  const html=renderToStaticMarkup(React.createElement(WeightChart));
  if(!html.includes('role="img"')||!html.includes('<svg'))throw Error('Chart semantic image or svg missing');
  if(/<svg[^>]*accessible=/.test(html))throw Error('Native accessible prop leaked onto SVG');
+ if(data === single && (!/d="M36,([\d.]+) L314,\1"/.test(html) || html.includes('First reading saved') || html.includes('09-03'))) throw Error('First weigh-in must show a flat single-day baseline without extra text or dates');
 }
 console.error=previous;
 Module._load=original; require.extensions['.ts']=oldTs; require.extensions['.tsx']=oldTsx;

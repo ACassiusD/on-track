@@ -25,3 +25,7 @@ Typecheck, lint and 49 tests pass. Added daily manual-weight correction, date/ti
 ## Compact task row and SVG web warning
 
 Removed the dashboard header, date line, all-done summary and calendar footer. Workout, Creatine and Food logged remain in a single checkbox row; tapping toggles completion and holding opens dated edits. The chart’s accessibility metadata is on the View container, not the SVG DOM element. Empty and populated charts rendered through React DOM with react-native-web and the installed SVG web elements emit no console errors and retain image semantics. Typecheck, lint and domain tests pass.
+
+## Progress buddy prototype and Arcade Pop
+
+Added a reduced-motion-aware SVG buddy beside the calendar, with rolling 14-day food-log/target consistency and explicit unknown coverage. Provisional mood thresholds are explained in Progress. Rest days and individual weight readings do not affect mood. Arcade Pop adds yellow/pink accents, outlined cards and arcade numerals without changing the Neon Arcade default. Domain tests cover mood boundaries, missing/future data and theme hydration. Device animation and visual QA remain pending.
