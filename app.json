@@ -67,6 +67,34 @@
     ],
     "runtimeVersion": {
       "policy": "fingerprint"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "targetName": "ExpoWidgetsTarget",
+                  "bundleIdentifier": "com.acassiusd.ontrack.ExpoWidgetsTarget",
+                  "entitlements": {
+                    "com.apple.security.application-groups": [
+                      "group.com.acassiusd.ontrack"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "projectId": "60c3be58-1725-43ca-8c51-e274a745b03f"
+      }
+    },
+    "owner": "devcassius",
+    "updates": {
+      "url": "https://u.expo.dev/60c3be58-1725-43ca-8c51-e274a745b03f",
+      "checkAutomatically": "ON_LOAD"
     }
   }
 }
