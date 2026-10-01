@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Tabs } from 'expo-router';
 import Svg, { Path, Rect, Circle } from 'react-native-svg';
 import { useApp } from '../../store/AppStore';
@@ -9,7 +10,9 @@ function Icon({ name, color }: { name: string; color: string }) {
 }
 export default function TabLayout() {
   const { palette: p, data, today } = useApp();
-  return <Tabs screenOptions={({ route }) => ({ headerShown: false, tabBarActiveTintColor: p.primary, tabBarInactiveTintColor: p.muted, tabBarStyle: { backgroundColor: p.tile, borderTopColor: p.line }, tabBarLabelStyle: { fontSize: 12, fontWeight: '600', fontFamily: p.retro ? Platform.OS === 'ios' ? 'Menlo' : 'monospace' : undefined }, tabBarIcon: ({ color }) => <Icon name={route.name} color={String(color)} /> })}>
+  const insets = useSafeAreaInsets();
+  const bottomPadding = Math.max(insets.bottom, 8);
+  return <Tabs screenOptions={({ route }) => ({ headerShown: false, tabBarActiveTintColor: p.primary, tabBarInactiveTintColor: p.muted, tabBarHideOnKeyboard: true, tabBarLabelPosition: 'below-icon', tabBarStyle: { backgroundColor: p.bg, borderTopColor: p.line, height: 60 + bottomPadding, paddingTop: 7, paddingBottom: bottomPadding }, tabBarItemStyle: { paddingVertical: 2 }, tabBarIconStyle: { marginBottom: 3 }, tabBarLabelStyle: { fontSize: 12, lineHeight: 18, fontWeight: '600', fontFamily: p.retro ? Platform.OS === 'ios' ? 'Menlo' : 'monospace' : undefined }, tabBarIcon: ({ color }) => <Icon name={route.name} color={String(color)} /> })}>
     <Tabs.Screen name="index" options={{ title: p.retro ? 'TODAY' : 'Today' }} />
     <Tabs.Screen name="photos" options={{ title: p.retro ? 'PHOTOS' : 'Photos', tabBarBadge: data.photos.length && !data.photoReviewedDates.includes(today) ? '•' : undefined }} />
     <Tabs.Screen name="settings" options={{ title: p.retro ? 'SETTINGS' : 'Settings' }} />
