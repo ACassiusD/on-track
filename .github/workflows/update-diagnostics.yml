@@ -5,13 +5,13 @@ on:
     paths: [.github/workflows/update-diagnostics.yml]
   workflow_dispatch:
     inputs:
-      build_id:
-        description: Installed iPhone build ID
-        default: 80141fd8-cadc-4ca0-93dc-283208106346
+      build_fingerprint:
+        description: Installed iPhone runtime fingerprint
+        default: 551f60e49b852547d4b4acb1c9f0e2d7f0751c24
         required: true
-      update_id:
-        description: Published iOS update ID
-        default: 01a0f90a-a86c-7994-90e8-9b47ad60d259
+      update_fingerprint:
+        description: Published iOS runtime fingerprint
+        default: e6292ee821685fb93e7401321acaf58bff41ddea
         required: true
 permissions:
   contents: read
@@ -21,8 +21,8 @@ jobs:
     timeout-minutes: 10
     env:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      BUILD_ID: ${{ inputs.build_id || '80141fd8-cadc-4ca0-93dc-283208106346' }}
-      UPDATE_ID: ${{ inputs.update_id || '01a0f90a-a86c-7994-90e8-9b47ad60d259' }}
+      BUILD_FINGERPRINT: ${{ inputs.build_fingerprint || '551f60e49b852547d4b4acb1c9f0e2d7f0751c24' }}
+      UPDATE_FINGERPRINT: ${{ inputs.update_fingerprint || 'e6292ee821685fb93e7401321acaf58bff41ddea' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -35,4 +35,4 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
       - name: Compare installed and published native fingerprints
-        run: eas fingerprint:compare --build-id "$BUILD_ID" --update-id "$UPDATE_ID" --non-interactive
+        run: eas fingerprint:compare "$BUILD_FINGERPRINT" "$UPDATE_FINGERPRINT" --non-interactive
