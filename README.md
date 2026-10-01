@@ -2,7 +2,7 @@
 
 **Stay on track. Stay motivated.**
 
-An iPhone-first React Native accountability app built with Expo SDK 57, Expo Router and TypeScript. Neon Arcade is the default theme. The shared screens also run on Android; Apple integrations require an iPhone development build.
+An iPhone-first React Native accountability app built with Expo SDK 57, Expo Router and TypeScript. Default is the standard theme. The shared screens also run on Android; Apple integrations require an iPhone development build.
 
 ## Run
 
@@ -14,6 +14,8 @@ cd on-track
 npm ci
 npm start
 ```
+
+The start, iOS, Android and web scripts use port **8095**, keeping this project separate from other Metro servers. Restart the server after pulling this change. For native builds, use `npx expo run:ios --port 8095` or `npx expo run:android --port 8095`.
 
 On Windows, use an Android emulator for shared-screen testing. Expo Go supports the manual flows; HealthKit, widgets, Siri, Live Activities and AlarmKit require a development build. See [device setup](docs/DEVICE-SETUP.md). No cloud account is required for local tracking. Real mode starts empty, with no calorie target; demo data is isolated.
 

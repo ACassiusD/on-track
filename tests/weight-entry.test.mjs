@@ -34,3 +34,15 @@ test('clear removes only the selected day’s manual weight and allows a replace
   const corrected=saveManualWeight(cleared,'2026-09-30',173,'14:00','2026-09-30');
   assert.equal(corrected.weights.find(w=>w.date==='2026-09-30' && w.source.kind==='manual').pounds,173);
 });
+
+test('a weigh-in saved after midnight corrects its original day and leaves the new day empty', () => {
+  const yesterday = '2026-09-30';
+  const today = '2026-10-01';
+  const saved = saveManualWeight(emptyData(), yesterday, 175.5, '14:00', today);
+  assert.equal(saved.weights.length, 1);
+  assert.equal(saved.weights[0].date, yesterday);
+  assert.equal(saved.weights.some(w => w.date === today), false);
+  const edited = saveManualWeight(saved, yesterday, 175.2, '14:00', today);
+  assert.equal(edited.weights.length, 1);
+  assert.equal(edited.weights[0].pounds, 175.2);
+});

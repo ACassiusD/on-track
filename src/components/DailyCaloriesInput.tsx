@@ -7,7 +7,9 @@ import { Button, Field, Label } from './UI';
 
 export function DailyCaloriesInput({ date, onSaved, onCancel }: { date?: string; onSaved: () => void; onCancel?: () => void }) {
   const { today, state } = useApp();
-  const selectedDate = date ?? today;
+  // Do not switch a draft to the next day or discard it at midnight.
+  const [openedDate] = useState(today);
+  const selectedDate = date ?? openedDate;
   return <Entry key={`${selectedDate}:${state.mode}`} date={selectedDate} onSaved={onSaved} onCancel={onCancel} />;
 }
 function Entry({ date, onSaved, onCancel }: { date: string; onSaved: () => void; onCancel?: () => void }) {
