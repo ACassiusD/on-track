@@ -9,12 +9,12 @@ test('honest over-target logs keep task credit and weight from another date does
 test('obvious misplaced-decimal weights cannot be saved', () => { assert.throws(()=>saveManualWeight(emptyData(),today,17543,'14:00',today),/decimal/);assert.throws(()=>saveManualWeight(emptyData(),today,17.5,'14:00',today)); });
 
 test('removed themes migrate without losing saved logs', () => {
-  for (const theme of ['Cozy Quest', 'Pocket Arcade']) {
+  for (const theme of ['Neon Arcade', 'Classic', 'Cozy Quest', 'Pocket Arcade']) {
     const saved=initialState(today);
     saved.theme=theme;
     saved.real.days[today]={...emptyDay(today,1700),calories:1800,food:true};
     const loaded=validateStored(saved);
-    assert.equal(loaded.theme,'Neon Arcade');
+    assert.equal(loaded.theme,'Default');
     assert.equal(loaded.real.days[today].calories,1800);
     assert.equal(loaded.real.days[today].food,true);
   }

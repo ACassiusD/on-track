@@ -5,7 +5,7 @@ import { DataSet, State, activeTarget, initialState, localDate, validateStored }
 import { extendDemoHistory } from '../domain/demoProfiles';
 import { themes } from '../components/themes';
 const KEY = 'on-track:state:v1';
-type Context = { getState: () => State; state: State; data: DataSet; target: number | null; today: string; ready: boolean; error: string | null; commit: (fn: (s: State) => State) => Promise<void>; update: (fn: (s: State) => State) => void; updateData: (fn: (d: DataSet) => DataSet) => void; palette: typeof themes['Neon Arcade'] };
+type Context = { getState: () => State; state: State; data: DataSet; target: number | null; today: string; ready: boolean; error: string | null; commit: (fn: (s: State) => State) => Promise<void>; update: (fn: (s: State) => State) => void; updateData: (fn: (d: DataSet) => DataSet) => void; palette: typeof themes['Default'] };
 const Ctx = createContext<Context | null>(null);
 export function AppStore({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState(initialState); const current = useRef(state); const [ready, setReady] = useState(false); const [error, setError] = useState<string | null>(null); const [today, setToday] = useState(localDate()); const queue = useRef(Promise.resolve()); const loadFailed = useRef(false); const hydrated = useRef(false);

@@ -30,7 +30,7 @@ const initial=initialState('2026-09-30');
 const errors=[];const previous=console.error;console.error=(...args)=>errors.push(args.join(' '));
 const single = { ...initial.real, weights: initial.demo.weights.filter(w => w.date === '2026-09-30') };
 for(const data of [initial.real,initial.demo,single]){
- state={data,today:'2026-09-30',palette:themes['Neon Arcade']};
+ state={data,today:'2026-09-30',palette:themes['Default']};
  const html=renderToStaticMarkup(React.createElement(WeightChart));
  if(!html.includes('role="img"'))throw Error('Chart image semantics missing');
  if(data.weights.length && !html.includes('<svg'))throw Error('Populated chart missing SVG');
