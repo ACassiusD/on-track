@@ -21,9 +21,11 @@ On Windows, use an Android emulator for shared-screen testing. Expo Go supports 
 
 ## Welcome guide
 
-New users get a five-slide, skippable introduction with animated pet mood previews, the five daily tasks, happiness criteria, missed-day guidance and a shortcut to setting a calorie target. Completion is saved locally. Existing users can replay it under **Settings → App & pet guide**; the development hard reset makes it appear on first launch again. Mood previews do not change records or the real pet score.
+New users get a five-slide, skippable introduction with animated pet mood previews, the five daily tasks, happiness criteria, missed-day guidance and a shortcut to guided goal setup. Completion is saved locally. Existing users can replay it under **Settings → App & pet guide**; the development hard reset makes it appear on first launch again. Mood previews do not change records or the real pet score.
 
 Tap the pet on Today to open its detail modal: a larger animated pet, the reason for its mood, daily completion, 14-day consistency, a habit tip and the next milestone. Tap the larger pet for an affection reaction. Habit breakdowns are expandable; this adds no XP or permanent levels yet.
+
+Goal setup asks one question at a time: calorie target, goal weight, optional milestones, then weigh-in time. Milestones are added individually; settings save together at the end. Existing readings stay unchanged when selecting kg or lb.
 
 ## Implemented
 

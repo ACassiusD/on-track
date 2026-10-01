@@ -48,7 +48,7 @@ function PetDetails({ onClose }: { onClose: () => void }) {
           <View style={box}>
             <Text style={{ color: p.primary, fontSize: 14, fontWeight: '600' }}>{status.mood === 'thriving' ? 'Keep it going' : 'Your next small win'}</Text>
             <Text style={{ color: p.text, fontSize: 14, lineHeight: 21 }}>{status.isNew && target === null ? 'Set your calorie target, then start with today’s tasks.' : status.hint}</Text>
-            {status.isNew && target === null ? <Button title="Set calorie target" onPress={() => openPage('/goals')} /> : null}
+            {status.isNew && target === null ? <Button title="Set your goals" onPress={() => openPage('/goals')} /> : null}
           </View>
           {showToday ? <View style={{ gap: 8 }}>
             <Text style={{ color: p.text, fontSize: 14, fontWeight: '600' }}>Today’s habits</Text>

@@ -92,7 +92,7 @@ function Tour({ replay, onClose }: { replay: boolean; onClose?: () => void }) {
               {i === 4 ? <>
                 {text('Set a calorie target. Start with today’s tasks.')}
                 <View style={box}><Text style={{ color: p.text, fontSize: 15, lineHeight: 23 }}>Goals, units, themes and reminders live in Settings.</Text></View>
-                <Button title="Set my calorie target" onPress={() => { void finish(true); }} disabled={saving} />
+                <Button title="Set your goals" onPress={() => { void finish(true); }} disabled={saving} />
                 <Text style={{ color: p.muted, fontSize: 12, textAlign: 'center' }}>No account needed. Replay this guide in Settings.</Text>
               </> : null}
             </ScrollView>
