@@ -5,7 +5,7 @@ export function dailyTasks(data: DataSet, date: string) {
   return [
     { label: 'Workout', value: day.workout },
     { label: 'Creatine', value: day.creatine },
-    { label: 'Food logged', value: day.food },
+    { label: 'Calories', value: day.calories !== null ? day.food : null },
     { label: 'Weight entered', value: data.weights.some(w => w.date === date) ? true : null },
   ];
 }
