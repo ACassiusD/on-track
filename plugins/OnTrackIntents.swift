@@ -1,5 +1,5 @@
 import AppIntents
-import OnTrackIPhone
+internal import OnTrackIPhone
 
 @available(iOS 16.4, *)
 struct TakenCreatineIntent: AppIntent {
