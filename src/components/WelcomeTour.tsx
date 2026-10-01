@@ -72,11 +72,11 @@ function Tour({ replay, onClose }: { replay: boolean; onClose?: () => void }) {
               <Text accessibilityRole="header" style={{ color: p.text, fontSize: 28, fontWeight: '700', textAlign: 'center', lineHeight: 34 }}>{title}</Text>
               {i === 0 ? <>
                 {text('Small daily habits help your pet feel happy.')}
-                <View style={box}>{text('Your pet’s happiness reflects your habits over the past 2 weeks—not day-to-day weight changes.')}</View>
+                <View style={box}>{text('Your pet’s happiness reflects your habits over the past 2 weeks, not day-to-day weight changes.')}</View>
               </> : null}
               {i === 1 ? <>
                 <View style={{ gap: 11 }}>{tasks.map(([label, copy]) => <View key={label} style={{ flexDirection: 'row', gap: 12 }}><View style={{ width: 22, height: 22, borderWidth: 1.5, borderColor: p.primary, borderRadius: p.retro ? 0 : 5, alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: p.primary }}>✓</Text></View><View style={{ flex: 1, gap: 2 }}><Text style={{ color: p.text, fontSize: 15, fontWeight: '600' }}>{label}</Text><Text style={{ color: p.muted, fontSize: 13, lineHeight: 18 }}>{copy}</Text></View></View>)}</View>
-                {text('Logging still counts—even over target.')}
+                {text('Logging still counts if you’re over target.')}
               </> : null}
               {i === 2 ? <>
                 {text('Choose a mood. See the habits behind it.')}
@@ -90,10 +90,10 @@ function Tour({ replay, onClose }: { replay: boolean; onClose?: () => void }) {
                 {text('Only add missed weights you actually recorded.')}
               </> : null}
               {i === 4 ? <>
-                {text('Set a calorie target. Start with today’s tasks.')}
-                <View style={box}><Text style={{ color: p.text, fontSize: 15, lineHeight: 23 }}>Goals, units, themes and reminders live in Settings.</Text></View>
+                {text('Set your goals. Start today.')}
+                <View style={box}><Text style={{ color: p.text, fontSize: 15, lineHeight: 23 }}>Change themes, units and reminders in Settings.</Text></View>
                 <Button title="Set your goals" onPress={() => { void finish(true); }} disabled={saving} />
-                <Text style={{ color: p.muted, fontSize: 12, textAlign: 'center' }}>No account needed. Replay this guide in Settings.</Text>
+                <Text style={{ color: p.muted, fontSize: 12, textAlign: 'center' }}>No account needed.</Text>
               </> : null}
             </ScrollView>
           </View>;

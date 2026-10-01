@@ -21,3 +21,13 @@ test('preview samples are fresh and never change real or demo records', () => {
   assert.equal(petExample('thriving').days[0].count,5);
   assert.equal(JSON.stringify(state),before);
 });
+test('lower-mood examples have distinct missed days while doing okay includes a full day', () => {
+  const okay = petExample('normal');
+  const care = petExample('low');
+  const boost = petExample('bad');
+  assert.equal(okay.days.filter(day => day.count === 0).length, 0);
+  assert.ok(okay.days.some(day => day.count === 5 && day.tone === 'green'));
+  assert.equal(care.days.filter(day => day.count === 0 && day.tone === 'grey').length, 1);
+  assert.equal(boost.days.filter(day => day.count === 0 && day.tone === 'grey').length, 3);
+  assert.ok(okay.status.rate > care.status.rate && care.status.rate > boost.status.rate);
+});
