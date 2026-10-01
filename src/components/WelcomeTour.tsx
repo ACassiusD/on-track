@@ -38,7 +38,6 @@ function Tour({ replay, onClose }: { replay: boolean; onClose?: () => void }) {
   const [page, setPage] = useState(0);
   const [mood, setMood] = useState<ExampleMood>('thriving');
   const [saving, setSaving] = useState(false);
-  const [skipFocused, setSkipFocused] = useState(false);
   const [error, setError] = useState('');
   const lesson = moods.find(m => m.mood === mood)!;
   const size = height < 700 ? 132 : 172;
@@ -61,7 +60,7 @@ function Tour({ replay, onClose }: { replay: boolean; onClose?: () => void }) {
       <View pointerEvents="none" style={{ position: 'absolute', inset: 0 }}><Svg width="100%" height="100%"><Defs><RadialGradient id="welcomeGlow" cx="50%" cy="28%" r="65%"><Stop offset="0" stopColor={p.primary} stopOpacity={.13} /><Stop offset=".55" stopColor={p.accent} stopOpacity={.04} /><Stop offset="1" stopColor={p.bg} stopOpacity={0} /></RadialGradient></Defs><Rect width="100%" height="100%" fill="url(#welcomeGlow)" /></Svg></View>
       <View style={{ paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 52 }}>
         <Text style={{ color: p.primary, fontSize: 12, letterSpacing: 2, fontWeight: '700' }}>ON TRACK</Text>
-        <Pressable accessibilityRole="button" disabled={saving} onFocus={() => setSkipFocused(true)} onBlur={() => setSkipFocused(false)} onPressIn={() => setSkipFocused(false)} onPress={() => { void finish(); }} style={({ pressed }) => ({ minHeight: 44, minWidth: 64, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 12, borderRadius: p.retro ? 0 : 12, borderWidth: 1, borderColor: skipFocused ? p.primary : 'transparent', backgroundColor: pressed ? p.tile : 'transparent', opacity: saving ? .5 : 1, ...(Platform.OS === 'web' ? { outlineWidth: 0 } : {}) })}><Text selectable={false} style={{ color: skipFocused ? p.primary : p.muted, fontSize: 15 }}>{replay ? 'Close' : 'Skip'}</Text></Pressable>
+        <Pressable accessibilityRole="button" disabled={saving} onPress={() => { void finish(); }} style={({ pressed }) => ({ minHeight: 44, minWidth: 64, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 12, borderRadius: p.retro ? 0 : 12, borderWidth: 1, borderColor: 'transparent', backgroundColor: pressed ? p.tile : 'transparent', opacity: saving ? .5 : 1, ...(Platform.OS === 'web' ? { outlineWidth: 0 } : {}) })}><Text selectable={false} style={{ color: p.muted, fontSize: 15 }}>{replay ? 'Close' : 'Skip'}</Text></Pressable>
       </View>
       <ScrollView ref={pager} horizontal pagingEnabled showsHorizontalScrollIndicator={false} scrollEventThrottle={32} onScroll={event => { const next = Math.max(0, Math.min(4, Math.round(event.nativeEvent.contentOffset.x / width))); pageRef.current = next; setPage(next); }} style={{ flex: 1 }}>
         {titles.map((title, i) => {
