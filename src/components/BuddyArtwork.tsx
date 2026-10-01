@@ -19,18 +19,21 @@ export function BuddyArtwork({ palette: p, mood, blink = false, delighted = fals
     {happy ? <Path d="M52 8v9m-4-5h8" stroke={p.accent} strokeWidth={3} /> : null}
   </Svg>;
   if (p.realm === 'astral') return <Svg width={size} height={size} viewBox="0 0 80 80">
-    <Defs><LinearGradient id={body} x1="0%" y1="0%" x2="70%" y2="100%"><Stop stopColor="#dce6ff" /><Stop offset=".55" stopColor="#a7b4ef" /><Stop offset="1" stopColor="#8280c9" /></LinearGradient></Defs>
-    <Ellipse cx={40} cy={70} rx={25} ry={3} fill="#000" opacity={.13} />
-    <Path d="M51 47q16 6 18-13c-9 1-13-5-13-13q12 1 17 10 4-6 6-9 3 22-12 33l-16 3" fill={`url(#${body})`} stroke="#8a8ccc" strokeWidth={1} />
-    <Path d="M8 43c0-18 13-24 29-22 16 1 23 13 21 27-3 13-12 18-29 15C15 61 8 55 8 43Z" fill={`url(#${body})`} stroke="#8793c6" strokeWidth={1} />
-    <Path d="M10 48q16 8 46 1c-4 13-15 15-27 12-10-2-16-5-19-13" fill="#fff1e5" opacity={.75} />
-    <Path d="M37 55q0 15 11 12l-2-16" fill="#aab3eb" stroke="#8793c6" strokeWidth={1} />
-    {blink ? <Path d="M20 40q4 3 8 0m10 0q4 3 8 0" fill="none" stroke={ink} strokeWidth={2} strokeLinecap="round" /> : <><Ellipse cx={24} cy={39} rx={4} ry={5} fill={ink} /><Ellipse cx={42} cy={39} rx={4} ry={5} fill={ink} /><Circle cx={23} cy={37} r={1.5} fill="#fff" /><Circle cx={41} cy={37} r={1.5} fill="#fff" /></>}
-    <Ellipse cx={17} cy={46} rx={4} ry={2} fill={cheek} opacity={.65} /><Ellipse cx={48} cy={46} rx={4} ry={2} fill={cheek} opacity={.65} />
-    <Path d={happy?'M29 45q4 1 8 0c0 7-8 7-8 0Z':mood==='bad'?'M30 49q3-3 6 0':'M30 46q3 4 6 0'} stroke={ink} strokeWidth={1.5} fill={happy?ink:'none'} strokeLinecap="round" />
-    <Path d="m27 27 6 2 10-2" stroke="#fff8d8" strokeWidth={.7} opacity={.7} />{[[27,27],[33,29],[43,27]].map(([x,y],i)=><Circle key={i} cx={x} cy={y} r={1.2} fill="#fff8d8" />)}
-    <Path d="M33 16q-8-5-5-10m11 10q6-4 5-8m-2 6 3-1" stroke="#c6dafa" strokeWidth={2} opacity={.7} fill="none" strokeLinecap="round" />
-    <Path d="m61 7 1 3 3 1-3 1-1 3-1-3-3-1 3-1Z" fill="#f4dfb9" />
+    <Defs><LinearGradient id={body} x1="15%" y1="0%" x2="80%" y2="100%"><Stop stopColor="#e0fbff" /><Stop offset=".38" stopColor="#a0e3ed" /><Stop offset=".75" stopColor="#a4b8f2" /><Stop offset="1" stopColor="#b69be9" /></LinearGradient></Defs>
+    <Ellipse cx={39} cy={71} rx={25} ry={2.5} fill="#080d27" opacity={.22} />
+    <Path d="M48 50c13 1 20-5 20-16-8-1-12-6-11-14 8 0 13 4 16 10 1-7 3-10 6-11 2 15-2 30-15 36l-14 5Z" fill={`url(#${body})`} stroke="#828fd1" strokeWidth={1} strokeLinejoin="round" />
+    <Path d="M6 44c0-16 10-25 26-25 18 0 29 11 29 25 0 15-12 23-29 21C16 64 6 57 6 44Z" fill={`url(#${body})`} stroke="#87acd5" strokeWidth={1} />
+    <Path d="M8 49c14 8 34 8 50 0-3 11-14 16-26 14C19 62 11 58 8 49Z" fill="#f1faff" opacity={.86} />
+    <Path d="M40 51c3 2 11 6 14 13-9 5-16 0-18-7" fill="#9bc9eb" stroke="#849dd4" strokeWidth={1} strokeLinecap="round" />
+    <Path d="M14 31q5-7 13-7" fill="none" stroke="#fff" strokeWidth={3} opacity={.55} strokeLinecap="round" />
+    {blink ? <Path d="M17 42q4 3 8 0m12 0q4 3 8 0" fill="none" stroke={ink} strokeWidth={2} strokeLinecap="round" /> : <><Ellipse cx={21} cy={40} rx={4.5} ry={5.6} fill={ink} /><Ellipse cx={41} cy={40} rx={4.5} ry={5.6} fill={ink} /><Circle cx={19.5} cy={38} r={1.7} fill="#fff" /><Circle cx={39.5} cy={38} r={1.7} fill="#fff" /><Circle cx={22.5} cy={42.5} r={.8} fill="#80e8ef" /><Circle cx={42.5} cy={42.5} r={.8} fill="#80e8ef" /></>}
+    <Ellipse cx={14} cy={47} rx={4.5} ry={2.3} fill="#efa9d7" opacity={.8} /><Ellipse cx={48} cy={47} rx={4.5} ry={2.3} fill="#efa9d7" opacity={.8} />
+    <Path d={happy?'M27 46q4 1 8 0c0 7-8 7-8 0Z':mood==='bad'?'M28 50q3-3 6 0':'M28 47q3 4 6 0'} stroke={ink} strokeWidth={1.5} fill={happy?ink:'none'} strokeLinecap="round" />
+    {happy ? <Ellipse cx={31} cy={50} rx={2} ry={1} fill={cheek} /> : null}
+    <Path d="m34 27 8 2 8-3" stroke="#fff" strokeWidth={.7} opacity={.7} />{[[34,27],[42,29],[50,26]].map(([x,y],i)=><Circle key={i} cx={x} cy={y} r={1.1} fill="#f6f2ff" />)}
+    <Path d="M29 16q-2-7-6-6m9 6q2-9 6-7" stroke="#bceef9" strokeWidth={2} fill="none" strokeLinecap="round" />
+    <Circle cx={22} cy={7} r={1.6} fill="#bceef9" /><Circle cx={39} cy={6} r={1.2} fill="#e2c6ff" />
+    <Path d="m58 10 1.3 3.7L63 15l-3.7 1.3L58 20l-1.3-3.7L53 15l3.7-1.3Z" fill="#e8d1ff" /><Circle cx={9} cy={25} r={1.2} fill="#a4e8ee" />
   </Svg>;
   return <Svg width={size} height={size} viewBox="0 0 80 80">
     <Defs><LinearGradient id={body} x1="0%" y1="0%" x2="85%" y2="100%"><Stop stopColor="#f4ffe8" /><Stop offset=".35" stopColor={color} /><Stop offset="1" stopColor={p.realm === 'heaven' ? '#dce2e3' : p.fantasy ? '#54bca8' : color} /></LinearGradient></Defs>
