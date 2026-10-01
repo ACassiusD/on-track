@@ -40,13 +40,10 @@ export default function Dashboard() {
   return <Screen title="" back={false} compact>
     <HomeBuddy />
     <View style={{ gap: 7 }}>
-    {allDone ? <View style={{ padding: 12, gap: 3, backgroundColor: p.tile, borderColor: p.primary, borderWidth: 1, borderRadius: p.retro ? 0 : 12 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-        <Text accessibilityLiveRegion="polite" style={{ color: p.primary, fontSize: 16, fontWeight: '700', flexShrink: 1 }}>✓ All done for today!</Text>
-        <Pressable accessibilityRole="button" accessibilityState={{ expanded: showCompleted }} onPress={() => setTaskView({ context: taskContext, open: !showCompleted })} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 4 }}><Text style={{ color: p.primary, fontSize: 12 }}>{showCompleted ? 'Hide tasks ▴' : 'View tasks ▾'}</Text></Pressable>
-      </View>
-      <Text style={{ color: p.muted, fontSize: 12 }}>Great job taking care of your pet.</Text>
-    </View> : <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}><Text style={{ color: p.text, fontSize: 14, fontWeight: '600' }}>Today’s tasks</Text><Text accessibilityLiveRegion="polite" style={{ color: p.primary, fontSize: 13, fontWeight: '600' }}>{score.count}/{score.total}</Text></View>}
+    {allDone ? <Pressable accessibilityRole="button" accessibilityLabel="All done for today. Five of five tasks complete." accessibilityHint={showCompleted ? 'Tap to hide completed tasks.' : 'Tap to view or edit completed tasks.'} accessibilityState={{ expanded: showCompleted }} onPress={() => setTaskView({ context: taskContext, open: !showCompleted })} style={({ pressed }) => ({ minHeight: 44, paddingHorizontal: 12, paddingVertical: 6, backgroundColor: p.tile, borderColor: p.line, borderWidth: 1, borderRadius: p.retro ? 0 : 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, opacity: pressed ? .7 : 1 })}>
+      <Text accessibilityLiveRegion="polite" style={{ color: p.primary, fontSize: 14, fontWeight: '600', flexShrink: 1 }}>✓ All done for today!</Text>
+      <Text style={{ color: p.muted, fontSize: 12 }}>{showCompleted ? 'Hide tasks ▴' : 'View tasks ▾'}</Text>
+    </Pressable> : <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}><Text style={{ color: p.text, fontSize: 14, fontWeight: '600' }}>Today’s tasks</Text><Text accessibilityLiveRegion="polite" style={{ color: p.primary, fontSize: 13, fontWeight: '600' }}>{score.count}/{score.total}</Text></View>}
     {!allDone || showCompleted ? <View accessibilityLabel="Daily tasks" style={{ flexDirection: 'row', gap: 5 }}>
       {(['workout', 'creatine', 'food', 'weight', 'within'] as const).map(key => {
         const done = key === 'within' ? withinDone : key === 'weight' ? weightDone : key === 'food' ? day.food === true && day.calories !== null : day[key] === true;
