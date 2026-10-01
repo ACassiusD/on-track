@@ -49,7 +49,7 @@ export function ProgressBuddy({ featured = false, compact = false }: { featured?
     reactionTimer.current = setTimeout(() => setDelighted(false), 1300);
   };
   const color = status.mood === 'good' ? p.green : status.mood === 'bad' ? p.red : status.mood === 'normal' ? p.yellow : p.accent;
-  const hint = status.mood === 'good' ? 'Your steady logging is paying off.' : status.mood === 'bad' ? 'A fresh day to get back on track.' : status.mood === 'normal' ? 'Keep building a steady routine.' : 'Keep logging so I can get to know you.';
+  const hint = status.mood === 'good' ? 'Keep it up!' : status.mood === 'bad' ? 'A fresh start today.' : status.mood === 'normal' ? 'One day at a time.' : 'Keep logging.';
   const size = featured ? compact ? 68 : 82 : 48;
   return <View style={{ flexDirection: 'row', alignItems: 'center', gap: featured ? 12 : 5, minHeight: featured ? compact ? 74 : 90 : 48, ...(featured ? { paddingHorizontal: 8, ...(p.fantasy ? { backgroundColor: p.tile, borderRadius: 16, borderWidth: 1, borderColor: p.line, paddingVertical: 4 } : { borderBottomWidth: 1, borderBottomColor: p.line }) } : {}) }}>
     <Pressable accessibilityRole="button" accessibilityLabel="Pet your buddy" accessibilityHint="Shows a playful reaction. Your progress score stays the same." onPress={pet} style={{ minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center' }}>
@@ -57,7 +57,6 @@ export function ProgressBuddy({ featured = false, compact = false }: { featured?
       <Animated.Text pointerEvents="none" style={{ position: 'absolute', top: 0, right: 0, color: p.accent, fontSize: 18, opacity: reaction, transform: [{ translateY: reduceMotion ? 0 : reaction.interpolate({ inputRange: [0, 1], outputRange: [0, -5] }) }] }}>♥</Animated.Text>
     </Pressable>
     <Pressable accessibilityRole="button" accessibilityLabel={`${status.label}. Last 14 days: ${status.logged} food logs, ${status.within} within target. View details.`} onPress={() => router.push('/progress')} style={{ flex: featured ? 1 : undefined, flexShrink: 1, gap: featured ? 3 : 0, minHeight: 44, justifyContent: 'center' }}>
-      {featured ? <Text style={{ color: p.muted, fontSize: 12 }}>Your buddy · 14-day calorie consistency</Text> : null}
       <Text style={{ color, fontSize: featured ? 23 : 13, fontWeight: '700' }}>{status.label}</Text>
       <Text style={{ color: p.muted, fontSize: featured ? 12 : 10 }}>{featured ? hint : '14 days'}</Text>
     </Pressable>
