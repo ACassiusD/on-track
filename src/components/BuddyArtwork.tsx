@@ -6,17 +6,18 @@ import type { BuddyMood } from '../domain/buddy';
 export function BuddyArtwork({ palette: p, mood, blink = false, delighted = false, size = 68 }: { palette: Palette; mood: BuddyMood; blink?: boolean; delighted?: boolean; size?: number }) {
   const id = useId().replace(/:/g, '');
   const body = `${id}Body`;
-  const color = p.realm === 'astral' ? '#b5b7f3' : p.realm === 'heaven' ? '#fffdf7' : p.fantasy ? '#a4e2cd' : mood === 'good' ? p.green : mood === 'bad' ? p.red : mood === 'normal' ? p.yellow : p.primary;
-  const happy = delighted || mood === 'good';
+  const color = p.realm === 'astral' ? '#b5b7f3' : p.realm === 'heaven' ? '#fffdf7' : p.fantasy ? '#a4e2cd' : mood === 'thriving' ? p.primary : mood === 'good' ? p.green : mood === 'bad' ? p.red : mood === 'normal' || mood === 'low' ? p.yellow : p.primary;
+  const excited = delighted || mood === 'thriving';
+  const happy = excited || mood === 'good';
   const ink = '#17333d';
   const cheek = '#f5a5b8';
   if (p.retro) return <Svg width={size} height={size} viewBox="0 0 64 64">
     {['0000111111000000','0001111111100000','0011111111110000','0111111111111000','0111111111111000','1111111111111100','1111111111111100','1111111111111100','1111111111111100','1111111111111100','1111111111111100','1111111111111100','1111001100111100','0110001100011000'].flatMap((row,y) => [...row].map((bit,x) => bit === '1' ? <Rect key={`${x}-${y}`} x={8+x*3} y={7+y*3} width={3} height={3} fill={color} /> : null))}
-    {blink || happy ? <Path d="M20 26v-3h6v3m12 0v-3h6v3" stroke={ink} strokeWidth={3} fill="none" /> : <><Rect x={20} y={22} width={6} height={9} fill={ink} /><Rect x={38} y={22} width={6} height={9} fill={ink} /><Rect x={20} y={22} width={3} height={3} fill="#fff" /><Rect x={38} y={22} width={3} height={3} fill="#fff" /></>}
+    {blink || excited ? <Path d="M20 26v-3h6v3m12 0v-3h6v3" stroke={ink} strokeWidth={3} fill="none" /> : <><Rect x={20} y={22} width={6} height={9} fill={ink} /><Rect x={38} y={22} width={6} height={9} fill={ink} /><Rect x={20} y={22} width={3} height={3} fill="#fff" /><Rect x={38} y={22} width={3} height={3} fill="#fff" /></>}
     <Rect x={14} y={32} width={6} height={3} fill={cheek} /><Rect x={44} y={32} width={6} height={3} fill={cheek} />
-    <Path d={happy ? 'M26 34v3h3v3h6v-3h3v-3' : mood === 'bad' ? 'M26 40v-3h12v3' : 'M29 37h6'} fill="none" stroke={ink} strokeWidth={3} />
+    <Path d={excited ? 'M26 34v3h3v3h6v-3h3v-3' : happy ? 'M26 34v3h12v-3' : mood === 'bad' ? 'M26 40v-3h12v3' : mood === 'low' || mood === 'unknown' ? 'M29 37h6' : 'M26 36v2h12v-2'} fill="none" stroke={ink} strokeWidth={3} />
     <Rect x={23} y={43} width={18} height={5} fill="#fff" opacity={.24} />
-    {happy ? <Path d="M52 8v9m-4-5h8" stroke={p.accent} strokeWidth={3} /> : null}
+    {excited ? <Path d="M52 8v9m-4-5h8" stroke={p.accent} strokeWidth={3} /> : null}
   </Svg>;
   if (p.realm === 'astral') return <Svg width={size} height={size} viewBox="0 0 80 80">
     <Defs><LinearGradient id={body} x1="15%" y1="0%" x2="80%" y2="100%"><Stop stopColor="#e0fbff" /><Stop offset=".38" stopColor="#a0e3ed" /><Stop offset=".75" stopColor="#a4b8f2" /><Stop offset="1" stopColor="#b69be9" /></LinearGradient></Defs>
@@ -26,14 +27,14 @@ export function BuddyArtwork({ palette: p, mood, blink = false, delighted = fals
     <Path d="M8 49c14 8 34 8 50 0-3 11-14 16-26 14C19 62 11 58 8 49Z" fill="#f1faff" opacity={.86} />
     <Path d="M40 51c3 2 11 6 14 13-9 5-16 0-18-7" fill="#9bc9eb" stroke="#849dd4" strokeWidth={1} strokeLinecap="round" />
     <Path d="M14 31q5-7 13-7" fill="none" stroke="#fff" strokeWidth={3} opacity={.55} strokeLinecap="round" />
-    {blink ? <Path d="M17 42q4 3 8 0m12 0q4 3 8 0" fill="none" stroke={ink} strokeWidth={2} strokeLinecap="round" /> : <><Ellipse cx={21} cy={40} rx={4.5} ry={5.6} fill={ink} /><Ellipse cx={41} cy={40} rx={4.5} ry={5.6} fill={ink} /><Circle cx={19.5} cy={38} r={1.7} fill="#fff" /><Circle cx={39.5} cy={38} r={1.7} fill="#fff" /><Circle cx={22.5} cy={42.5} r={.8} fill="#80e8ef" /><Circle cx={42.5} cy={42.5} r={.8} fill="#80e8ef" /></>}
+    {blink || excited ? <Path d={excited && !blink ? "M17 41q4-5 8 0m12 0q4-5 8 0" : "M17 42q4 3 8 0m12 0q4 3 8 0"} fill="none" stroke={ink} strokeWidth={2} strokeLinecap="round" /> : <><Ellipse cx={21} cy={40} rx={4.5} ry={5.6} fill={ink} /><Ellipse cx={41} cy={40} rx={4.5} ry={5.6} fill={ink} /><Circle cx={19.5} cy={38} r={1.7} fill="#fff" /><Circle cx={39.5} cy={38} r={1.7} fill="#fff" /><Circle cx={22.5} cy={42.5} r={.8} fill="#80e8ef" /><Circle cx={42.5} cy={42.5} r={.8} fill="#80e8ef" /></>}
     <Ellipse cx={14} cy={47} rx={4.5} ry={2.3} fill="#efa9d7" opacity={.8} /><Ellipse cx={48} cy={47} rx={4.5} ry={2.3} fill="#efa9d7" opacity={.8} />
-    <Path d={happy?'M27 46q4 1 8 0c0 7-8 7-8 0Z':mood==='bad'?'M28 50q3-3 6 0':'M28 47q3 4 6 0'} stroke={ink} strokeWidth={1.5} fill={happy?ink:'none'} strokeLinecap="round" />
-    {happy ? <Ellipse cx={31} cy={50} rx={2} ry={1} fill={cheek} /> : null}
+    <Path d={excited?'M27 46q4 1 8 0c0 7-8 7-8 0Z':happy?'M26 46q5 7 10 0':mood==='bad'?'M28 50q3-3 6 0':mood==='low'||mood==='unknown'?'M29 48h4':'M28 47q3 2 6 0'} stroke={ink} strokeWidth={1.5} fill={excited?ink:'none'} strokeLinecap="round" />
+    {excited ? <Ellipse cx={31} cy={50} rx={2} ry={1} fill={cheek} /> : null}
     <Path d="m34 27 8 2 8-3" stroke="#fff" strokeWidth={.7} opacity={.7} />{[[34,27],[42,29],[50,26]].map(([x,y],i)=><Circle key={i} cx={x} cy={y} r={1.1} fill="#f6f2ff" />)}
     <Path d="M29 16q-2-7-6-6m9 6q2-9 6-7" stroke="#bceef9" strokeWidth={2} fill="none" strokeLinecap="round" />
     <Circle cx={22} cy={7} r={1.6} fill="#bceef9" /><Circle cx={39} cy={6} r={1.2} fill="#e2c6ff" />
-    <Path d="m58 10 1.3 3.7L63 15l-3.7 1.3L58 20l-1.3-3.7L53 15l3.7-1.3Z" fill="#e8d1ff" /><Circle cx={9} cy={25} r={1.2} fill="#a4e8ee" />
+    <Path d="m58 10 1.3 3.7L63 15l-3.7 1.3L58 20l-1.3-3.7L53 15l3.7-1.3Z" fill="#e8d1ff" /><Circle cx={9} cy={25} r={1.2} fill="#a4e8ee" />{excited ? <Path d="M8 10v8m-4-4h8m56 44v8m-4-4h8" stroke="#e5cdff" strokeWidth={1.5} /> : null}
   </Svg>;
   return <Svg width={size} height={size} viewBox="0 0 80 80">
     <Defs><LinearGradient id={body} x1="0%" y1="0%" x2="85%" y2="100%"><Stop stopColor="#f4ffe8" /><Stop offset=".35" stopColor={color} /><Stop offset="1" stopColor={p.realm === 'heaven' ? '#dce2e3' : p.fantasy ? '#54bca8' : color} /></LinearGradient></Defs>
@@ -44,11 +45,11 @@ export function BuddyArtwork({ palette: p, mood, blink = false, delighted = fals
     <Ellipse cx={40} cy={59} rx={15} ry={9} fill="#f4ffe9" opacity={.6} />
     <Path d="M23 51q-7 2-5 8m39-8q7 2 5 8" fill="none" stroke={p.realm === 'heaven' ? '#b8c5c8' : p.fantasy ? '#5ab3a0' : ink} opacity={.3} strokeWidth={3} strokeLinecap="round" />
     {p.fantasy ? <><Path d="m40 25 5 5-5 6-5-6Z" fill="#f8dfa4" stroke="#b89b5b" strokeWidth={.8} /><Path d="m40 27 2 3-2 3-2-3Z" fill="#fff4ce" /></> : <Path d="M40 22c-8-9-15-9-16-8 0 9 7 11 16 8 2-8 9-11 13-8-1 7-7 10-13 8" fill="#6aad83" />}
-    {blink ? <Path d="M24 43q5 3 10 0m12 0q5 3 10 0" fill="none" stroke={ink} strokeWidth={2.5} strokeLinecap="round" /> : <><Ellipse cx={29} cy={43} rx={4.8} ry={6.2} fill={ink} /><Ellipse cx={51} cy={43} rx={4.8} ry={6.2} fill={ink} /><Circle cx={27.5} cy={40.5} r={1.8} fill="#fff" /><Circle cx={49.5} cy={40.5} r={1.8} fill="#fff" /><Circle cx={30.5} cy={45.5} r={.8} fill="#98d6d7" /><Circle cx={52.5} cy={45.5} r={.8} fill="#98d6d7" />{mood === 'bad' && !delighted ? <Path d="M24 37q4 0 9-3m14 0q5 3 9 3" stroke={ink} opacity={.5} strokeWidth={1.3} strokeLinecap="round" /> : null}</>}
+    {blink || excited ? <Path d={excited && !blink ? "M24 43q5-6 10 0m12 0q5-6 10 0" : "M24 43q5 3 10 0m12 0q5 3 10 0"} fill="none" stroke={ink} strokeWidth={2.5} strokeLinecap="round" /> : <><Ellipse cx={29} cy={43} rx={4.8} ry={6.2} fill={ink} /><Ellipse cx={51} cy={43} rx={4.8} ry={6.2} fill={ink} /><Circle cx={27.5} cy={40.5} r={1.8} fill="#fff" /><Circle cx={49.5} cy={40.5} r={1.8} fill="#fff" /><Circle cx={30.5} cy={45.5} r={.8} fill="#98d6d7" /><Circle cx={52.5} cy={45.5} r={.8} fill="#98d6d7" />{mood === 'bad' && !delighted ? <Path d="M24 37q4 0 9-3m14 0q5 3 9 3" stroke={ink} opacity={.5} strokeWidth={1.3} strokeLinecap="round" /> : null}</>}
     <Ellipse cx={22} cy={51} rx={5} ry={2.7} fill={cheek} opacity={.7} /><Ellipse cx={58} cy={51} rx={5} ry={2.7} fill={cheek} opacity={.7} />
-    <Path d={happy ? 'M35 51q5 1 10 0c0 9-10 9-10 0Z' : mood === 'bad' ? 'M36 55q4-4 8 0' : 'M36 52q4 5 8 0'} fill={happy ? ink : 'none'} stroke={ink} strokeWidth={1.5} strokeLinecap="round" />
-    {happy ? <Ellipse cx={40} cy={56} rx={2.8} ry={1.3} fill={cheek} /> : null}
+    <Path d={excited ? 'M35 51q5 1 10 0c0 9-10 9-10 0Z' : happy ? 'M34 51q6 8 12 0' : mood === 'bad' ? 'M36 55q4-4 8 0' : mood === 'low' || mood === 'unknown' ? 'M37 54h6' : 'M36 52q4 2 8 0'} fill={excited ? ink : 'none'} stroke={ink} strokeWidth={1.5} strokeLinecap="round" />
+    {excited ? <Ellipse cx={40} cy={56} rx={2.8} ry={1.3} fill={cheek} /> : null}
     <Ellipse cx={25} cy={30} rx={7} ry={3} fill="#fff" opacity={.25} transform="rotate(-30 25 30)" />
-    {happy ? <Path d="m69 19 1.5 4.5L75 25l-4.5 1.5L69 31l-1.5-4.5L63 25l4.5-1.5Z" fill={p.accent} /> : null}
+    {excited ? <Path d="m69 19 1.5 4.5L75 25l-4.5 1.5L69 31l-1.5-4.5L63 25l4.5-1.5Z" fill={p.accent} /> : null}
   </Svg>;
 }

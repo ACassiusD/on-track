@@ -33,9 +33,11 @@ export default function Progress() {
       {buddy.logged > 0 ? <Row><Label small>{buddy.logged}/14 days logged</Label>{buddy.assessed > 0 ? <Label small>{buddy.within}/{buddy.assessed} within target</Label> : null}</Row> : null}
       <Details title="How your buddy feels">
         <Label small>{buddy.from} → {today}</Label>
-        <Label small>Feeling good: at least 10 days logged with a target, and at least 80% within it.</Label>
-        <Label small>Doing okay: at least 7 reported days, without meeting the on-track or off-track rule.</Label>
-        <Label small>Needs a boost: at least 7 reported days, with fewer than half within target.</Label>
+        <Label small>Thriving: at least 12 days logged with a target, and at least 90% within it.</Label>
+        <Label small>Happy: at least 10 days logged with a target, and at least 80% within it.</Label>
+        <Label small>Doing okay: at least 7 reported days and at least half within target, while building toward Happy.</Label>
+        <Label small>Needs care: 35–49% within target across at least 7 reported days.</Label>
+        <Label small>Needs a boost: fewer than 35% within target across at least 7 reported days.</Label>
         <Label small>Getting started: fewer than 7 days logged with a target.</Label>
         <Label small>Missing logs, weight fluctuations, and rest days don’t count as calorie successes or failures.</Label>
       </Details>

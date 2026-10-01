@@ -26,7 +26,7 @@ export function ProgressBuddy({ featured = false, compact = false }: { featured?
   useEffect(() => {
     bob.setValue(0); breath.setValue(0);
     if (reduceMotion) return;
-    const speed = status.mood === 'good' ? 1050 : status.mood === 'bad' ? 1800 : 1400;
+    const speed = status.mood === 'thriving' ? 850 : status.mood === 'good' ? 1200 : status.mood === 'bad' ? 2200 : status.mood === 'low' ? 1900 : 1600;
     const float = Animated.loop(Animated.sequence([
       Animated.timing(bob, { toValue: 1, duration: speed, useNativeDriver: native, isInteraction: false }),
       Animated.timing(bob, { toValue: 0, duration: speed, useNativeDriver: native, isInteraction: false }),
@@ -49,13 +49,13 @@ export function ProgressBuddy({ featured = false, compact = false }: { featured?
     ]).start();
     reactionTimer.current = setTimeout(() => setDelighted(false), 1300);
   };
-  const color = status.mood === 'good' ? p.green : status.mood === 'bad' ? p.red : status.mood === 'normal' ? p.yellow : p.accent;
-  const hint = status.mood === 'good' ? 'Your routine is on track.' : status.mood === 'bad' ? 'Let’s build a steadier routine.' : status.mood === 'normal' ? 'Small steps keep me growing.' : 'Log your days to help me grow.';
+  const color = status.mood === 'thriving' ? p.primary : status.mood === 'good' ? p.green : status.mood === 'bad' ? p.red : status.mood === 'low' || status.mood === 'normal' ? p.yellow : p.accent;
+  const hint = status.mood === 'thriving' ? 'Your consistency helps me thrive!' : status.mood === 'good' ? 'Your routine is on track.' : status.mood === 'bad' ? 'Let’s build a steadier routine.' : status.mood === 'low' ? 'A little care goes a long way.' : status.mood === 'normal' ? 'Small steps keep me growing.' : 'Log your days to help me grow.';
   const size = featured ? 86 : 48;
   return <View style={{ flexDirection: 'row', alignItems: 'center', gap: featured ? 12 : 5, minHeight: featured ? compact ? 94 : 98 : 48, ...(featured ? { paddingHorizontal: 8, ...(p.fantasy ? { backgroundColor: p.tile, borderRadius: 16, borderWidth: 1, borderColor: p.line, paddingVertical: 4 } : { borderBottomWidth: 1, borderBottomColor: p.line }) } : {}) }}>
     <Pressable accessibilityRole="button" accessibilityLabel="Pet your buddy" accessibilityHint="Shows a playful reaction. Your progress score stays the same." onPress={pet} style={{ minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center' }}>
       {p.realm === 'heaven' ? <View pointerEvents="none" style={{ position: 'absolute', inset: -6 }}><Svg width="100%" height="100%"><Defs><RadialGradient id="petHeavenGlow"><Stop stopColor="#ffe6a3" stopOpacity=".32" /><Stop offset="1" stopColor="#ffe6a3" stopOpacity="0" /></RadialGradient></Defs><Rect width="100%" height="100%" fill="url(#petHeavenGlow)" /></Svg></View> : null}
-      <Animated.View style={{ transform: [{ translateY: reduceMotion ? 0 : Animated.add(bob.interpolate({ inputRange: [0, 1], outputRange: [0, status.mood === 'good' ? -4 : -2] }), reaction.interpolate({ inputRange: [0, 1], outputRange: [0, -9] })) }, { rotate: reduceMotion ? '0deg' : bob.interpolate({ inputRange: [0, 1], outputRange: ['-1.5deg', '1.5deg'] }) }, { scaleX: reduceMotion ? 1 : breath.interpolate({ inputRange: [0, 1], outputRange: [1, 1.035] }) }, { scaleY: reduceMotion ? 1 : breath.interpolate({ inputRange: [0, 1], outputRange: [1, .975] }) }] }}><BuddyArtwork palette={p} mood={status.mood} blink={blink && !reduceMotion} delighted={delighted} size={size} /></Animated.View>
+      <Animated.View style={{ transform: [{ translateY: reduceMotion ? 0 : Animated.add(bob.interpolate({ inputRange: [0, 1], outputRange: [0, status.mood === 'thriving' ? -6 : status.mood === 'good' ? -3 : status.mood === 'normal' ? -1.5 : -1] }), reaction.interpolate({ inputRange: [0, 1], outputRange: [0, -9] })) }, { rotate: reduceMotion ? '0deg' : bob.interpolate({ inputRange: [0, 1], outputRange: status.mood === 'thriving' ? ['-4deg', '4deg'] : status.mood === 'good' ? ['-2deg', '2deg'] : ['-.5deg', '.5deg'] }) }, { scaleX: reduceMotion ? 1 : breath.interpolate({ inputRange: [0, 1], outputRange: [1, 1.035] }) }, { scaleY: reduceMotion ? 1 : breath.interpolate({ inputRange: [0, 1], outputRange: [1, .975] }) }] }}><BuddyArtwork palette={p} mood={status.mood} blink={blink && !reduceMotion} delighted={delighted} size={size} /></Animated.View>
       <Animated.Text pointerEvents="none" style={{ position: 'absolute', top: 0, right: 0, color: p.accent, fontSize: 18, opacity: reaction, transform: [{ translateY: reduceMotion ? 0 : reaction.interpolate({ inputRange: [0, 1], outputRange: [0, -5] }) }] }}>♥</Animated.Text>
     </Pressable>
     <Pressable accessibilityRole="button" accessibilityLabel={`${status.label}. Last 14 days: ${status.logged} food logs, ${status.within} within target. View details.`} onPress={() => router.push('/progress')} style={{ flex: featured ? 1 : undefined, flexShrink: 1, gap: featured ? 3 : 0, minHeight: 44, justifyContent: 'center' }}>
