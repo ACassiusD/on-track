@@ -31,9 +31,23 @@ export default function Dashboard() {
   const [calorieEntry, setCalorieEntry] = useState(false);
   const weightDone = data.weights.some(w => w.date === today);
   const withinDone = dailyTasks(data, today)[4].value === true;
+  const score = taskScore(data, today);
+  const allDone = score.count === score.total;
+  const taskContext = `${state.mode}:${today}:${allDone}`;
+  const [taskView, setTaskView] = useState({ context: taskContext, open: false });
+  if (taskView.context !== taskContext) setTaskView({ context: taskContext, open: false });
+  const showCompleted = taskView.context === taskContext && taskView.open;
   return <Screen title="" back={false} compact>
     <HomeBuddy />
-    <View accessibilityLabel="Daily tasks" style={{ flexDirection: 'row', gap: 5 }}>
+    <View style={{ gap: 7 }}>
+    {allDone ? <View style={{ padding: 12, gap: 3, backgroundColor: p.tile, borderColor: p.primary, borderWidth: 1, borderRadius: p.retro ? 0 : 12 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+        <Text accessibilityLiveRegion="polite" style={{ color: p.primary, fontSize: 16, fontWeight: '700', flexShrink: 1 }}>✓ All done for today!</Text>
+        <Pressable accessibilityRole="button" accessibilityState={{ expanded: showCompleted }} onPress={() => setTaskView({ context: taskContext, open: !showCompleted })} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 4 }}><Text style={{ color: p.primary, fontSize: 12 }}>{showCompleted ? 'Hide tasks ▴' : 'View tasks ▾'}</Text></Pressable>
+      </View>
+      <Text style={{ color: p.muted, fontSize: 12 }}>Great job taking care of your pet.</Text>
+    </View> : <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}><Text style={{ color: p.text, fontSize: 14, fontWeight: '600' }}>Today’s tasks</Text><Text accessibilityLiveRegion="polite" style={{ color: p.primary, fontSize: 13, fontWeight: '600' }}>{score.count}/{score.total}</Text></View>}
+    {!allDone || showCompleted ? <View accessibilityLabel="Daily tasks" style={{ flexDirection: 'row', gap: 5 }}>
       {(['workout', 'creatine', 'food', 'weight', 'within'] as const).map(key => {
         const done = key === 'within' ? withinDone : key === 'weight' ? weightDone : key === 'food' ? day.food === true && day.calories !== null : day[key] === true;
         const label = key === 'workout' ? 'Workout' : key === 'creatine' ? 'Creatine' : key === 'weight' ? 'Weight' : key === 'within' ? 'Calories within target' : 'Calories logged';
@@ -42,11 +56,12 @@ export default function Dashboard() {
           if (key === 'within' && day.target === null) { router.push('/goals'); return; }
           if (key === 'food' || key === 'within') { setCalorieEntry(true); return; }
           updateData(d => setAnswer(d, today, target, key, done ? null : true));
-        }} style={({ pressed }) => ({ flex: 1, minHeight: 48, padding: 5, borderRadius: p.retro ? 0 : p.fantasy ? 8 : 12, borderWidth: p.retro ? 2.5 : 1.5, borderColor: done ? p.primary : p.accent, backgroundColor: p.tile, opacity: pressed ? .7 : 1, flexDirection: 'column', gap: 4, alignItems: 'center', justifyContent: 'center' })}>
+        }} style={({ pressed }) => ({ flex: 1, minHeight: 48, padding: 5, borderRadius: p.retro ? 0 : p.fantasy ? 8 : 12, borderWidth: p.retro ? 2.5 : 1.5, borderColor: done ? p.line : p.accent, backgroundColor: done ? p.bg : p.tile, opacity: pressed ? .7 : 1, flexDirection: 'column', gap: 4, alignItems: 'center', justifyContent: 'center' })}>
           <View style={{ width: 20, height: 20, borderRadius: p.retro ? 0 : 5, borderWidth: 2, borderColor: done ? p.primary : p.accent, backgroundColor: done ? p.primary : 'transparent', alignItems: 'center', justifyContent: 'center' }}><Text style={{ color: p.bg, fontWeight: '800', fontSize: 13 }}>{done ? '✓' : ''}</Text></View>
           <View style={{ width: '100%', minHeight: 28, justifyContent: 'center' }}><Text style={{ textAlign: 'center', color: done ? p.primary : p.text, fontSize: p.retro ? 10.5 : 11, fontFamily: p.retro ? Platform.OS === 'ios' ? 'Menlo' : 'monospace' : undefined, fontWeight: '700' }}>{key === 'food' ? 'Calories\nlogged' : key === 'within' ? 'Calories\nwithin target' : label}</Text></View>
         </Pressable>;
       })}
+    </View> : null}
     </View>
     <Modal visible={weightEntry} transparent animationType="fade" onRequestClose={() => setWeightEntry(false)}><KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#000000bb' }}><View accessibilityViewIsModal style={{ width: '100%', maxWidth: 380, alignSelf: 'center' }}>{weightEntry ? <View style={{ backgroundColor: p.tile, borderRadius: p.retro ? 0 : 18, borderWidth: 1, borderColor: p.line, overflow: 'hidden' }}><DailyWeightInput onSaved={() => setWeightEntry(false)} onCancel={() => setWeightEntry(false)} /></View> : null}</View></KeyboardAvoidingView></Modal>
     <Modal visible={calorieEntry} transparent animationType="fade" onRequestClose={() => setCalorieEntry(false)}><KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#000000bb' }}><View accessibilityViewIsModal style={{ width: '100%', maxWidth: 380, alignSelf: 'center' }}>{calorieEntry ? <Card compact><DailyCaloriesInput onSaved={() => setCalorieEntry(false)} onCancel={() => setCalorieEntry(false)} /></Card> : null}</View></KeyboardAvoidingView></Modal>

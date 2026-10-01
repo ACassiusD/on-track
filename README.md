@@ -23,6 +23,8 @@ On Windows, use an Android emulator for shared-screen testing. Expo Go supports 
 
 New users get a five-slide, skippable introduction with animated pet mood previews, the five daily tasks, happiness criteria, missed-day guidance and a shortcut to guided goal setup. Completion is saved locally. Existing users can replay it under **Settings → App & pet guide**; the development hard reset makes it appear on first launch again. Mood previews do not change records or the real pet score.
 
+Today labels the daily tasks with a completion count. Finishing all five collapses them into **All done for today!**; **View tasks** reopens them for corrections. Each newly completed task plays a short, queued pet reaction (dumbbell, creatine scoop, calorie checklist, scale or target shield), followed by a trophy celebration at 5/5. These reactions briefly override the expression and idle movement, then return to the actual 14-day mood. Loading saved data, switching demo profiles and midnight do not replay celebrations; reduced motion shows a static reaction instead.
+
 Tap the pet on Today to open its detail modal: a larger animated pet, the reason for its mood, daily completion, 14-day consistency, a habit tip and the next milestone. Tap the larger pet for an affection reaction. Habit breakdowns are expandable; this adds no XP or permanent levels yet.
 
 Goal setup asks one question at a time: calorie target, goal weight, optional milestones, then weigh-in time. Milestones are added individually; settings save together at the end. Existing readings stay unchanged when selecting kg or lb.
@@ -75,4 +77,4 @@ Today, Photos and Settings use bottom tabs. Add/Edit weight is on the dashboard;
 
 ## Task calendar and retro theme
 
-The four calendar tasks are Workout, Creatine, Food logged and Weight entered. Calorie-target results remain separate in the calorie card and buddy; a logged over-target day still earns food completion. Weight entry opens a modal. Arcade Pop uses bitmap lettering, squared neon frames, a CRT grid and a pixel buddy. Settings → Demo mode offers Good, Mixed, Bad and New profiles; choosing a profile replaces demo data only.
+The five calendar tasks are Workout, Creatine, Calories logged, Weight entered and Calories within target. A finished over-target log still earns calorie logging completion; staying within target earns a separate check. Weight entry opens a modal. Arcade Pop uses bitmap lettering, squared neon frames, a CRT grid and a pixel buddy. Settings → Demo mode offers Good, Mixed, Bad and New profiles; choosing a profile replaces demo data only.

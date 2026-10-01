@@ -12,7 +12,7 @@ import { Button } from './UI';
 
 export function HomeBuddy() {
   const [open, setOpen] = useState(false);
-  return <><ProgressBuddy featured compact onInspect={() => setOpen(true)} />{open ? <PetDetails onClose={() => setOpen(false)} /> : null}</>;
+  return <><ProgressBuddy featured compact watchCompletions onInspect={() => setOpen(true)} />{open ? <PetDetails onClose={() => setOpen(false)} /> : null}</>;
 }
 function PetDetails({ onClose }: { onClose: () => void }) {
   const { data, state, today, target, palette: p } = useApp();
