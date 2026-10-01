@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import { useApp } from '../../store/AppStore';
 import { useIPhone } from '../../store/IPhoneStore';
 import { selectDemoProfile } from '../../domain/demoProfiles';
-import type { ThemeName } from '../../domain/model';
+import { initialState, type ThemeName } from '../../domain/model';
 import { Button, Card, Label, Row, Screen } from '../../components/UI';
 import { themes } from '../../components/themes';
 const demoProfiles = [
@@ -17,8 +17,17 @@ const demoProfiles = [
 ] as const;
 
 export default function Settings() {
-  const { state, update, today, palette: p } = useApp(); const iphone = useIPhone();
+  const { state, update, commit, today, palette: p } = useApp(); const iphone = useIPhone();
   const [profilePicker, setProfilePicker] = useState(false);
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [resetError, setResetError] = useState('');
+  const reset = async () => {
+    setResetting(true); setResetError('');
+    try { await commit(() => initialState(today)); setResetOpen(false); router.replace('/'); }
+    catch (e) { setResetError(e instanceof Error ? e.message : 'Could not reset.'); }
+    finally { setResetting(false); }
+  };
   const selected = demoProfiles.find(profile => profile.value === state.demoProfile) ?? demoProfiles[2];
   return <Screen title="Settings" back={false}>
     <Card><Button title="Goals" onPress={() => router.push('/goals')} /><Button title="Account & cloud backup" onPress={() => router.push('/account')} /><Button title="iPhone connections" onPress={() => router.push('/connections')} /><Button title="Reminders" onPress={() => router.push('/reminders')} />{iphone.error ? <Label small>{iphone.error}</Label> : null}</Card>
@@ -27,6 +36,15 @@ export default function Settings() {
     <Card><Label>Theme</Label>{(Object.keys(themes) as ThemeName[]).map(theme => <Button key={theme} title={theme} selected={state.theme === theme} onPress={() => update(s => ({ ...s, theme }))} />)}</Card>
 
     <Card><Row><Label>Demo mode</Label><Switch accessibilityLabel="Demo mode" value={state.mode === 'demo'} onValueChange={value => update(s => ({ ...s, mode: value ? 'demo' : 'real' }))} /></Row><Pressable accessibilityRole="button" accessibilityLabel={`Demo profile: ${selected.label}. Change profile`} accessibilityState={{ expanded: profilePicker }} onPress={() => setProfilePicker(true)} style={{ minHeight: 48, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 1, borderColor: p.line, borderRadius: p.retro ? 0 : 12, backgroundColor: p.bg }}><Text style={{ color: p.text, fontSize: 16 }}>{selected.label}</Text><Text style={{ color: p.primary }}>▾</Text></Pressable><Label small>Profiles replace demo data only. Personal records stay separate.</Label></Card>
+    {__DEV__ ? <Card><Label>Development</Label><Button title="Hard reset" onPress={() => setResetOpen(true)} /><Label small>Start over with empty records and default settings.</Label></Card> : null}
+    <Modal visible={resetOpen} transparent animationType="fade" onRequestClose={() => { if (!resetting) setResetOpen(false); }}>
+      <View style={{ flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#000000bb' }}><View accessibilityViewIsModal style={{ width: '100%', maxWidth: 380, alignSelf: 'center' }}><Card>
+        <Label>Reset this app?</Label><Label small>Deletes personal records and resets goals, units, themes and reminders on this device. Cloud backups and your login stay intact.</Label>
+        {resetError ? <Text accessibilityRole="alert" style={{ color: p.red }}>{resetError}</Text> : null}
+        <Button title={resetting ? 'Resetting…' : 'Reset everything locally'} primary disabled={resetting} onPress={() => { void reset(); }} />
+        <Button title="Cancel" disabled={resetting} onPress={() => setResetOpen(false)} />
+      </Card></View></View>
+    </Modal>
     <Modal visible={profilePicker} transparent animationType="fade" onRequestClose={() => setProfilePicker(false)}>
       <View style={{ flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#000000bb' }}>
         <View accessibilityViewIsModal style={{ width: '100%', maxWidth: 380, maxHeight: '85%', alignSelf: 'center' }}>
