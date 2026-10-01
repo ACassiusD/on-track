@@ -1,30 +1,29 @@
 import React from 'react';
-import Svg, { Circle, Defs, Ellipse, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
 
-// A quiet coastal world behind the HUD. No network assets or extra image loading.
 export function FantasyBackdrop() {
   return <Svg width="100%" height="100%" viewBox="0 0 400 900" preserveAspectRatio="xMidYMin slice">
     <Defs>
-      <LinearGradient id="questSky" x1="0%" y1="0%" x2="0%" y2="100%"><Stop stopColor="#177ba3" /><Stop offset=".45" stopColor="#82cbc7" /><Stop offset="1" stopColor="#143b32" /></LinearGradient>
-      <LinearGradient id="questSea" x1="0%" y1="0%" x2="0%" y2="100%"><Stop stopColor="#20b6ad" /><Stop offset="1" stopColor="#082e38" /></LinearGradient>
-      <LinearGradient id="questStone" x1="0%" y1="0%" x2="100%" y2="30%"><Stop stopColor="#244b42" /><Stop offset=".55" stopColor="#73926b" /><Stop offset="1" stopColor="#1c4237" /></LinearGradient>
-      <LinearGradient id="questShade" x1="0%" y1="0%" x2="0%" y2="100%"><Stop stopColor="#051d29" stopOpacity=".2" /><Stop offset=".3" stopColor="#041d25" stopOpacity=".48" /><Stop offset="1" stopColor="#04161b" stopOpacity=".78" /></LinearGradient>
+      <LinearGradient id="questSky" x1="0%" y1="0%" x2="0%" y2="100%"><Stop stopColor="#244f5b" /><Stop offset=".42" stopColor="#163b3f" /><Stop offset="1" stopColor="#0b1c23" /></LinearGradient>
+      <RadialGradient id="questLight" cx="72%" cy="15%" r="60%"><Stop stopColor="#b8d5b8" stopOpacity=".3" /><Stop offset="1" stopColor="#254646" stopOpacity="0" /></RadialGradient>
+      <LinearGradient id="questWater" x1="0%" y1="0%" x2="0%" y2="100%"><Stop stopColor="#558a82" stopOpacity=".45" /><Stop offset="1" stopColor="#0b1c23" /></LinearGradient>
+      <LinearGradient id="questFade" x1="0%" y1="0%" x2="0%" y2="100%"><Stop stopColor="#0b1c23" stopOpacity=".05" /><Stop offset=".65" stopColor="#0b1c23" stopOpacity=".62" /><Stop offset="1" stopColor="#0b1c23" stopOpacity=".95" /></LinearGradient>
     </Defs>
-    <Rect width={400} height={900} fill="url(#questSky)" />
-    <Ellipse cx={290} cy={66} rx={100} ry={15} fill="#dcf0c8" opacity={.24} /><Ellipse cx={105} cy={114} rx={110} ry={10} fill="#e0f5dd" opacity={.18} />
-    <Path d="M0 290 45 214 78 253 134 181 181 261 223 209 277 277 333 197 400 247V470H0Z" fill="#326a61" opacity={.55} />
-    <Rect y={333} width={400} height={567} fill="url(#questSea)" />
-    <Path d="M0 335Q102 300 189 374T400 404M0 408Q93 381 218 431T400 470M0 492Q146 443 270 503T400 527" stroke="#b5f4de" strokeWidth={2} fill="none" opacity={.3} />
-    <Path d="M0 236 24 199 37 131 65 118 83 145 92 205 133 230 159 329 124 400 0 433Z" fill="url(#questStone)" />
-    <Path d="m0 236 37-29 52 12 21 54 41 31-12 49-51 13-52 31H0Z" fill="#2e6d43" />
-    <Path d="m38 134 18-9 12 14-4 76-22-7Zm31 85 13 8 18 104-19 18Z" fill="#a2af7b" opacity={.35} />
-    <Path d="M291 347 300 259 322 238 328 153 346 123 361 151 360 245 379 209 400 218V430Z" fill="url(#questStone)" />
-    <Path d="m293 347 15-35 24 8 15-14 33 20 20-11v115l-58-12Z" fill="#3b7949" />
-    <Path d="m331 167 16-27 10 17-2 86-18 5ZM308 275l13-17-1 64-14 9Z" fill="#a8b387" opacity={.3} />
-    <Path d="M135 384q35 3 48-2l13-36h25l18 57q-51 29-104 10Z" fill="#9dbe82" /><Path d="m180 380 16-34h25l10 32" fill="#517759" /><Path d="M195 346v-49h26v49m-26-36h26m-26 20h26" fill="#668576" stroke="#354f49" strokeWidth={2} />
-    <Path d="M0 651Q48 618 102 645L62 728 0 760ZM400 580Q348 579 313 637L350 723 400 736Z" fill="#194f36" />
-    {[[-8,75,1.15],[375,50,1.3],[21,565,.8],[358,516,.7]].map(([x,y,s],i) => <React.Fragment key={i}><Path d={`M${x+22*s} ${y+190*s}q${-14*s} ${-86*s} ${5*s} ${-154*s}`} stroke="#314b32" strokeWidth={13*s} fill="none" />{[-25,8,38].map((v,j) => <Ellipse key={j} cx={x+(v+22)*s} cy={y+(j%2?30:55)*s} rx={48*s} ry={35*s} fill={j===1?'#50843e':'#245b39'} />)}</React.Fragment>)}
-    <Rect width={400} height={900} fill="url(#questShade)" />
-    {[ [38,192],[370,295],[29,481],[363,741] ].map(([x,y],i) => <Circle key={i} cx={x} cy={y} r={2} fill="#c3ee7d" opacity={.65} />)}
+    <Rect width={400} height={900} fill="url(#questSky)" /><Rect width={400} height={900} fill="url(#questLight)" />
+    <Circle cx={296} cy={91} r={28} fill="#d5dec1" opacity={.12} /><Circle cx={296} cy={91} r={21} fill="#e9ebce" opacity={.3} />
+    <Path d="M0 174q50-25 112-9t122-10 166 5M0 193q73-13 149-2t251-18" fill="none" stroke="#b7d0bc" strokeWidth={9} opacity={.045} />
+    <Path d="M0 267q28-32 58-21t76-43q33-38 55-3t76 13q50-28 72-4t63-14V415H0Z" fill="#426c66" opacity={.4} />
+    <Path d="M0 317q63-18 94-49t69 16q38 23 78-12t81 14q45 23 78-11V443H0Z" fill="#29564e" />
+    <Path d="M0 370q55-8 117 18t153-16 130-3V900H0Z" fill="url(#questWater)" />
+    <Path d="M0 437q74-20 156-6t244-12m-345 55q109-8 230-5m-217 39q63-5 128-3" stroke="#a8cec1" strokeWidth={1} opacity={.12} fill="none" />
+    <Path d="m273 292 7-70 14-9 12 9 6 70m-29-63 7-10 9 9m-15 9h15m-17 17h19m-13-20v-15" fill="#799589" stroke="#3e645b" strokeWidth={1} opacity={.55} />
+    <Path d="M0 382q24-21 46-5t39-15l-7 40-78 18Zm330-6q24-23 70-21v80l-61-22Z" fill="#183e35" />
+    {[[-22,185,1.2],[378,155,1.05],[8,586,.7],[382,523,.75]].map(([x,y,s],i) => <React.Fragment key={i}>
+      <Path d={`M${x+21*s} ${y+178*s}q${-6*s} ${-65*s} ${9*s} ${-132*s}m${-3*s} ${38*s}q${-16*s} ${-10*s} ${-22*s} ${-30*s}m${21*s} ${24*s}q${20*s} ${-12*s} ${25*s} ${-30*s}`} stroke={i<2?'#15382f':'#102d28'} strokeWidth={9*s} strokeLinecap="round" fill="none" />
+      <Path d={`M${x-34*s} ${y+56*s}q${-16*s} ${-31*s} ${12*s} ${-47*s}q${-8*s} ${-22*s} ${25*s} ${-27*s}q${28*s} ${-23*s} ${51*s} ${4*s}q${35*s} ${-2*s} ${39*s} ${28*s}q${27*s} ${25*s} ${-8*s} ${47*s}q${-20*s} ${22*s} ${-54*s} ${9*s}q${-37*s} ${18*s} ${-65*s} ${-14*s}Z`} fill={i<2?'#244d3c':'#12362e'} />
+      <Path d={`M${x-25*s} ${y+19*s}q${10*s} ${-22*s} ${37*s} ${-16*s}q${28*s} ${-17*s} ${47*s} ${8*s}`} stroke="#759e68" strokeWidth={6*s} opacity={.14} strokeLinecap="round" fill="none" />
+    </React.Fragment>)}
+    <Rect width={400} height={900} fill="url(#questFade)" />
+    {[[30,166],[365,251],[20,439],[377,610],[43,747]].map(([x,y],i) => <React.Fragment key={i}><Circle cx={x} cy={y} r={5} fill="#d1dca2" opacity={.035} /><Circle cx={x} cy={y} r={1.2} fill="#d1dca2" opacity={.5} /></React.Fragment>)}
   </Svg>;
 }

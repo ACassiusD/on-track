@@ -3,6 +3,6 @@ export type Palette = { bg: string; tile: string; text: string; muted: string; p
 export const themes: Record<ThemeName, Palette> = {
   'Neon Arcade': { bg: '#101329', tile: '#1a2040', text: '#f2f5ff', muted: '#b5bfdf', primary: '#72e3ef', accent: '#c6a6ff', line: '#333f65', green: '#a8e3ad', yellow: '#f5d384', red: '#ffb1c3', grey: '#293458', yellowSurface: '#493c21', redSurface: '#512c39', radius: 20 },
   'Arcade Pop': { bg: '#08051a', tile: '#100c2b', text: '#fff4d8', muted: '#b6afd9', primary: '#35e9ff', accent: '#ff42dc', line: '#4c42bd', green: '#94ff68', yellow: '#ffee57', red: '#ff557d', grey: '#201a45', yellowSurface: '#3a3020', redSurface: '#46152e', radius: 0, retro: true },
-  'Fantasy RPG': { bg: '#071c24', tile: '#092630ed', text: '#f0f8e9', muted: '#bed1c8', primary: '#6ce5e7', accent: '#e3cc85', line: '#44858a', green: '#b5ec73', yellow: '#ffe398', red: '#ff9b88', grey: '#153d47', yellowSurface: '#4a4228', redSurface: '#512e30', radius: 14, fantasy: true },
+  'Fantasy RPG': { bg: '#0b1c23', tile: '#132d32f5', text: '#f2f3e7', muted: '#bbcec8', primary: '#a0ddce', accent: '#d9c494', line: '#3d5b5b', green: '#c0e0a2', yellow: '#e9d39e', red: '#efa7a1', grey: '#234044', yellowSurface: '#45412d', redSurface: '#483035', radius: 16, fantasy: true },
   'Classic': { bg: '#111421', tile: '#1b2033', text: '#f4f6ff', muted: '#b0bad2', primary: '#9bccff', accent: '#c3afff', line: '#353f58', green: '#a8e3ad', yellow: '#f5d384', red: '#ffb1c3', grey: '#2a3042', radius: 18 },
 };
