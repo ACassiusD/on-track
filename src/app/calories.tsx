@@ -1,17 +1,46 @@
 import React, { useState } from 'react';
 import { Alert, Switch } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useApp } from '../store/AppStore';
-import { addDays, confirmFood, emptyDay, setCalories } from '../domain/model';
+import { confirmFood, emptyDay, setAnswer, setCalories } from '../domain/model';
 import { validDate } from '../domain/reminders';
 import { Button, Card, Field, Label, Row, Screen } from '../components/UI';
 export default function Calories() {
-  const { today, data, target, commit } = useApp(); const params = useLocalSearchParams<{ edit?: string; audit?: string; date?: string }>(); const [date, setDate] = useState(validDate(params.date) && params.date <= today ? params.date : today); const [dateInput, setDateInput] = useState(date); const [saving, setSaving] = useState(false); const day = data.days[date] ?? emptyDay(date, target); const [input, setInput] = useState(String(day.calories ?? '')); const [reason, setReason] = useState('Unspecified'); const [editing, setEditing] = useState(params.edit === 'yes'); const [audit, setAudit] = useState(params.audit === 'yes'); const [snacks, setSnacks] = useState(false); const [drinks, setDrinks] = useState(false);
-  const save = async () => { if (!/^\d+$/.test(input)) { Alert.alert('Enter a whole calorie total'); return; } try { const total = Number(input); if (!Number.isSafeInteger(total)) throw new Error('Total is too large.'); setSaving(true); await commit(s => ({ ...s, [s.mode]: setCalories(s[s.mode], date, target, total, reason) })); setEditing(false); setAudit(false); } catch (e) { Alert.alert('Could not save', String(e)); } finally { setSaving(false); } };
-  const confirm = async () => { if (day.calories == null) { Alert.alert('Enter your calorie total first'); return; } setSaving(true); try { await commit(s => ({ ...s, [s.mode]: confirmFood(s[s.mode], date, target) })); setAudit(false); } catch (e) { Alert.alert('Could not confirm', String(e)); } finally { setSaving(false); } };
-  return <Screen title="Calories"><Row><Button title="Today" selected={date === today} onPress={() => { setDate(today); setDateInput(today); setInput(String(data.days[today]?.calories ?? '')); setAudit(false); setSnacks(false); setDrinks(false); }} /><Button title="Yesterday" selected={date === addDays(today, -1)} onPress={() => { const previous = addDays(today, -1); setDate(previous); setDateInput(previous); setInput(String(data.days[previous]?.calories ?? '')); setAudit(false); setSnacks(false); setDrinks(false); }} /></Row><Card><Label small>Edit an earlier day</Label><Field value={dateInput} onChangeText={setDateInput} placeholder="YYYY-MM-DD" /><Button title="Open date" disabled={saving} onPress={() => { if (!validDate(dateInput) || dateInput > today) { Alert.alert('Choose a valid date today or earlier'); return; } setDate(dateInput); setInput(String(data.days[dateInput]?.calories ?? '')); setEditing(false); setAudit(false); setSnacks(false); setDrinks(false); }} /></Card><Card><Label>{date}</Label><Label big>{day.calories?.toLocaleString() ?? '—'}<Label small> kcal</Label></Label><Label small>{day.food === true ? 'Everything logged ✓' : 'Completeness unconfirmed'} · Target {day.target ?? 'unset'}</Label><Button title="Update calories" primary onPress={() => { setInput(String(day.calories ?? '')); setEditing(true); }} />
-    {editing ? <><Field value={input} onChangeText={setInput} placeholder="Calorie total" numeric />{day.confirmationId ? <><Label small>Reason for changing a confirmed total</Label>{['Forgotten food', 'Ate afterward', 'Estimate correction', 'Unspecified'].map(r => <Button key={r} title={r} selected={reason === r} onPress={() => setReason(r)} />)}</> : null}<Row><Button title="Cancel" onPress={() => setEditing(false)} /><Button title={saving ? "Saving…" : "Save total"} primary disabled={saving} onPress={() => { void save(); }} /></Row></> : null}
-    <Button title={day.food === true ? 'Everything logged ✓' : 'Everything I ate is logged'} disabled={day.food === true} onPress={() => { setAudit(true); setSnacks(false); setDrinks(false); }} />
-    {audit ? <><Label>Check for forgotten food</Label><Row><Label>Snacks / small bites checked</Label><Switch value={snacks} onValueChange={setSnacks} accessibilityLabel="Snacks and small bites checked" /></Row><Row><Label>Drinks / sauces checked</Label><Switch value={drinks} onValueChange={setDrinks} accessibilityLabel="Drinks and sauces checked" /></Row><Label small>You can eat more or correct the total later. Changes reopen this check.</Label><Button title="Confirm everything is logged" primary disabled={saving || !snacks || !drinks || day.calories == null} onPress={() => { void confirm(); }} /><Button title="Cancel review" onPress={() => setAudit(false)} /></> : null}
-  </Card><Card><Label>Confirmation & revision history</Label><Label small>{data.revisions.length} revisions · {new Set(data.revisions.map(r => r.date)).size} revised days</Label>{data.revisions.slice().reverse().map(r => <Label key={r.id} small>{r.date}: {r.oldTotal} → {r.newTotal} kcal · {r.reason}{'\n'}{r.at} · {r.source.kind}</Label>)}{data.confirmations.slice().reverse().map(c => <Label key={c.id} small>{c.date}: confirmed {c.total} kcal · {c.at}</Label>)}{!data.confirmations.length && !data.revisions.length ? <Label small>No history yet.</Label> : null}</Card></Screen>;
+  const { today } = useApp();
+  const params = useLocalSearchParams<{ date?: string }>();
+  const date = validDate(params.date) && params.date <= today ? params.date : today;
+  return <CalorieForm key={date} date={date} />;
+}
+function CalorieForm({ date }: { date: string }) {
+  const { today, data, target, commit } = useApp();
+  const day = data.days[date] ?? emptyDay(date, target);
+  const [input, setInput] = useState(String(day.calories ?? ''));
+  const [complete, setComplete] = useState(day.food === true);
+  const [saving, setSaving] = useState(false);
+  const [history, setHistory] = useState(false);
+  const save = async () => {
+    if (!/^\d+$/.test(input) || !Number.isSafeInteger(Number(input))) { Alert.alert('Enter a whole calorie total'); return; }
+    setSaving(true);
+    try {
+      await commit(s => {
+        let next = setCalories(s[s.mode], date, target, Number(input), 'Total corrected');
+        if (complete && next.days[date].food !== true) next = confirmFood(next, date, target);
+        if (!complete) next = setAnswer(next, date, target, 'food', null);
+        return { ...s, [s.mode]: next };
+      });
+      router.back();
+    } catch (e) { Alert.alert('Could not save', String(e)); }
+    finally { setSaving(false); }
+  };
+  return <Screen title={date === today ? 'Today’s calories' : 'Calories'}>
+    <Card><Label small>{date === today ? 'Today' : date}</Label><Label>Daily total · kcal</Label>
+      <Field value={input} onChangeText={value => { setInput(value); setComplete(false); }} placeholder="e.g. 1700" numeric />
+      <Label small>{day.target == null && target == null ? 'Set your target in Settings' : `Target: ${day.target ?? target} kcal`}</Label>
+      <Row><Label>Food logged</Label><Switch accessibilityLabel="Food logged" value={complete} onValueChange={setComplete} /></Row>
+      <Label small>Check when all food and drinks are included.</Label>
+      <Button title={saving ? 'Saving…' : 'Save'} primary disabled={saving} onPress={() => { void save(); }} />
+    </Card>
+    <Button title={history ? 'Hide history' : 'View history'} onPress={() => setHistory(!history)} />
+    {history ? <Card><Label>Daily totals</Label>{Object.values(data.days).filter(d => d.calories !== null).sort((a,b) => b.date.localeCompare(a.date)).map(d => <Row key={d.date}><Label small>{d.date} · {d.calories} kcal {d.food ? '✓' : ''}</Label><Button title="Edit" onPress={() => router.replace({ pathname: '/calories', params: { date: d.date } })} /></Row>)}<Label>Corrections</Label>{data.revisions.slice().reverse().map(r => <Label key={r.id} small>{r.date} · {r.oldTotal} → {r.newTotal} kcal</Label>)}{!data.revisions.length ? <Label small>No corrections.</Label> : null}</Card> : null}
+  </Screen>;
 }

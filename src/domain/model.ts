@@ -4,11 +4,11 @@ export type Source = { kind: 'manual' | 'healthkit' | 'notification' | 'app-inte
 export type DailyRecord = { date: string; calories: number | null; target: number | null; food: Answer; workout: Answer; creatine: Answer; confirmationId?: string; sources: Source[] };
 export type Confirmation = { id: string; date: string; total: number; at: string; timezone: string };
 export type Revision = { id: string; date: string; oldTotal: number; newTotal: number; at: string; reason: string; confirmationId: string; source: Source };
-export type WeightReading = { id: string; date: string; pounds: number; source: Source };
+export type WeightReading = { id: string; date: string; pounds: number; time?: string; source: Source };
 export type Photo = { id: string; date: string; uri: string; scale: number; x: number; y: number };
 export type Reminder = { id: string; label: string; time: string; weekendTime?: string; dayOffset?: 0 | -1; enabled: boolean };
 export type DataSet = { days: Record<string, DailyRecord>; confirmations: Confirmation[]; revisions: Revision[]; weights: WeightReading[]; photos: Photo[]; photoReviewedDates: string[] };
-export type State = { version: 1; mode: 'real' | 'demo'; theme: ThemeName; target: number | null; goal: number | null; milestones: number[]; reminders: Reminder[]; notificationResponseIds?: string[]; nativeActionIds?: string[]; real: DataSet; demo: DataSet };
+export type State = { version: 1; mode: 'real' | 'demo'; theme: ThemeName; target: number | null; goal: number | null; milestones: number[]; reminders: Reminder[]; notificationResponseIds?: string[]; nativeActionIds?: string[]; weighInTime?: string; real: DataSet; demo: DataSet };
 export function emptyData(): DataSet { return { days: {}, confirmations: [], revisions: [], weights: [], photos: [], photoReviewedDates: [] }; }
 export function emptyDay(date: string, target: number | null): DailyRecord { return { date, calories: null, target, food: null, workout: null, creatine: null, sources: [] }; }
 export function localDate(d = new Date()): string { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
@@ -37,7 +37,7 @@ export function initialState(today = localDate()): State {
   const demo = emptyData(); const dates = twoWeeks(today); dates.filter(d => d < today).forEach((date, i) => { demo.days[date] = { ...emptyDay(date, 1950), calories: i % 5 === 0 ? 2150 : 1750 + i * 10, food: i % 4 === 0 ? null : true, workout: i % 3 !== 0, creatine: i % 4 !== 0 }; });
   demo.days[today] = { ...emptyDay(today, 1950), calories: 1400 };
   for (let i = 27; i >= 0; i--) { const date = addDays(today, -i); const source = { ...manualSource(), id: `demo-${i}` }; demo.weights.push({ id: `demo-${i}`, date, pounds: 175 + i * .074 + Math.sin(i) * .22, source }); }
-  return { version: 1, mode: 'real', theme: 'Neon Arcade', target: null, goal: null, milestones: [], reminders: [{ id: 'food', label: 'Food review', time: '01:00', weekendTime: '01:00', dayOffset: -1, enabled: false }, { id: 'workout', label: 'Workout check', time: '18:00', weekendTime: '18:00', dayOffset: 0, enabled: false }, { id: 'creatine', label: 'Creatine check', time: '11:00', weekendTime: '11:00', dayOffset: 0, enabled: false }], real: emptyData(), demo };
+  return { version: 1, mode: 'real', theme: 'Neon Arcade', weighInTime: '14:00', target: null, goal: null, milestones: [], reminders: [{ id: 'food', label: 'Food review', time: '01:00', weekendTime: '01:00', dayOffset: -1, enabled: false }, { id: 'workout', label: 'Workout check', time: '18:00', weekendTime: '18:00', dayOffset: 0, enabled: false }, { id: 'creatine', label: 'Creatine check', time: '11:00', weekendTime: '11:00', dayOffset: 0, enabled: false }], real: emptyData(), demo };
 }
 export function activeTarget(s: State): number | null { return s.mode === 'demo' ? 1950 : s.target; }
 export function validateStored(value: unknown): State {
@@ -45,6 +45,7 @@ export function validateStored(value: unknown): State {
   if (!s || s.version !== 1 || !['real', 'demo'].includes(s.mode) || !['Neon Arcade', 'Cozy Quest', 'Pocket Arcade', 'Classic'].includes(s.theme) || !Array.isArray(s.reminders) || !Array.isArray(s.milestones)) throw new Error('Unsupported or invalid saved data.');
   for (const data of [s.real, s.demo]) { if (!data || !data.days || !Array.isArray(data.confirmations) || !Array.isArray(data.revisions) || !Array.isArray(data.weights) || !Array.isArray(data.photos)) throw new Error('Saved data is incomplete.'); if (!data.photoReviewedDates) data.photoReviewedDates = []; if (!Array.isArray(data.photoReviewedDates)) throw new Error('Invalid photo review history.'); }
   s.reminders = s.reminders.map(r => ({ ...r, weekendTime: r.weekendTime ?? r.time, dayOffset: r.dayOffset ?? (r.id === 'food' && r.time < '06:00' ? -1 : 0) }));
+  s.weighInTime = typeof s.weighInTime === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(s.weighInTime) ? s.weighInTime : '14:00';
   s.notificationResponseIds ??= [];
   s.nativeActionIds ??= [];
   if (!Array.isArray(s.nativeActionIds) || s.nativeActionIds.some(id => typeof id !== 'string')) throw new Error('Invalid native action history.');

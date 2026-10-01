@@ -6,6 +6,6 @@ import { IPhoneStore } from '../store/IPhoneStore';
 import { ReminderStore } from '../store/ReminderStore';
 export default function Layout() {
   return <AppStore><CloudStore><IPhoneStore><ReminderStore>
-    <StatusBar style="light" /><Stack screenOptions={{ headerShown: false }} />
+    <StatusBar style="light" /><Stack screenOptions={{ headerShown: false }}><Stack.Screen name="(tabs)" /></Stack>
   </ReminderStore></IPhoneStore></CloudStore></AppStore>;
 }

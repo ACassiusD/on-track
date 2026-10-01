@@ -1,9 +1,34 @@
 import React, { useState } from 'react';
 import { Alert } from 'react-native';
-import { useApp } from '../store/AppStore';
-import { localDate, makeId, manualSource, parseDate, trend, upsertWeight } from '../domain/model';
-import { milestoneProgress, TREND_COVERAGE } from '../domain/progress';
 import { router } from 'expo-router';
-import { Button, Card, Field, Label, Screen } from '../components/UI';
+import { useApp } from '../store/AppStore';
+import { saveManualWeight } from '../domain/weightEntry';
+import { Button, Card, Field, Label, Row, Screen } from '../components/UI';
 import { WeightChart } from '../components/WeightChart';
-export default function Weight() { const { data, today, updateData, state } = useApp(); const [pounds, setPounds] = useState(''); const [date, setDate] = useState(today); const value = trend(data.weights, today); const journey = milestoneProgress(data, state, today); const save = () => { const number = Number(pounds); if (!number || !Number.isFinite(number) || number <= 0 || !/^\d{4}-\d{2}-\d{2}$/.test(date) || localDate(parseDate(date)) !== date || date > today) { Alert.alert('Enter a positive weight and a valid date up to today'); return; } const source = manualSource(); updateData(d => upsertWeight(d, { id: makeId(), date, pounds: number, source })); setPounds(''); }; return <Screen title="Weight"><Card><Label big>{value.average?.toFixed(1) ?? '—'}<Label small> lb</Label></Label><Label small>7-day average · {value.coverage}/7 days measured</Label><WeightChart /><Label small>Goal: {state.mode === 'demo' ? 155 : state.goal ?? 'unset'} lb</Label><Label small>{journey.remaining === null ? 'Set checkpoints in Settings' : `${journey.remaining.toFixed(1)} lb to ${journey.next} lb`}</Label><Label small>{value.coverage >= TREND_COVERAGE ? 'Trend coverage sufficient' : 'Provisional trend'} · display uses {TREND_COVERAGE}/7 measured days; no permanent awards.</Label><Button title="Progress & milestones" onPress={() => router.push('/progress')} /></Card><Card><Label>Add weigh-in</Label><Field value={pounds} onChangeText={setPounds} placeholder="Weight in pounds" numeric /><Field value={date} onChangeText={setDate} placeholder="Date YYYY-MM-DD" /><Button title="Save weigh-in" primary onPress={save} /></Card><Card><Label>History</Label>{data.weights.slice().reverse().map(w => <Label key={w.id} small>{w.date} · {w.pounds.toFixed(1)} lb · {w.source.kind}</Label>)}{!data.weights.length ? <Label small>No weight readings yet.</Label> : null}</Card></Screen>; }
+export default function Weight() {
+  const { data, today, state, commit } = useApp();
+  const latest = data.weights.filter(w => w.date === today && w.source.kind === 'manual').slice(-1)[0];
+  const [pounds, setPounds] = useState(latest ? String(latest.pounds) : '');
+  const [date, setDate] = useState(today);
+  const [time, setTime] = useState(latest?.time ?? state.weighInTime ?? '14:00');
+  const [details, setDetails] = useState(false);
+  const [history, setHistory] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const save = async () => {
+    setSaving(true);
+    try { await commit(s => ({ ...s, [s.mode]: saveManualWeight(s[s.mode], date, Number(pounds), time, today) })); router.back(); }
+    catch (e) { Alert.alert('Could not save weight', String(e)); }
+    finally { setSaving(false); }
+  };
+  return <Screen title="Daily weight">
+    <Card><Label small>{date === today ? 'Today' : date}</Label><Label>Weight · lb</Label>
+      <Field value={pounds} onChangeText={setPounds} placeholder="e.g. 175.4" numeric />
+      <Row><Label small>Weigh-in time · {time}</Label><Button title={details ? 'Hide' : 'Change date / time'} onPress={() => setDetails(!details)} /></Row>
+      {details ? <><Field value={date} onChangeText={setDate} placeholder="Date YYYY-MM-DD" /><Field value={time} onChangeText={setTime} placeholder="Time HH:MM" /></> : null}
+      <Button title={saving ? 'Saving…' : 'Save weight'} primary disabled={saving} onPress={() => { void save(); }} />
+    </Card>
+    <Card><Label>Weight trend</Label><WeightChart /><Button title="More stats" onPress={() => router.push('/progress')} /></Card>
+    <Button title={history ? 'Hide weigh-ins' : 'View weigh-ins'} onPress={() => setHistory(!history)} />
+    {history ? <Card>{data.weights.slice().reverse().map(w => <Label key={w.id} small>{w.date} {w.time ?? ''} · {w.pounds.toFixed(1)} lb</Label>)}</Card> : null}
+  </Screen>;
+}

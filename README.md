@@ -21,7 +21,7 @@ On Windows, use an Android emulator for shared-screen testing. Expo Go supports 
 
 - Prominent daily calorie total and bar, seven-day weight trend, fixed previous/current Monday–Sunday calendar.
 - Four independent checks: workout, creatine, complete food log, and calories within the saved target. Missing data stays unknown. Top habit prompts disappear after an answer and can be corrected.
-- Daily totals without duplicating MyFitnessPal's food database. Explicit snack/drink audit, earlier-date corrections, immutable confirmation and revision history. Imported totals never prove completeness.
+- Daily totals without duplicating MyFitnessPal's food database. Simple daily total and Food logged check, earlier-date corrections, immutable confirmation and revision history. Imported totals never prove completeness.
 - Progress over 28/90/all days, measured-day coverage, trend-based checkpoints, consistency and correction summaries. Checkpoints need at least four weigh-ins in the seven-day window.
 - Private local photo copies, daily review, timeline, side-by-side/flip/scrub comparison, uniform scale/position alignment, explicit original export and app-copy deletion. No body reshaping or automatic landmark alignment.
 - Four themes and reduced-motion-aware feedback. Factual local coaching and explicitly previewed progress sharing.
@@ -58,3 +58,7 @@ Add Expo dependencies with `npx expo install`. Read [AGENTS.md](AGENTS.md) befor
 - [Coding handoff](docs/CODING-AGENT-HANDOFF.md)
 - [iOS feature plan](docs/IOS-FEATURE-PLAN.md)
 - [Original theme references](design/) — illustrative HTML, not production screens
+
+## Dashboard update
+
+Today, Photos and Settings use bottom tabs. Add/Edit weight is on the dashboard; manual entries record a time and default to the configurable 14:00 preference. The weight chart shows an empty grid, then a first reading, then the seven-day average line. Calories open a single total field with Save and a Food logged check; history is collapsed. Editing the total reopens the food check and retains corrections.

@@ -17,3 +17,7 @@ No signed iPhone app has been built or installed in this environment. No Xcode/S
 Physical-device tests remain for permission prompts/denial, Health source reconciliation, Siri discovery and terminated-app receipt handling, widget serialization/refresh, Live Activity lifecycle, AlarmKit delivery/cancellation, local notifications under Focus, Keychain/account backup roundtrip, photo persistence/gestures/export/deletion, VoiceOver and large text. JavaScript bundles and pure tests do not establish these behaviors.
 
 AI generation is deliberately unavailable until server-side OPENAI_API_KEY and OPENAI_MODEL are configured. Cloud backups are explicit snapshots; local photos are excluded. Health reads are bounded previews, not background anchored synchronization. AlarmKit is one-off. Widgets deep-link for edits rather than claiming background direct habit actions. Live Activity stale dates do not guarantee timed background termination.
+
+## Dashboard usability revision
+
+Typecheck, lint and 49 tests pass. Added daily manual-weight correction, date/time validation and legacy preference migration tests. Web export passes after bottom-tab routing changes. Native visual/device validation remains pending. Weigh-in time defaults to 14:00 and is recorded independently from the source observation timestamp.
