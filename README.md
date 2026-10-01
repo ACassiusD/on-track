@@ -19,6 +19,10 @@ The start, iOS, Android and web scripts use port **8095**, keeping this project 
 
 On Windows, use an Android emulator for shared-screen testing. Expo Go supports the manual flows; HealthKit, widgets, Siri, Live Activities and AlarmKit require a development build. See [device setup](docs/DEVICE-SETUP.md). No cloud account is required for local tracking. Real mode starts empty, with no calorie target; demo data is isolated.
 
+## Welcome guide
+
+New users get a five-slide, skippable introduction with animated pet mood previews, the five daily tasks, happiness criteria, missed-day guidance and a shortcut to setting a calorie target. Completion is saved locally. Existing users can replay it under **Settings → App & pet guide**; the development hard reset makes it appear on first launch again. Mood previews do not change records or the real pet score.
+
 ## Implemented
 
 - Prominent daily calorie total and bar, seven-day weight trend, fixed previous/current Monday–Sunday calendar.

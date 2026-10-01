@@ -6,6 +6,7 @@ import { useIPhone } from '../../store/IPhoneStore';
 import { selectDemoProfile } from '../../domain/demoProfiles';
 import { initialState, type ThemeName } from '../../domain/model';
 import { Button, Card, Label, Row, Screen } from '../../components/UI';
+import { WelcomeTour } from '../../components/WelcomeTour';
 import { themes } from '../../components/themes';
 const demoProfiles = [
   { value: 'thriving', label: 'Thriving' },
@@ -18,6 +19,7 @@ const demoProfiles = [
 
 export default function Settings() {
   const { state, update, commit, today, palette: p } = useApp(); const iphone = useIPhone();
+  const [tourOpen, setTourOpen] = useState(false);
   const [profilePicker, setProfilePicker] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [resetting, setResetting] = useState(false);
@@ -36,6 +38,8 @@ export default function Settings() {
     <Card><Label>Theme</Label>{(Object.keys(themes) as ThemeName[]).map(theme => <Button key={theme} title={theme} selected={state.theme === theme} onPress={() => update(s => ({ ...s, theme }))} />)}</Card>
 
     <Card><Row><Label>Demo mode</Label><Switch accessibilityLabel="Demo mode" value={state.mode === 'demo'} onValueChange={value => update(s => ({ ...s, mode: value ? 'demo' : 'real' }))} /></Row><Pressable accessibilityRole="button" accessibilityLabel={`Demo profile: ${selected.label}. Change profile`} accessibilityState={{ expanded: profilePicker }} onPress={() => setProfilePicker(true)} style={{ minHeight: 48, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 1, borderColor: p.line, borderRadius: p.retro ? 0 : 12, backgroundColor: p.bg }}><Text style={{ color: p.text, fontSize: 16 }}>{selected.label}</Text><Text style={{ color: p.primary }}>▾</Text></Pressable><Label small>Profiles replace demo data only. Personal records stay separate.</Label></Card>
+    <Card><Button title="App & pet guide" onPress={() => setTourOpen(true)} /></Card>
+    {tourOpen ? <WelcomeTour replay onClose={() => setTourOpen(false)} /> : null}
     {__DEV__ ? <Card><Label>Development</Label><Button title="Hard reset" onPress={() => setResetOpen(true)} /><Label small>Start over with empty records and default settings.</Label></Card> : null}
     <Modal visible={resetOpen} transparent animationType="fade" onRequestClose={() => { if (!resetting) setResetOpen(false); }}>
       <View style={{ flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#000000bb' }}><View accessibilityViewIsModal style={{ width: '100%', maxWidth: 380, alignSelf: 'center' }}><Card>
