@@ -15,6 +15,8 @@ Use Android Studio's Device Manager to start an emulator, then press `a` in Expo
 
 ## Physical iPhone
 
+For standalone testing with updates from GitHub, follow [iPhone test updates](IPHONE-TEST-UPDATES.md). The development build below is for local Metro debugging.
+
 Expo Go can preview the common UI only while its installed SDK matches this project. Native modules/extensions require a development build. Sign in to your own Expo account and register the iPhone through the EAS workflow; Apple provisioning is required for a physical development build. No credentials or Apple signing assets belong in Git.
 
 ```sh

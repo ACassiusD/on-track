@@ -1,0 +1,46 @@
+name: Publish iPhone test update
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: test-update-main
+  cancel-in-progress: true
+jobs:
+  publish:
+    if: vars.EAS_UPDATES_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Validate account configuration
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo 'Add the EXPO_TOKEN repository secret before enabling test updates.'
+            exit 1
+          fi
+          node scripts/configure-updates.mjs --check
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - name: Publish to testing only
+        env:
+          COMMIT_SHA: ${{ github.sha }}
+        run: eas update --channel testing --environment preview --platform ios --message "Test commit $COMMIT_SHA" --non-interactive
+      - name: Test instructions
+        run: |
+          echo 'Open ON TRACK → Settings → Get latest test version.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Fingerprint compatibility protects older builds. Native changes require a new preview build.' >> "$GITHUB_STEP_SUMMARY"

@@ -64,6 +64,9 @@
           ]
         }
       ]
-    ]
+    ],
+    "runtimeVersion": {
+      "policy": "fingerprint"
+    }
   }
 }

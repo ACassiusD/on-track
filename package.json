@@ -19,6 +19,7 @@
     "expo-router": "~57.0.24",
     "expo-secure-store": "~57.0.4",
     "expo-status-bar": "~57.0.1",
+    "expo-updates": "~57.0.24",
     "expo-widgets": "~57.0.22",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -42,7 +43,9 @@
     "web": "expo start --web --port 8095",
     "typecheck": "tsc --noEmit",
     "lint": "expo lint",
-    "test": "node --experimental-strip-types --test tests/*.test.mjs"
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "setup:updates": "node scripts/configure-updates.mjs",
+    "check:updates": "node scripts/configure-updates.mjs --check"
   },
   "private": true
 }

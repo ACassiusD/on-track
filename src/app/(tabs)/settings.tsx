@@ -8,6 +8,7 @@ import { initialState, type ThemeName } from '../../domain/model';
 import { Button, Card, Label, Row, Screen } from '../../components/UI';
 import { WelcomeTour } from '../../components/WelcomeTour';
 import { themes } from '../../components/themes';
+import { TestUpdateCard, isTestingBuild } from '../../components/TestUpdateCard';
 const demoProfiles = [
   { value: 'thriving', label: 'Thriving' },
   { value: 'good', label: 'Happy' },
@@ -40,7 +41,8 @@ export default function Settings() {
     <Card><Row><Label>Demo mode</Label><Switch accessibilityLabel="Demo mode" value={state.mode === 'demo'} onValueChange={value => update(s => ({ ...s, mode: value ? 'demo' : 'real' }))} /></Row><Pressable accessibilityRole="button" accessibilityLabel={`Demo profile: ${selected.label}. Change profile`} accessibilityState={{ expanded: profilePicker }} onPress={() => setProfilePicker(true)} style={{ minHeight: 48, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 1, borderColor: p.line, borderRadius: p.retro ? 0 : 12, backgroundColor: p.bg }}><Text style={{ color: p.text, fontSize: 16 }}>{selected.label}</Text><Text style={{ color: p.primary }}>▾</Text></Pressable><Label small>Profiles replace demo data only. Personal records stay separate.</Label></Card>
     <Card><Button title="App & pet guide" onPress={() => setTourOpen(true)} /></Card>
     {tourOpen ? <WelcomeTour replay onClose={() => setTourOpen(false)} /> : null}
-    {__DEV__ ? <Card><Label>Development</Label><Button title="Hard reset" onPress={() => setResetOpen(true)} /><Label small>Start over with empty records and default settings.</Label></Card> : null}
+    <TestUpdateCard />
+    {__DEV__ || isTestingBuild ? <Card><Label>Development</Label><Button title="Hard reset" onPress={() => setResetOpen(true)} /><Label small>Start over with empty records and default settings.</Label></Card> : null}
     <Modal visible={resetOpen} transparent animationType="fade" onRequestClose={() => { if (!resetting) setResetOpen(false); }}>
       <View style={{ flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#000000bb' }}><View accessibilityViewIsModal style={{ width: '100%', maxWidth: 380, alignSelf: 'center' }}><Card>
         <Label>Reset this app?</Label><Label small>Deletes personal records and resets goals, units, themes and reminders on this device. Cloud backups and your login stay intact.</Label>
