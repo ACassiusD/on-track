@@ -30,7 +30,7 @@ export function shareSummary(data: DataSet, state: Pick<State,'mode'|'goal'|'mil
   return `${state.mode==='demo'?'DEMO · ':''}ON TRACK · ${period.dates[0]} to ${today}\n${tasks.completeDays}/${period.dates.length} days with all four daily tasks complete\n${tasks.totals.map(t=>`${t.label}: ${t.done} done · ${t.known}/${t.days} reported`).join('\n')}\nWeight trend: ${weight.current.average===null?'No readings in the past seven days':`${weight.current.average.toFixed(1)} lb · ${weight.current.coverage}/7 days measured${weight.qualified?'':' · provisional'}`}\n${period.revisionCount} calorie corrections on ${period.revisedDays} days\nUnknown checks remain unknown. Photos are excluded.`;
 }
 
-export type TrendRange = 28 | 90 | 'all';
+export type TrendRange = 7 | 14 | 28 | 30 | 90 | 180 | 365 | 'all';
 export function trendSeries(data: DataSet, today: string, range: TrendRange = 28) {
   const start = range === 'all' ? null : addDays(today, -range + 1);
   const dates = [...new Set(data.weights.filter(w => w.date <= today && (start === null || w.date >= start)).map(w => w.date))].sort();

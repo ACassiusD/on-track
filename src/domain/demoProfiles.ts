@@ -6,12 +6,23 @@ export function selectDemoProfile(state: State, profile: DemoProfile, today: str
   if (profile !== 'new') {
     demo.days = {};
     const successful = { good: 12, mixed: 8, bad: 4 }[profile];
-    for (let i=13; i>=0; i--) {
+    for (let i=365; i>=0; i--) {
       const date = addDays(today,-i);
-      const within = i < successful;
+      const within = i % 14 < successful;
       demo.days[date] = { ...emptyDay(date,1950), calories: within ? 1780+(i%3)*40 : 2200+(i%3)*70, food: true, workout: profile === 'good' ? i%7 !== 6 : profile === 'mixed' ? i%3 === 0 : i%7 === 0, creatine: profile === 'good' ? true : profile === 'mixed' ? i%3 !== 0 : i%4 === 0 };
     }
-    demo.weights = demo.weights.map((w,i) => ({ ...w, pounds: Number((profile === 'good' ? 180-i*.16 + Math.sin(i)*.15 : profile === 'mixed' ? 175+Math.sin(i)*.4 : 173+i*.1+Math.sin(i)*.2).toFixed(1)) }));
+    demo.weights = demo.weights.map((w, i) => { const ago = 365 - i; return { ...w, time: '14:00', pounds: Number((profile === 'good' ? 175.8 + ago * .055 + Math.sin(ago / 13) * .4 + Math.sin(ago) * .15 : profile === 'mixed' ? 175.5 + ago * .006 + Math.sin(ago / 17) * 1.1 + Math.sin(ago) * .3 : 178 - ago * .035 + Math.sin(ago / 15) * .6 + Math.sin(ago) * .2).toFixed(1)) }; });
   }
   return { ...state, mode: 'demo', demoProfile: profile, demo };
+}
+
+// Extend older demo installs without replacing edits or touching personal records.
+export function extendDemoHistory(state: State, today: string): State {
+  if (state.demoProfile === 'new') return state;
+  const oldest = state.demo.weights.map(w => w.date).sort()[0];
+  if (oldest && oldest <= addDays(today, -364)) return state;
+  const generated = selectDemoProfile(state, state.demoProfile ?? 'mixed', today).demo;
+  const weights = generated.weights.filter(w => (!oldest || w.date < oldest) && !state.demo.weights.some(old => old.date === w.date));
+  const days = { ...generated.days, ...state.demo.days };
+  return { ...state, demo: { ...state.demo, days, weights: [...weights, ...state.demo.weights].sort((a,b) => a.date.localeCompare(b.date)) } };
 }
