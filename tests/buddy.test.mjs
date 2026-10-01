@@ -19,7 +19,7 @@ test('one rough day cannot turn a thriving pet unhappy', () => {
   assert.equal(buddyStatus(days(14,2),today).mood,'good');
 });
 
-test('next-mood advice shows the actual threshold, coverage and today’s credit', () => {
+test('next-mood thresholds stay accurate while hints explain the blocker', () => {
   const data = days(14,10);
   data.days[today].calories = 1600;
   data.days[addDays(today,-10)].calories = 1900;
@@ -29,7 +29,8 @@ test('next-mood advice shows the actual threshold, coverage and today’s credit
   assert.equal(status.nextMood,'low');
   assert.equal(status.requiredWithin,5);
   assert.equal(status.requiredLogs,14);
-  assert.match(status.hint,/Today counts!.*5\/14.*Needs care/);
+  assert.match(status.hint,/logging consistently.*calorie target more often/);
+  assert.doesNotMatch(status.hint,/\d+\/\d+/);
   assert.match(status.record,/4\/14 calorie logs on target/);
   assert.equal(buddyStatus(days(10,6),today).requiredWithin,5);
   assert.equal(buddyStatus(days(10,3),today).requiredWithin,8);
@@ -40,9 +41,18 @@ test('coverage advice never promises happiness from a single extra log', () => {
   assert.equal(status.mood,'normal');
   assert.equal(status.requiredLogs,10);
   assert.equal(status.requiredWithin,8);
-  assert.match(status.hint,/8\/10/);
-  assert.match(buddyStatus(days(6),today).hint,/1 more calorie day/);
+  assert.match(status.hint,/on target.*keep logging daily.*Happy/);
+  assert.match(buddyStatus(days(6),today).hint,/Keep logging daily calories/);
   const data=days(7);Object.values(data.days).forEach(d=>d.target=null);
-  assert.match(buddyStatus(data,today).hint,/Set a calorie target/);
+  assert.match(buddyStatus(data,today).hint,/Add a calorie target/);
   assert.equal(buddyStatus(days(14),today).nextMood,null);
+});
+
+test('tips address the real blocker even when other daily tasks are complete', () => {
+  const data=days(14,10);
+  for (const day of Object.values(data.days)) { day.workout=true; day.creatine=true; data.weights.push({date:day.date,pounds:175}); }
+  assert.match(buddyStatus(data,today).hint,/logging consistently.*calorie target more often/);
+  assert.match(buddyStatus(days(11),today).hint,/keep logging daily.*Thriving/);
+  assert.match(buddyStatus(days(14,2),today).hint,/calorie target more often.*Thriving/);
+  assert.match(buddyStatus(days(14),today).hint,/consistent.*keep taking great care/);
 });

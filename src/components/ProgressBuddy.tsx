@@ -66,7 +66,6 @@ export function ProgressBuddy({ featured = false, compact = false }: { featured?
     </Pressable>
     <Pressable accessibilityRole="button" accessibilityLabel={`${status.label}. ${status.record}. ${status.hint} View details.`} onPress={() => router.push('/progress')} style={{ flex: featured ? 1 : undefined, flexShrink: 1, gap: featured ? 3 : 0, minHeight: 44, justifyContent: 'center' }}>
       <Text style={{ color, fontSize: featured ? 23 : 13, fontWeight: '700' }}>{status.label}</Text>
-      {featured ? <Text style={{ color: p.muted, fontSize: 10 }}>{status.record}</Text> : null}
       <Text style={{ color: p.text, fontSize: featured ? 12 : 10 }}>{featured ? hint : '14 days'}</Text>
     </Pressable>
   </View>;
