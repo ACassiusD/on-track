@@ -1,6 +1,6 @@
 import React, { useLayoutEffect, useEffect, useRef, useState } from 'react';
 import { Modal, PanResponder, ScrollView, Switch, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { ORIGINAL_FRAME, moveFraming, normalizeFraming, photoFraming, portraitFrame, zoomFraming, type FrameTouch, type PhotoFraming } from '../domain/photoFraming';
 import type { Photo } from '../domain/model';
 import { useApp } from '../store/AppStore';
@@ -49,8 +49,9 @@ export function PhotoFrameEditor({ uri, initial = ORIGINAL_FRAME, reference, onS
     finally { lock.current = false; setSaving(false); }
   };
   const shift = (x: number, y: number) => setFrame(value => normalizeFraming({ ...value, x: value.x + x, y: value.y + y }));
-  return <Modal animationType="slide" onRequestClose={close}>
-    <SafeAreaView style={{ flex: 1, backgroundColor: p.bg }}>
+  return <Modal presentationStyle="fullScreen" animationType="slide" onRequestClose={close}>
+    <SafeAreaProvider>
+    <SafeAreaView edges={['top', 'right', 'bottom', 'left']} style={{ flex: 1, backgroundColor: p.bg }}>
       <View style={{ padding: 16, paddingBottom: 8, gap: 6 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}><Text style={{ color: p.text, fontSize: 20, fontWeight: '600' }}>Frame photo</Text>{onClose ? <Button title="Close" disabled={saving} onPress={close} /> : null}</View>
         <Text style={{ color: p.muted, fontSize: 13 }}>Pinch to crop · drag to position</Text>
@@ -72,5 +73,6 @@ export function PhotoFrameEditor({ uri, initial = ORIGINAL_FRAME, reference, onS
         <View style={{ flexDirection: 'row', gap: 10 }}><View style={{ flex: 1 }}><Button title={cancelTitle} disabled={saving} onPress={onCancel} /></View><View style={{ flex: 2 }}><Button title={saving ? 'Saving…' : saveTitle} primary disabled={saving} onPress={() => { void save(); }} /></View></View>
       </View>
     </SafeAreaView>
+    </SafeAreaProvider>
   </Modal>;
 }

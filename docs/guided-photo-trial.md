@@ -42,3 +42,9 @@ The camera shutter is outside the scrolling options in a safe-area footer. Revie
 Adjust now opens resize and directional controls immediately below the existing comparison canvas. Slider's divider stays active, with a 50% center shortcut; fine increments support lining up individual body landmarks manually. Reference and Photo can be adjusted independently in one draft. Done saves changed framing for the bound dataset, Cancel discards it, and failed saves preserve the draft for retry. The canvas retains its size and image transform when finishing.
 
 The normal page groups comparison modes, canvas/divider, Adjust / Photo options, then the photo reel. Adjustment and Photo options temporarily hide the reel to reduce crowding. Selecting Reference or Photo returns to the reel. Date explicitly chooses the photo date. Full cropping, imports, original export, deletion and marking photos reviewed remain under Photo options; the camera stays available in the header.
+
+## Camera overlay and modal insets
+
+The reference overlay uses a continuous 0–100% slider instead of presets, starting at 25%. Tap or drag the track; VoiceOver supports 5% increments. It is disabled during capture. Camera and framing editor use full-screen presentation with their own SafeAreaProvider, so the native modal measures its status-bar/notch and home-indicator insets. The photo picker also has a modal-local provider. Header and shutter remain outside the scrolling options.
+
+Verified slider tap/drag at 390×844 Default and 320×568 Arcade Pop, boundary clamping, accessibility adjustments, fixed shutter, capture/review and save retry checks. Native inset measurement still needs confirmation on a real iPhone.

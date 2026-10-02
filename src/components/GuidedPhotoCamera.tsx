@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AppState, Linking, Modal, ScrollView, Switch, Text, View, useWindowDimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions, type CameraType } from 'expo-camera';
 import { File, Paths } from 'expo-file-system';
 import { useApp } from '../store/AppStore';
@@ -8,6 +8,7 @@ import { createCaptureSession } from '../photos/captureSession';
 import { normalizeFraming, type PhotoFraming } from '../domain/photoFraming';
 import { FramedPhoto } from './FramedPhoto';
 import { PhotoFrameEditor } from './PhotoFrameEditor';
+import { PhotoOverlaySlider } from './PhotoOverlaySlider';
 import type { Photo } from '../domain/model';
 import { Button } from './UI';
 
@@ -64,8 +65,9 @@ export function GuidedPhotoCamera({ date, reference, onSave, onClose }: { date: 
     finally { if (alive.current) setWorking(false); }
   };
   if (preview) return <PhotoFrameEditor uri={preview} initial={framing} reference={reference} onSave={frame => onSave(preview, frame)} saveTitle="Save photo" cancelTitle="Retake" onCancel={() => { clearCache(); setPreview(null); setReady(false); setError(''); }} onClose={close} />;
-  return <Modal animationType="slide" onRequestClose={close}>
-    <SafeAreaView style={{ flex: 1, backgroundColor: p.bg }}>
+  return <Modal presentationStyle="fullScreen" animationType="slide" onRequestClose={close}>
+    <SafeAreaProvider>
+    <SafeAreaView edges={['top', 'right', 'bottom', 'left']} style={{ flex: 1, backgroundColor: p.bg }}>
       <View style={{ padding: 16, paddingBottom: 4, gap: 8 }}><View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}><Text style={{ color: p.text, fontSize: 19, fontWeight: '600' }}>Take progress photo</Text><Button title="Close" onPress={close} /></View>
         <Text style={text}>{date} · Stored on device</Text></View>
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, gap: 12 }} keyboardShouldPersistTaps="handled">
@@ -81,7 +83,7 @@ export function GuidedPhotoCamera({ date, reference, onSave, onClose }: { date: 
           </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}><View style={{ flex: 1, gap: 3 }}><Text style={{ color: p.text, fontSize: 15, fontWeight: '600' }}>Guided photos · beta</Text><Text style={text}>{guided ? reference ? 'Match shoulders and feet to your reference.' : 'Keep your head and feet inside the guides.' : 'Try guides for consistent framing.'}</Text></View><Switch accessibilityLabel="Guided photos" value={guided} disabled={working} onValueChange={value => update(s => ({ ...s, photoGuidance: value }))} trackColor={{ false: p.grey, true: p.primary }} /></View>
             {guided && reference ? <Text style={text}>Reference: {reference.date} · Choose a different reference in Photos.</Text> : null}
-            {guided && reference ? <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>{[.15, .25, .4].map(value => <Button key={value} title={`${Math.round(value * 100)}% overlay`} selected={opacity === value} disabled={working} onPress={() => setOpacity(value)} />)}</View> : null}
+            {guided && reference ? <PhotoOverlaySlider value={opacity} onChange={setOpacity} disabled={working} /> : null}
             <View style={{ flexDirection: 'row', gap: 8 }}><View style={{ flex: 1 }}><Button title={`Timer: ${seconds ? `${seconds}s` : 'off'}`} disabled={working} onPress={() => setSeconds(seconds === 0 ? 3 : seconds === 3 ? 10 : 0)} /></View><View style={{ flex: 1 }}><Button title={facing === 'back' ? 'Use front camera' : 'Use back camera'} disabled={working} onPress={() => { setReady(false); setFacing(facing === 'back' ? 'front' : 'back'); }} /></View></View>
             <Text style={text}>Use the same spot, camera height and lighting. Original photo is kept.</Text>
 
@@ -90,5 +92,6 @@ export function GuidedPhotoCamera({ date, reference, onSave, onClose }: { date: 
       </ScrollView>
       {permission?.granted ? <View style={{ padding: 16, paddingTop: 10, flexShrink: 0, borderTopWidth: 1, borderTopColor: p.line }}><Button title={remaining ? 'Cancel timer' : working ? 'Taking photo…' : 'Take photo'} primary disabled={!ready || !active || working && !remaining} onPress={() => { if (remaining) { cancel(); setRemaining(0); setWorking(false); } else { void capture(); } }} /></View> : null}
     </SafeAreaView>
+    </SafeAreaProvider>
   </Modal>;
 }

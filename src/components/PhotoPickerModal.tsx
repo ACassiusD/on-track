@@ -1,7 +1,7 @@
 import { FramedPhoto } from './FramedPhoto';
 import React, { useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { localDate, parseDate, type Photo } from '../domain/model';
 import { useApp } from '../store/AppStore';
 import { Button, Label, Row } from './UI';
@@ -22,7 +22,8 @@ export function PhotoPickerModal({ kind, today, date, photos, selectedId, onDate
   const days = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getDate();
   const shift = (delta: number) => { const next = parseDate(month); next.setMonth(next.getMonth() + delta); setMonth(localDate(next)); };
   return <Modal transparent animationType="fade" visible onRequestClose={onClose}>
-    <SafeAreaView style={{ flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#000000bb' }}>
+    <SafeAreaProvider>
+    <SafeAreaView edges={['top', 'right', 'bottom', 'left']} style={{ flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#000000bb' }}>
       <View accessibilityViewIsModal style={{ maxWidth: 430, width: '100%', maxHeight: '85%', alignSelf: 'center', backgroundColor: p.tile, borderWidth: 1, borderColor: p.line, borderRadius: p.radius, padding: 16, gap: 12 }}>
         <Row><Label>{kind === 'date' ? 'Photo date' : kind === 'reference' ? 'Reference photo' : 'Compare photo'}</Label><Button title="Close" onPress={onClose} /></Row>
         {kind === 'date' ? <>
@@ -45,5 +46,6 @@ export function PhotoPickerModal({ kind, today, date, photos, selectedId, onDate
         </ScrollView>}
       </View>
     </SafeAreaView>
+    </SafeAreaProvider>
   </Modal>;
 }
