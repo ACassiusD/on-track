@@ -36,3 +36,9 @@ Capture and library import now open a framing editor before saving. Existing pho
 The same frame renderer is used for the reel, picker, Side by side, Flip and Slider. Older pixel-based adjustments remain intact until edited. A selected reference's saved framing supplies the starting frame for new imports/captures. The camera preview and its ghost reference use that same framing, while capture retains the complete original. Matching copies framing settings; it does not detect anatomy or automatically align differently posed subjects.
 
 The camera shutter is outside the scrolling options in a safe-area footer. Review/framing actions are also fixed at the bottom. Real-device pinch gestures and saved camera-preview matching still need an iPhone trial.
+
+## Inline comparison adjustment
+
+Adjust now opens resize and directional controls immediately below the existing comparison canvas. Slider's divider stays active, with a 50% center shortcut; fine increments support lining up individual body landmarks manually. Reference and Photo can be adjusted independently in one draft. Done saves changed framing for the bound dataset, Cancel discards it, and failed saves preserve the draft for retry. The canvas retains its size and image transform when finishing.
+
+The normal page groups comparison modes, canvas/divider, Adjust / Photo options, then the photo reel. Adjustment and Photo options temporarily hide the reel to reduce crowding. Selecting Reference or Photo returns to the reel. Date explicitly chooses the photo date. Full cropping, imports, original export, deletion and marking photos reviewed remain under Photo options; the camera stays available in the header.
