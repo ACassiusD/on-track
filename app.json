@@ -34,7 +34,7 @@
         "expo-image-picker",
         {
           "photosPermission": "Choose private progress photos for ON TRACK.",
-          "cameraPermission": false,
+          "cameraPermission": "Allow ON TRACK to take progress photos. Photos stay on this device.",
           "microphonePermission": false
         }
       ],
@@ -68,7 +68,16 @@
           ]
         }
       ],
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow ON TRACK to take progress photos. Photos stay on this device.",
+          "recordAudioAndroid": false,
+          "barcodeScannerEnabled": false,
+          "microphonePermission": false
+        }
+      ]
     ],
     "runtimeVersion": {
       "policy": "fingerprint"
