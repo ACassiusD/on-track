@@ -84,3 +84,5 @@ The five calendar tasks are Workout, Creatine, Calories logged, Weight entered a
 ## Protecting a personal profile during development
 
 Open **Settings → Account & cloud backup**, create an account or sign in, and enable **Automatic backup**. Confirm the last backup timestamp before uninstalling or clearing device storage. Offline edits retry while the app is open or when it returns to the foreground. Switch into demo mode to test with separate data; **Reset development sandbox** preserves personal records, device photos, goals and backup protection. On a fresh install, sign in, switch to personal mode and use **Restore latest backup**, then review and confirm the snapshot. Photos are device-only and do not survive uninstalling.
+
+Sign in with Apple is implemented for supported iPhone builds. It needs a new native preview build and the hosted Apple provider enabled; see [Apple sign-in setup](docs/APPLE-SIGN-IN.md). Native dependency/configuration changes trigger an installable preview build through GitHub Actions.

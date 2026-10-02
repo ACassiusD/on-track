@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Alert, Switch, Text, TextInput, View } from 'react-native';
+import { AppleSignInButton } from '../components/AppleSignInButton';
 import { useCloud } from '../store/CloudStore';
 import { useApp } from '../store/AppStore';
 import { needsAutomaticBackup } from '../cloud/profileProtection';
@@ -24,6 +25,8 @@ export default function Account() {
     </Card>
     {!cloud.available ? <Card><Label>Open the iPhone app to sign in.</Label><Label small>Your local tracking still works here.</Label></Card> : !cloud.session ? <Card>
       <Label>Sign in or create an account</Label>
+      <AppleSignInButton busy={cloud.busy || !cloud.authReady} onPress={() => { void cloud.signInApple(); }} />
+      <Label small>Email and password</Label>
       <TextInput accessibilityLabel="Email" autoCapitalize="none" autoCorrect={false} keyboardType="email-address" textContentType="emailAddress" placeholder="Email" placeholderTextColor={p.muted} value={email} onChangeText={setEmail} style={field} />
       <TextInput accessibilityLabel="Password" autoCapitalize="none" autoCorrect={false} secureTextEntry textContentType="password" placeholder="Password (at least 8 characters)" placeholderTextColor={p.muted} value={password} onChangeText={setPassword} style={field} />
       <Button title="Sign in" primary disabled={!credentialsValid || cloud.busy || !cloud.authReady} onPress={() => { void cloud.signIn(email, password).then(() => setPassword('')); }} />

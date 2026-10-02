@@ -1,0 +1,44 @@
+name: Build installable iPhone test app
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'plugins/**'
+      - 'modules/**'
+      - '.github/workflows/iphone-preview-build.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: iphone-preview-build
+  cancel-in-progress: false
+jobs:
+  build:
+    if: vars.EAS_UPDATES_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - name: Build signed iPhone preview
+        env:
+          COMMIT_SHA: ${{ github.sha }}
+        run: eas build --platform ios --profile preview --non-interactive --wait --message "iPhone test commit $COMMIT_SHA"
+      - name: Install instructions
+        run: echo 'Install the preview from the EAS build link above. This replaces the app; do not delete it first.' >> "$GITHUB_STEP_SUMMARY"
