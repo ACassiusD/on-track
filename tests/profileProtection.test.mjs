@@ -38,3 +38,18 @@ test('old installs and malformed backup preferences stay off until explicitly en
  const invalid=validateStored({...old,cloudAutoBackup:'yes',cloudBackupOwner:7,cloudLastBackup:{ownerId:'personal',signature:7,at:'bad'}});
  assert.equal(invalid.cloudAutoBackup,false); assert.equal(invalid.cloudBackupOwner,undefined); assert.equal(invalid.cloudLastBackup,undefined);
 });
+test('a new local-only profile saves stats without an account and keeps photos out of cloud backups',()=> {
+ const fresh=initialState(today);
+ assert.equal(fresh.mode,'real');
+ fresh.real.days[today]={...emptyDay(today,1950),calories:1500};
+ fresh.real.photos.push({id:'private-photo',date:today,uri:'file:///private-progress.jpg',scale:1,x:0,y:0});
+ const reopened=validateStored(JSON.parse(JSON.stringify(fresh)));
+ assert.equal(reopened.real.days[today].calories,1500);
+ assert.equal(reopened.real.photos[0].uri,'file:///private-progress.jpg');
+ assert.equal(needsAutomaticBackup(reopened,undefined),false);
+ assert.equal(needsAutomaticBackup(reopened,'new-account'),false);
+ const backup=createBackup(reopened);
+ assert.deepEqual(backup.real.photos,[]);
+ assert.equal(backup.photosIncluded,false);
+ assert.equal(JSON.stringify(backup).includes('private-progress'),false);
+});
