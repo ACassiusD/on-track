@@ -2,9 +2,11 @@ import React, { useId } from 'react';
 import Svg, { Circle, Defs, Ellipse, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 import type { Palette } from './themes';
 import type { BuddyMood } from '../domain/buddy';
+import { DefaultPetArtwork } from './DefaultPetArtwork';
+import type { DefaultPet } from '../domain/defaultPets';
 import { RefinedBuddyArtwork } from './RefinedBuddyArtwork';
 
-export function BuddyArtwork({ palette: p, mood, blink = false, delighted = false, size = 68 }: { palette: Palette; mood: BuddyMood; blink?: boolean; delighted?: boolean; size?: number }) {
+export function BuddyArtwork({ palette: p, pet = 'mochi', mood, blink = false, delighted = false, size = 68 }: { palette: Palette; pet?: DefaultPet; mood: BuddyMood; blink?: boolean; delighted?: boolean; size?: number }) {
   const id = useId().replace(/:/g, '');
   const body = `${id}Body`;
   const color = p.realm === 'astral' ? '#b5b7f3' : p.realm === 'heaven' ? '#fffdf7' : p.fantasy ? '#a4e2cd' : mood === 'thriving' ? p.primary : mood === 'good' ? p.green : mood === 'bad' ? p.red : mood === 'normal' || mood === 'low' ? p.yellow : p.primary;
@@ -20,7 +22,8 @@ export function BuddyArtwork({ palette: p, mood, blink = false, delighted = fals
     <Rect x={23} y={43} width={18} height={5} fill="#fff" opacity={.24} />
     {excited ? <Path d="M52 8v9m-4-5h8" stroke={p.accent} strokeWidth={3} /> : null}
   </Svg>;
-  if (p.realm === 'astral' || (!p.realm && !p.fantasy)) return <RefinedBuddyArtwork astral={p.realm === 'astral'} mood={mood} blink={blink} delighted={delighted} size={size} />;
+  if (!p.realm && !p.fantasy) return <DefaultPetArtwork pet={pet} mood={mood} blink={blink} delighted={delighted} size={size} />;
+  if (p.realm === 'astral') return <RefinedBuddyArtwork astral={p.realm === 'astral'} mood={mood} blink={blink} delighted={delighted} size={size} />;
   return <Svg width={size} height={size} viewBox="0 0 80 80">
     <Defs><LinearGradient id={body} x1="0%" y1="0%" x2="85%" y2="100%"><Stop stopColor="#f4ffe8" /><Stop offset=".35" stopColor={color} /><Stop offset="1" stopColor={p.realm === 'heaven' ? '#dce2e3' : p.fantasy ? '#54bca8' : color} /></LinearGradient></Defs>
     <Ellipse cx={40} cy={73} rx={23} ry={3} fill="#000" opacity={.14} />

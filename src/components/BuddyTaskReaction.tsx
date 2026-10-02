@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Animated, Easing, Platform, View } from 'react-native';
 import Svg, { Circle, Ellipse, Path, Rect } from 'react-native-svg';
+import type { DefaultPet } from '../domain/defaultPets';
 import type { BuddyMood } from '../domain/buddy';
 import type { TaskReaction } from '../domain/taskReactions';
 import type { Palette } from './themes';
@@ -50,7 +51,7 @@ export function TaskProp({ task, palette: p, size }: { task: TaskReaction; palet
   </Svg>;
 }
 
-export function BuddyTaskReaction({ task, palette, mood, size, reduceMotion }: { task: TaskReaction; palette: Palette; mood: BuddyMood; size: number; reduceMotion: boolean }) {
+export function BuddyTaskReaction({ task, pet, palette, mood, size, reduceMotion }: { task: TaskReaction; pet?: DefaultPet; palette: Palette; mood: BuddyMood; size: number; reduceMotion: boolean }) {
   const [pulse] = useState(() => new Animated.Value(0));
   useEffect(() => {
     pulse.setValue(0);
@@ -68,7 +69,7 @@ export function BuddyTaskReaction({ task, palette, mood, size, reduceMotion }: {
   const propLift = task === 'workout' ? -12 : task === 'creatine' ? -8 : task === 'weight' ? 0 : -2;
   return <View pointerEvents="none" accessible={false} style={{ width: size, height: size }}>
     <Animated.View style={{ transform: [{ translateY: reduceMotion ? task === 'weight' ? -3 * scale : 0 : pulse.interpolate({ inputRange: [0, 1], outputRange: [task === 'weight' ? -3 * scale : 0, bodyLift * scale] }) }, { rotate: reduceMotion ? '0deg' : pulse.interpolate({ inputRange: [0, 1], outputRange: task === 'creatine' ? ['0deg', '-8deg'] : task === 'calories' ? ['-3deg', '3deg'] : ['0deg', '0deg'] }) }] }}>
-      <BuddyArtwork palette={palette} mood={mood} delighted size={size} />
+      <BuddyArtwork pet={pet} palette={palette} mood={mood} delighted size={size} />
     </Animated.View>
     <Animated.View style={{ position: 'absolute', inset: 0, transform: [{ translateY: reduceMotion ? 0 : pulse.interpolate({ inputRange: [0, 1], outputRange: [0, propLift * scale] }) }, { rotate: reduceMotion ? '0deg' : pulse.interpolate({ inputRange: [0, 1], outputRange: task === 'creatine' ? ['0deg', '-12deg'] : ['0deg', '0deg'] }) }] }}><TaskProp task={task} palette={palette} size={size} /></Animated.View>
   </View>;

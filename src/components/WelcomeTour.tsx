@@ -32,7 +32,7 @@ export function WelcomeTour({ replay = false, onClose }: { replay?: boolean; onC
   return <Tour replay={replay} onClose={onClose} />;
 }
 function Tour({ replay, onClose }: { replay: boolean; onClose?: () => void }) {
-  const { palette: p, commit } = useApp();
+  const { state, palette: p, commit } = useApp();
   const { width, height } = useWindowDimensions();
   const pager = useRef<ScrollView>(null);
   const navigation = useRef(new TourNavigation(titles.length));
@@ -101,7 +101,7 @@ function Tour({ replay, onClose }: { replay: boolean; onClose?: () => void }) {
           const previewMood = i === 0 ? 'normal' : i === 1 ? 'good' : i === 2 ? mood : i === 3 ? 'low' : 'good';
           return <View key={title} style={{ width, height: '100%', flexShrink: 0 }} accessibilityElementsHidden={page !== i} importantForAccessibility={page === i ? 'auto' : 'no-hide-descendants'}>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 28, paddingVertical: 16, gap: 14, maxWidth: 500, width: '100%', alignSelf: 'center' }}>
-              <View style={{ alignItems: 'center' }}>{page === i ? <ProgressBuddy artworkOnly previewMood={previewMood} sizeOverride={i === 2 ? Math.min(size, 132) : size} /> : <BuddyArtwork palette={p} mood={previewMood} size={i === 2 ? Math.min(size, 132) : size} />}</View>
+              <View style={{ alignItems: 'center' }}>{page === i ? <ProgressBuddy artworkOnly previewMood={previewMood} sizeOverride={i === 2 ? Math.min(size, 132) : size} /> : <BuddyArtwork pet={state.defaultPet} palette={p} mood={previewMood} size={i === 2 ? Math.min(size, 132) : size} />}</View>
               <Text style={{ color: p.primary, fontSize: 12, textAlign: 'center', marginTop: -10 }}>Tap to pet ♥</Text>
               <Text accessibilityRole="header" style={{ color: p.text, fontSize: 28, fontWeight: '700', textAlign: 'center', lineHeight: 34 }}>{title}</Text>
               {i === 0 ? <>

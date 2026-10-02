@@ -7,6 +7,8 @@ import { selectDemoProfile } from '../../domain/demoProfiles';
 import { initialState, type ThemeName } from '../../domain/model';
 import { Button, Card, Label, Screen } from '../../components/UI';
 import { WelcomeTour } from '../../components/WelcomeTour';
+import { DefaultPetPicker } from '../../components/DefaultPetPicker';
+import { defaultPets, normalizeDefaultPet } from '../../domain/defaultPets';
 import { themes } from '../../components/themes';
 import { TestUpdateCard, isTestingBuild } from '../../components/TestUpdateCard';
 import { SettingsItem, SettingsSection } from '../../components/SettingsList';
@@ -23,6 +25,7 @@ export default function Settings() {
   const { state, update, commit, today, palette: p } = useApp(); const iphone = useIPhone();
   const [tourOpen, setTourOpen] = useState(false);
   const [profilePicker, setProfilePicker] = useState(false);
+  const [petPicker, setPetPicker] = useState(false);
   const [themePicker, setThemePicker] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [resetting, setResetting] = useState(false);
@@ -42,6 +45,7 @@ export default function Settings() {
     <SettingsSection title="Preferences">
       <SettingsItem title="Weight units" icon="weight" trailing={<View accessibilityRole="radiogroup" accessibilityLabel="Weight units" style={{ flexDirection: 'row', padding: 3, gap: 3, borderRadius: p.retro ? 0 : 10, backgroundColor: p.bg }}>{(['lb', 'kg'] as const).map(unit => <Pressable key={unit} accessibilityRole="radio" accessibilityLabel={unit === 'lb' ? 'Pounds' : 'Kilograms'} accessibilityState={{ checked: (state.weightUnit ?? 'lb') === unit }} aria-checked={(state.weightUnit ?? 'lb') === unit} onPress={() => update(s => ({ ...s, weightUnit: unit }))} style={({ pressed }) => ({ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: p.retro ? 0 : 7, backgroundColor: (state.weightUnit ?? 'lb') === unit ? p.primary : undefined, opacity: pressed ? .7 : 1 })}><Text style={{ color: (state.weightUnit ?? 'lb') === unit ? p.bg : p.muted, fontSize: 14, fontWeight: '700' }}>{unit}</Text></Pressable>)}</View>} />
       <SettingsItem title="Theme" icon="theme" detail={state.theme} onPress={() => setThemePicker(true)} />
+      <SettingsItem title="Your pet" icon="pet" detail={`${defaultPets.find(pet => pet.id === normalizeDefaultPet(state.defaultPet))!.name} · Default theme`} onPress={() => setPetPicker(true)} />
     </SettingsSection>
     <SettingsSection title="Connections">
       <SettingsItem title="Account & cloud backup" icon="cloud" onPress={() => router.push('/account')} />
@@ -58,6 +62,7 @@ export default function Settings() {
       {state.mode === 'demo' ? <SettingsItem title="Demo profile" icon="profile" detail={selected.label} onPress={() => setProfilePicker(true)} /> : null}
     </SettingsSection>
     {tourOpen ? <WelcomeTour replay onClose={() => setTourOpen(false)} /> : null}
+    {petPicker ? <DefaultPetPicker onClose={() => setPetPicker(false)} /> : null}
     <TestUpdateCard />
     {__DEV__ || isTestingBuild ? <SettingsSection title="Development"><SettingsItem title="Hard reset" icon="reset" detail="Clear local records & restore defaults" danger onPress={() => setResetOpen(true)} /></SettingsSection> : null}
     <Modal visible={themePicker} transparent animationType="fade" onRequestClose={() => setThemePicker(false)}>
