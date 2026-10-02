@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { useApp } from '../store/AppStore';
 import type { ExampleMood } from '../domain/petExamples';
+import { TourNavigation } from '../domain/tourNavigation';
 import { MoodExampleCalendar } from './MoodExampleCalendar';
 import { BuddyArtwork } from './BuddyArtwork';
 import { ProgressBuddy } from './ProgressBuddy';
@@ -34,24 +35,48 @@ function Tour({ replay, onClose }: { replay: boolean; onClose?: () => void }) {
   const { palette: p, commit } = useApp();
   const { width, height } = useWindowDimensions();
   const pager = useRef<ScrollView>(null);
-  const pageRef = useRef(0);
+  const navigation = useRef(new TourNavigation(titles.length));
+  const transitionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const savingRef = useRef(false);
   const [page, setPage] = useState(0);
+  const [moving, setMoving] = useState(false);
   const [mood, setMood] = useState<ExampleMood>('thriving');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const lesson = moods.find(m => m.mood === mood)!;
   const size = height < 700 ? 132 : 172;
-  useEffect(() => { pager.current?.scrollTo({ x: pageRef.current * width, animated: false }); }, [width]);
-  const go = (next: number) => { pageRef.current = next; setPage(next); pager.current?.scrollTo({ x: next * width, animated: true }); };
+  useEffect(() => {
+    if (transitionTimer.current !== null) clearTimeout(transitionTimer.current);
+    const frame = requestAnimationFrame(() => {
+      navigation.current.settle(); setMoving(false);
+      pager.current?.scrollTo({ x: navigation.current.page * width, animated: false });
+    });
+    return () => { cancelAnimationFrame(frame); if (transitionTimer.current !== null) clearTimeout(transitionTimer.current); };
+  }, [width, navigation]);
+  const go = (next: number) => {
+    if (savingRef.current) return;
+    navigation.current.goTo(next); setPage(navigation.current.page); setMoving(navigation.current.transitioning);
+    if (transitionTimer.current !== null) clearTimeout(transitionTimer.current);
+    pager.current?.scrollTo({ x: navigation.current.page * width, animated: true });
+    if (navigation.current.transitioning) {
+      // Recover if a platform skips the final scroll event (e.g. reduced motion
+      // or an interrupted animation), so the last slide never stays disabled.
+      transitionTimer.current = setTimeout(() => {
+        pager.current?.scrollTo({ x: navigation.current.page * width, animated: false });
+        navigation.current.settle(); setMoving(false);
+      }, 1000);
+    }
+  };
   const finish = async (setup = false) => {
-    if (saving) return;
+    if (savingRef.current) return;
+    savingRef.current = true;
     setSaving(true); setError('');
     try {
       if (!replay) await commit(s => ({ ...s, onboardingCompleted: true }));
       onClose?.();
       if (setup) router.push('/goals');
     } catch (e) { setError(e instanceof Error ? e.message : 'Could not save. Please try again.'); }
-    finally { setSaving(false); }
+    finally { savingRef.current = false; setSaving(false); }
   };
   const text = (content: string) => <Text style={{ color: p.muted, fontSize: 16, lineHeight: 24, textAlign: 'center' }}>{content}</Text>;
   const box = { padding: 14, borderWidth: 1, borderColor: p.line, borderRadius: p.retro ? 0 : 14, backgroundColor: p.tile, gap: 6 };
@@ -62,7 +87,16 @@ function Tour({ replay, onClose }: { replay: boolean; onClose?: () => void }) {
         <Text style={{ color: p.primary, fontSize: 12, letterSpacing: 2, fontWeight: '700' }}>ON TRACK</Text>
         <Pressable accessibilityRole="button" disabled={saving} onPress={() => { void finish(); }} style={({ pressed }) => ({ minHeight: 44, minWidth: 64, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 12, borderRadius: p.retro ? 0 : 12, borderWidth: 1, borderColor: 'transparent', backgroundColor: pressed ? p.tile : 'transparent', opacity: saving ? .5 : 1, ...(Platform.OS === 'web' ? { outlineWidth: 0 } : {}) })}><Text selectable={false} style={{ color: p.muted, fontSize: 15 }}>{replay ? 'Close' : 'Skip'}</Text></Pressable>
       </View>
-      <ScrollView ref={pager} horizontal pagingEnabled showsHorizontalScrollIndicator={false} scrollEventThrottle={32} onScroll={event => { const next = Math.max(0, Math.min(4, Math.round(event.nativeEvent.contentOffset.x / width))); pageRef.current = next; setPage(next); }} style={{ flex: 1 }}>
+      <ScrollView ref={pager} horizontal pagingEnabled showsHorizontalScrollIndicator={false} scrollEventThrottle={32} onScrollBeginDrag={event => {
+        if (transitionTimer.current !== null) clearTimeout(transitionTimer.current);
+        navigation.current.beginDrag(event.nativeEvent.contentOffset.x, width); setPage(navigation.current.page); setMoving(false);
+      }} onScroll={event => {
+        navigation.current.observePosition(event.nativeEvent.contentOffset.x, width); setPage(navigation.current.page);
+        if (!navigation.current.transitioning) {
+          if (transitionTimer.current !== null) clearTimeout(transitionTimer.current);
+          setMoving(false);
+        }
+      }} style={{ flex: 1 }}>
         {titles.map((title, i) => {
           const previewMood = i === 0 ? 'normal' : i === 1 ? 'good' : i === 2 ? mood : i === 3 ? 'low' : 'good';
           return <View key={title} style={{ width, height: '100%', flexShrink: 0 }} accessibilityElementsHidden={page !== i} importantForAccessibility={page === i ? 'auto' : 'no-hide-descendants'}>
@@ -92,7 +126,7 @@ function Tour({ replay, onClose }: { replay: boolean; onClose?: () => void }) {
               {i === 4 ? <>
                 {text('Set your goals. Start today.')}
                 <View style={box}><Text style={{ color: p.text, fontSize: 15, lineHeight: 23 }}>Change themes, units and reminders in Settings.</Text></View>
-                <Button title="Set your goals" onPress={() => { void finish(true); }} disabled={saving} />
+                <Button title="Set your goals" onPress={() => { if (!navigation.current.transitioning) void finish(true); }} disabled={saving || moving} />
                 <Text style={{ color: p.muted, fontSize: 12, textAlign: 'center' }}>No account needed.</Text>
               </> : null}
             </ScrollView>
@@ -102,7 +136,10 @@ function Tour({ replay, onClose }: { replay: boolean; onClose?: () => void }) {
       <View style={{ paddingHorizontal: 24, paddingTop: 12, paddingBottom: 16, gap: 12, borderTopWidth: 1, borderColor: p.line }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4 }}>{titles.map((title, i) => <Pressable key={title} accessibilityRole="button" accessibilityLabel={`Slide ${i+1}: ${title}`} accessibilityState={{ selected: page === i }} disabled={saving} onPress={() => go(i)} style={{ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}><View style={{ width: page === i ? 22 : 7, height: 7, borderRadius: 4, backgroundColor: page === i ? p.primary : p.line }} /></Pressable>)}</View>
         {error ? <Text accessibilityRole="alert" style={{ color: p.red }}>{error}</Text> : null}
-        <View style={{ flexDirection: 'row', gap: 10 }}>{page > 0 ? <Button title="Back" disabled={saving} onPress={() => go(page-1)} /> : null}<View style={{ flex: 1 }}><Button title={saving ? 'Saving…' : page === 4 ? replay ? 'Done' : 'Start tracking' : 'Next'} primary disabled={saving} onPress={() => page === 4 ? void finish() : go(page+1)} /></View></View>
+        <View style={{ flexDirection: 'row', gap: 10 }}>{page > 0 ? <Button title="Back" disabled={saving} onPress={() => go(navigation.current.page - 1)} /> : null}<View style={{ flex: 1 }}><Button title={saving ? 'Saving…' : page === titles.length - 1 ? replay ? 'Done' : 'Start tracking' : 'Next'} primary disabled={saving || (page === titles.length - 1 && moving)} onPress={() => {
+          if (navigation.current.page === titles.length - 1) { if (!navigation.current.transitioning) void finish(); }
+          else go(navigation.current.page + 1);
+        }} /></View></View>
       </View>
     </SafeAreaView>
   </Modal>;
