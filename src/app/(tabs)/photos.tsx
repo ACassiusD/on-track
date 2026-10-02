@@ -20,7 +20,9 @@ export default function Photos() {
   const { height, width: windowWidth } = useWindowDimensions();
   // Keep the canvas identical while adjusting and viewing. `contain` depends on
   // its bounds, so shrinking the canvas also changes the apparent alignment.
-  const previewHeight = Math.min(height * .65, (width || windowWidth - 12) * 4 / 3);
+  const canvasWidth = width || windowWidth - 12;
+  const photoWidth = mode === 'Side by side' ? (canvasWidth - 4) / 2 : canvasWidth;
+  const previewHeight = Math.min(height * .65, photoWidth * 4 / 3);
   const uploadDate = captureDate ?? today;
   const reviewed = data.photoReviewedDates.includes(today); const photos = data.photos.slice().sort((a,b)=>a.date.localeCompare(b.date)); const reference=photos.find(photo=>photo.id===referenceId)??photos[0]; const selected=photoForDate(photos, uploadDate, selectedId);
   const add=async()=>{ const dateAtPick = uploadDate; if (!validDate(dateAtPick) || dateAtPick > today) { Alert.alert('Choose a valid photo date today or earlier'); return; } setBusy(true); const modeAtPick=state.mode; let copied:File|null=null; try { const result=await ImagePicker.launchImageLibraryAsync({mediaTypes:['images'],allowsEditing:false,quality:1}); if(result.canceled)return; const id=makeId(); const source=new File(result.assets[0].uri); const directory=new Directory(Paths.document,'progress-photos',modeAtPick); directory.create({intermediates:true,idempotent:true}); copied=new File(directory,`${id}.${source.extension.replace('.','')||'jpg'}`); await source.copy(copied); const photo:Photo={id,date:dateAtPick,uri:copied.uri,scale:1,x:0,y:0}; await commit(s=>({...s,[modeAtPick]:{...s[modeAtPick],photos:[...s[modeAtPick].photos,photo]}})); setSelectedId(id); setCaptureDate(dateAtPick === today ? null : dateAtPick); setAdjustReference(false); setMore(false); } catch { if(copied?.exists)try{copied.delete();}catch{} Alert.alert('Could not add photo','Please retry. The selected original is unchanged.'); } finally {setBusy(false);} };
