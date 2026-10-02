@@ -2,6 +2,7 @@ import React, { useId } from 'react';
 import Svg, { Circle, Defs, Ellipse, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 import type { Palette } from './themes';
 import type { BuddyMood } from '../domain/buddy';
+import { RefinedBuddyArtwork } from './RefinedBuddyArtwork';
 
 export function BuddyArtwork({ palette: p, mood, blink = false, delighted = false, size = 68 }: { palette: Palette; mood: BuddyMood; blink?: boolean; delighted?: boolean; size?: number }) {
   const id = useId().replace(/:/g, '');
@@ -19,23 +20,7 @@ export function BuddyArtwork({ palette: p, mood, blink = false, delighted = fals
     <Rect x={23} y={43} width={18} height={5} fill="#fff" opacity={.24} />
     {excited ? <Path d="M52 8v9m-4-5h8" stroke={p.accent} strokeWidth={3} /> : null}
   </Svg>;
-  if (p.realm === 'astral') return <Svg width={size} height={size} viewBox="0 0 80 80">
-    <Defs><LinearGradient id={body} x1="15%" y1="0%" x2="80%" y2="100%"><Stop stopColor="#e0fbff" /><Stop offset=".38" stopColor="#a0e3ed" /><Stop offset=".75" stopColor="#a4b8f2" /><Stop offset="1" stopColor="#b69be9" /></LinearGradient></Defs>
-    <Ellipse cx={39} cy={71} rx={25} ry={2.5} fill="#080d27" opacity={.22} />
-    <Path d="M48 50c13 1 20-5 20-16-8-1-12-6-11-14 8 0 13 4 16 10 1-7 3-10 6-11 2 15-2 30-15 36l-14 5Z" fill={`url(#${body})`} stroke="#828fd1" strokeWidth={1} strokeLinejoin="round" />
-    <Path d="M6 44c0-16 10-25 26-25 18 0 29 11 29 25 0 15-12 23-29 21C16 64 6 57 6 44Z" fill={`url(#${body})`} stroke="#87acd5" strokeWidth={1} />
-    <Path d="M8 49c14 8 34 8 50 0-3 11-14 16-26 14C19 62 11 58 8 49Z" fill="#f1faff" opacity={.86} />
-    <Path d="M40 51c3 2 11 6 14 13-9 5-16 0-18-7" fill="#9bc9eb" stroke="#849dd4" strokeWidth={1} strokeLinecap="round" />
-    <Path d="M14 31q5-7 13-7" fill="none" stroke="#fff" strokeWidth={3} opacity={.55} strokeLinecap="round" />
-    {blink || excited ? <Path d={excited && !blink ? "M17 41q4-5 8 0m12 0q4-5 8 0" : "M17 42q4 3 8 0m12 0q4 3 8 0"} fill="none" stroke={ink} strokeWidth={2} strokeLinecap="round" /> : <><Ellipse cx={21} cy={40} rx={4.5} ry={5.6} fill={ink} /><Ellipse cx={41} cy={40} rx={4.5} ry={5.6} fill={ink} /><Circle cx={19.5} cy={38} r={1.7} fill="#fff" /><Circle cx={39.5} cy={38} r={1.7} fill="#fff" /><Circle cx={22.5} cy={42.5} r={.8} fill="#80e8ef" /><Circle cx={42.5} cy={42.5} r={.8} fill="#80e8ef" /></>}
-    <Ellipse cx={14} cy={47} rx={4.5} ry={2.3} fill="#efa9d7" opacity={.8} /><Ellipse cx={48} cy={47} rx={4.5} ry={2.3} fill="#efa9d7" opacity={.8} />
-    <Path d={excited?'M27 46q4 1 8 0c0 7-8 7-8 0Z':happy?'M26 46q5 7 10 0':mood==='bad'?'M28 50q3-3 6 0':mood==='low'||mood==='unknown'?'M29 48h4':'M28 47q3 2 6 0'} stroke={ink} strokeWidth={1.5} fill={excited?ink:'none'} strokeLinecap="round" />
-    {excited ? <Ellipse cx={31} cy={50} rx={2} ry={1} fill={cheek} /> : null}
-    <Path d="m34 27 8 2 8-3" stroke="#fff" strokeWidth={.7} opacity={.7} />{[[34,27],[42,29],[50,26]].map(([x,y],i)=><Circle key={i} cx={x} cy={y} r={1.1} fill="#f6f2ff" />)}
-    <Path d="M29 16q-2-7-6-6m9 6q2-9 6-7" stroke="#bceef9" strokeWidth={2} fill="none" strokeLinecap="round" />
-    <Circle cx={22} cy={7} r={1.6} fill="#bceef9" /><Circle cx={39} cy={6} r={1.2} fill="#e2c6ff" />
-    <Path d="m58 10 1.3 3.7L63 15l-3.7 1.3L58 20l-1.3-3.7L53 15l3.7-1.3Z" fill="#e8d1ff" /><Circle cx={9} cy={25} r={1.2} fill="#a4e8ee" />{excited ? <Path d="M8 10v8m-4-4h8m56 44v8m-4-4h8" stroke="#e5cdff" strokeWidth={1.5} /> : null}
-  </Svg>;
+  if (p.realm === 'astral' || (!p.realm && !p.fantasy)) return <RefinedBuddyArtwork astral={p.realm === 'astral'} mood={mood} blink={blink} delighted={delighted} size={size} />;
   return <Svg width={size} height={size} viewBox="0 0 80 80">
     <Defs><LinearGradient id={body} x1="0%" y1="0%" x2="85%" y2="100%"><Stop stopColor="#f4ffe8" /><Stop offset=".35" stopColor={color} /><Stop offset="1" stopColor={p.realm === 'heaven' ? '#dce2e3' : p.fantasy ? '#54bca8' : color} /></LinearGradient></Defs>
     <Ellipse cx={40} cy={73} rx={23} ry={3} fill="#000" opacity={.14} />
