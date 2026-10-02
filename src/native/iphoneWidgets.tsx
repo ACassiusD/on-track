@@ -6,10 +6,10 @@ import { Platform } from 'react-native';
 import { HStack, Link, ProgressView, Text, VStack } from '@expo/ui/swift-ui';
 import { containerBackground, font, foregroundStyle, padding, widgetURL } from '@expo/ui/swift-ui/modifiers';
 import { createLiveActivity, createWidget, type WidgetEnvironment } from 'expo-widgets';
-import { addDays, localDate, type State } from '../domain/model';
-import { snapshotFor, shouldEndActivity, type IPhoneSnapshot } from './iphoneWidgetContract';
+import { localDate, type State } from '../domain/model';
+import { snapshotFor, shouldEndActivity, widgetTimelineFor, type IPhoneSnapshot, type WidgetSnapshot } from './iphoneWidgetContract';
 
-const ProgressWidget = (props: IPhoneSnapshot, environment: WidgetEnvironment) => {
+const ProgressWidget = (props: WidgetSnapshot, environment: WidgetEnvironment) => {
   'widget';
   const dayURL = props.date ? `ontrack://day?date=${props.date}` : 'ontrack://';
   const foodURL = props.date ? `ontrack://calories?date=${props.date}` : 'ontrack://';
@@ -33,9 +33,8 @@ let operations: Promise<unknown> = Promise.resolve();
 function serialize<T>(run: () => Promise<T>): Promise<T> { const next = operations.then(run); operations = next.catch(() => undefined); return next; }
 export function publishIPhoneSnapshot(state: State, today: string) {
   if (Platform.OS !== 'ios') return;
-  const now = new Date(); const midnight = new Date(`${addDays(today, 1)}T00:00:00`);
   // Tomorrow's entry clears today's answers even when the app stays closed.
-  widget.updateTimeline([{ date: now, props: snapshotFor(state, today, now) }, { date: midnight, props: snapshotFor(state, addDays(today, 1), now) }]);
+  widget.updateTimeline(widgetTimelineFor(state, today));
 }
 export function startEveningActivity(state: State, date = localDate()): Promise<void> {
   return serialize(async () => {

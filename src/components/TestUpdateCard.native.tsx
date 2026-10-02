@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import * as Updates from 'expo-updates';
 import { Text } from 'react-native';
 import { useApp } from '../store/AppStore';
-import { Button, Card, Label } from './UI';
+import { SettingsItem, SettingsSection } from './SettingsList';
 
 export const isTestingBuild = Updates.channel === 'testing';
 export function TestUpdateCard() {
@@ -32,12 +32,9 @@ export function TestUpdateCard() {
     } catch (e) { setError(e instanceof Error ? e.message : 'Could not get the update. Try again.'); }
     finally { running.current = false; setPhase(''); }
   };
-  return <Card>
-    <Label>Test version</Label>
-    <Button title={phase || 'Get latest test version'} disabled={Boolean(phase)} onPress={() => { void update(); }} />
-    <Label small>Downloads the latest compatible changes and restarts the app.</Label>
-    <Label small>{Updates.updateId ? `Version ${Updates.updateId.slice(0, 8)}` : 'Original test build'}</Label>
+  return <SettingsSection title="Test version" footer="Downloads the latest compatible changes and restarts the app.">
+    <SettingsItem icon="download" title={phase || 'Get latest test version'} detail={Updates.updateId ? `Version ${Updates.updateId.slice(0, 8)}` : 'Original test build'} disabled={Boolean(phase)} onPress={() => { void update(); }} />
     {message ? <Text accessibilityLiveRegion="polite" style={{ color: palette.muted, fontSize: 12 }}>{message}</Text> : null}
     {error ? <Text accessibilityRole="alert" style={{ color: palette.red, fontSize: 12 }}>{error}</Text> : null}
-  </Card>;
+  </SettingsSection>;
 }
