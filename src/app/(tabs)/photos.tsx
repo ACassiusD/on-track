@@ -89,7 +89,7 @@ export default function Photos() {
         <Button title={busy ? 'Working…' : uploadDate === today ? 'Import photo' : `Import for ${photoDateLabel(uploadDate, today)}`} primary disabled={busy} onPress={() => { void add(); }} />
       </View>{reel}</> : <>
         <View style={{ flexDirection: 'row', backgroundColor: p.bg, borderRadius: p.retro ? 0 : 8, padding: 3 }}>
-          {(['Side by side', 'Flip', 'Slider'] as const).map(item => <Pressable key={item} accessibilityRole="button" accessibilityState={{ selected: mode === item }} onPress={() => { setMode(item); setFlip(false); }} style={{ flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', backgroundColor: mode === item ? p.primary : 'transparent', borderRadius: p.retro ? 0 : 6 }}><Text style={{ color: mode === item ? p.bg : p.muted, fontSize: 13, fontWeight: '600' }}>{item}</Text></Pressable>)}
+          {(['Side by side', 'Flip', 'Slider'] as const).map(item => <Pressable key={item} accessibilityRole="button" accessibilityState={{ selected: mode === item }} onPress={() => { setMode(item); setFlip(item === 'Flip' && adjustment?.target === 'reference'); }} style={{ flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', backgroundColor: mode === item ? p.primary : 'transparent', borderRadius: p.retro ? 0 : 6 }}><Text style={{ color: mode === item ? p.bg : p.muted, fontSize: 13, fontWeight: '600' }}>{item}</Text></Pressable>)}
         </View>
         <View onLayout={event => setWidth(event.nativeEvent.layout.width)} style={{ flexDirection: 'row', height: previewHeight, marginHorizontal: -10, gap: 4 }}>
           {mode === 'Side by side' ? <>
