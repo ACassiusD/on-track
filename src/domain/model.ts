@@ -1,3 +1,4 @@
+import { normalizeFraming, type PhotoFraming } from './photoFraming.ts';
 import { normalizeDefaultPet, type DefaultPet } from './defaultPets.ts';
 export type Answer = boolean | null;
 export type ThemeName = 'Default' | 'Arcade Pop' | 'Enchanted Forest' | 'Heavenly Realm' | 'Astral';
@@ -6,7 +7,7 @@ export type DailyRecord = { date: string; calories: number | null; target: numbe
 export type Confirmation = { id: string; date: string; total: number; at: string; timezone: string };
 export type Revision = { id: string; date: string; oldTotal: number; newTotal: number; at: string; reason: string; confirmationId: string; source: Source };
 export type WeightReading = { id: string; date: string; pounds: number; time?: string; source: Source };
-export type Photo = { id: string; date: string; uri: string; scale: number; x: number; y: number };
+export type Photo = { id: string; date: string; uri: string; scale: number; x: number; y: number; framing?: PhotoFraming };
 export type Reminder = { id: string; label: string; time: string; weekendTime?: string; dayOffset?: 0 | -1; enabled: boolean };
 export type DataSet = { days: Record<string, DailyRecord>; confirmations: Confirmation[]; revisions: Revision[]; weights: WeightReading[]; photos: Photo[]; photoReviewedDates: string[] };
 export type State = { version: 1; mode: 'real' | 'demo'; theme: ThemeName; defaultPet?: DefaultPet; photoGuidance?: boolean; cloudAutoBackup?: boolean; cloudBackupOwner?: string; cloudLastBackup?: { ownerId: string; signature: string; at: string }; target: number | null; goal: number | null; milestones: number[]; reminders: Reminder[]; notificationResponseIds?: string[]; nativeActionIds?: string[]; onboardingCompleted?: boolean; weighInTime?: string; weightUnit?: 'lb' | 'kg'; demoProfile?: 'thriving' | 'good' | 'mixed' | 'low' | 'bad' | 'new'; real: DataSet; demo: DataSet };
@@ -52,6 +53,7 @@ export function validateStored(value: unknown): State {
   s.cloudAutoBackup = s.cloudAutoBackup === true;
   if (typeof s.cloudBackupOwner !== 'string') s.cloudBackupOwner = undefined;
   if (!s.cloudLastBackup || typeof s.cloudLastBackup.ownerId !== 'string' || typeof s.cloudLastBackup.signature !== 'string' || !Number.isFinite(Date.parse(s.cloudLastBackup.at))) s.cloudLastBackup = undefined;
+  for (const data of [s.real, s.demo]) data.photos = data.photos.map(photo => photo.framing ? { ...photo, framing: normalizeFraming(photo.framing) } : photo);
   s.defaultPet = normalizeDefaultPet(s.defaultPet);
   s.photoGuidance = s.photoGuidance === true;
   s.weightUnit = s.weightUnit === 'kg' ? 'kg' : 'lb';
