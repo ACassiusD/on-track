@@ -5,10 +5,11 @@ import { useApp } from '../../store/AppStore';
 import { useIPhone } from '../../store/IPhoneStore';
 import { selectDemoProfile } from '../../domain/demoProfiles';
 import { initialState, type ThemeName } from '../../domain/model';
-import { Button, Card, Label, Row, Screen } from '../../components/UI';
+import { Button, Card, Label, Screen } from '../../components/UI';
 import { WelcomeTour } from '../../components/WelcomeTour';
 import { themes } from '../../components/themes';
 import { TestUpdateCard, isTestingBuild } from '../../components/TestUpdateCard';
+import { SettingsItem, SettingsSection } from '../../components/SettingsList';
 const demoProfiles = [
   { value: 'thriving', label: 'Thriving' },
   { value: 'good', label: 'Happy' },
@@ -22,6 +23,7 @@ export default function Settings() {
   const { state, update, commit, today, palette: p } = useApp(); const iphone = useIPhone();
   const [tourOpen, setTourOpen] = useState(false);
   const [profilePicker, setProfilePicker] = useState(false);
+  const [themePicker, setThemePicker] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [resetError, setResetError] = useState('');
@@ -33,16 +35,46 @@ export default function Settings() {
   };
   const selected = demoProfiles.find(profile => profile.value === state.demoProfile) ?? demoProfiles[2];
   return <Screen title="Settings" back={false}>
-    <Card><Button title="Goals" onPress={() => router.push('/goals')} /><Button title="Account & cloud backup" onPress={() => router.push('/account')} /><Button title="iPhone connections" onPress={() => router.push('/connections')} /><Button title="Reminders" onPress={() => router.push('/reminders')} />{iphone.error ? <Label small>{iphone.error}</Label> : null}</Card>
-    <Card><Button title="Progress & sharing" onPress={() => router.push('/progress')} /><Button title="Check-in & ChatGPT" onPress={() => router.push('/coach')} /><Button title="Progress photos" onPress={() => router.push('/photos')} /></Card>
-    <Card><Row><Label>Weight units</Label><Row>{(['lb', 'kg'] as const).map(unit => <Button key={unit} title={unit === 'kg' ? 'kg' : 'lb'} selected={(state.weightUnit ?? 'lb') === unit} onPress={() => update(s => ({ ...s, weightUnit: unit }))} />)}</Row></Row></Card>
-    <Card><Label>Theme</Label>{(Object.keys(themes) as ThemeName[]).map(theme => <Button key={theme} title={theme} selected={state.theme === theme} onPress={() => update(s => ({ ...s, theme }))} />)}</Card>
-
-    <Card><Row><Label>Demo mode</Label><Switch accessibilityLabel="Demo mode" value={state.mode === 'demo'} onValueChange={value => update(s => ({ ...s, mode: value ? 'demo' : 'real' }))} /></Row><Pressable accessibilityRole="button" accessibilityLabel={`Demo profile: ${selected.label}. Change profile`} accessibilityState={{ expanded: profilePicker }} onPress={() => setProfilePicker(true)} style={{ minHeight: 48, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderWidth: 1, borderColor: p.line, borderRadius: p.retro ? 0 : 12, backgroundColor: p.bg }}><Text style={{ color: p.text, fontSize: 16 }}>{selected.label}</Text><Text style={{ color: p.primary }}>▾</Text></Pressable><Label small>Profiles replace demo data only. Personal records stay separate.</Label></Card>
-    <Card><Button title="App & pet guide" onPress={() => setTourOpen(true)} /></Card>
+    <SettingsSection title="Tracking">
+      <SettingsItem title="Goals" icon="goal" detail="Calorie target, goal weight & milestones" onPress={() => router.push('/goals')} />
+      <SettingsItem title="Reminders" icon="bell" onPress={() => router.push('/reminders')} />
+    </SettingsSection>
+    <SettingsSection title="Preferences">
+      <SettingsItem title="Weight units" icon="weight" trailing={<View accessibilityRole="radiogroup" accessibilityLabel="Weight units" style={{ flexDirection: 'row', padding: 3, gap: 3, borderRadius: p.retro ? 0 : 10, backgroundColor: p.bg }}>{(['lb', 'kg'] as const).map(unit => <Pressable key={unit} accessibilityRole="radio" accessibilityLabel={unit === 'lb' ? 'Pounds' : 'Kilograms'} accessibilityState={{ checked: (state.weightUnit ?? 'lb') === unit }} aria-checked={(state.weightUnit ?? 'lb') === unit} onPress={() => update(s => ({ ...s, weightUnit: unit }))} style={({ pressed }) => ({ minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: p.retro ? 0 : 7, backgroundColor: (state.weightUnit ?? 'lb') === unit ? p.primary : undefined, opacity: pressed ? .7 : 1 })}><Text style={{ color: (state.weightUnit ?? 'lb') === unit ? p.bg : p.muted, fontSize: 14, fontWeight: '700' }}>{unit}</Text></Pressable>)}</View>} />
+      <SettingsItem title="Theme" icon="theme" detail={state.theme} onPress={() => setThemePicker(true)} />
+    </SettingsSection>
+    <SettingsSection title="Connections">
+      <SettingsItem title="Account & cloud backup" icon="cloud" onPress={() => router.push('/account')} />
+      <SettingsItem title="iPhone connections" icon="phone" detail={iphone.error ? 'Needs attention · tap to retry' : 'Apple Health, widgets & shortcuts'} onPress={() => router.push('/connections')} />
+    </SettingsSection>
+    <SettingsSection title="Progress">
+      <SettingsItem title="Progress & sharing" icon="chart" onPress={() => router.push('/progress')} />
+      <SettingsItem title="Progress photos" icon="photo" onPress={() => router.push('/photos')} />
+      <SettingsItem title="Check-in & ChatGPT" icon="chat" onPress={() => router.push('/coach')} />
+    </SettingsSection>
+    <SettingsSection title="App" footer={state.mode === 'demo' ? 'Demo profiles use sample data. Your personal records stay separate.' : undefined}>
+      <SettingsItem title="App & pet guide" icon="guide" onPress={() => setTourOpen(true)} />
+      <SettingsItem title="Demo mode" icon="demo" trailing={<Switch accessibilityLabel="Demo mode" value={state.mode === 'demo'} trackColor={{ false: p.grey, true: p.primary }} onValueChange={value => update(s => ({ ...s, mode: value ? 'demo' : 'real' }))} />} />
+      {state.mode === 'demo' ? <SettingsItem title="Demo profile" icon="profile" detail={selected.label} onPress={() => setProfilePicker(true)} /> : null}
+    </SettingsSection>
     {tourOpen ? <WelcomeTour replay onClose={() => setTourOpen(false)} /> : null}
     <TestUpdateCard />
-    {__DEV__ || isTestingBuild ? <Card><Label>Development</Label><Button title="Hard reset" onPress={() => setResetOpen(true)} /><Label small>Start over with empty records and default settings.</Label></Card> : null}
+    {__DEV__ || isTestingBuild ? <SettingsSection title="Development"><SettingsItem title="Hard reset" icon="reset" detail="Clear local records & restore defaults" danger onPress={() => setResetOpen(true)} /></SettingsSection> : null}
+    <Modal visible={themePicker} transparent animationType="fade" onRequestClose={() => setThemePicker(false)}>
+      <View style={{ flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#000000bb' }}>
+        <View accessibilityViewIsModal style={{ width: '100%', maxWidth: 380, maxHeight: '85%', alignSelf: 'center' }}>
+          <ScrollView><Card compact>
+            <Label>Choose a theme</Label>
+            {(Object.keys(themes) as ThemeName[]).map(theme => <Pressable key={theme} accessibilityRole="radio" accessibilityLabel={theme} accessibilityState={{ checked: state.theme === theme }} aria-checked={state.theme === theme} onPress={() => { update(s => ({ ...s, theme })); setThemePicker(false); }} style={({ pressed }) => ({ minHeight: 58, paddingHorizontal: 12, paddingVertical: 10, gap: 12, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: state.theme === theme ? p.primary : p.line, borderRadius: p.retro ? 0 : 10, backgroundColor: pressed ? p.grey : p.bg })}>
+              <View accessibilityElementsHidden aria-hidden style={{ flexDirection: 'row', gap: 3 }}>{[themes[theme].bg, themes[theme].primary, themes[theme].accent].map((color, index) => <View key={index} style={{ width: 13, height: 26, borderRadius: p.retro ? 0 : 4, backgroundColor: color, borderWidth: 1, borderColor: p.line }} />)}</View>
+              <Text style={{ flex: 1, color: p.text, fontSize: 15 }}>{theme}</Text>
+              {state.theme === theme ? <Text style={{ color: p.primary, fontSize: 18 }}>✓</Text> : null}
+            </Pressable>)}
+            <Button title="Cancel" onPress={() => setThemePicker(false)} />
+          </Card></ScrollView>
+        </View>
+      </View>
+    </Modal>
     <Modal visible={resetOpen} transparent animationType="fade" onRequestClose={() => { if (!resetting) setResetOpen(false); }}>
       <View style={{ flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#000000bb' }}><View accessibilityViewIsModal style={{ width: '100%', maxWidth: 380, alignSelf: 'center' }}><Card>
         <Label>Reset this app?</Label><Label small>Deletes personal records and resets goals, units, themes and reminders on this device. Cloud backups and your login stay intact.</Label>
@@ -56,7 +88,7 @@ export default function Settings() {
         <View accessibilityViewIsModal style={{ width: '100%', maxWidth: 380, maxHeight: '85%', alignSelf: 'center' }}>
           <ScrollView><Card>
             <Label>Demo profile</Label>
-            {demoProfiles.map(profile => <Pressable key={profile.value} accessibilityRole="radio" accessibilityState={{ checked: selected.value === profile.value }} onPress={() => { update(s => selectDemoProfile(s, profile.value, today)); setProfilePicker(false); }} style={{ minHeight: 44, paddingHorizontal: 12, borderRadius: p.retro ? 0 : 8, backgroundColor: selected.value === profile.value ? p.primary : p.bg, justifyContent: 'center' }}><Text style={{ color: selected.value === profile.value ? p.bg : p.text, fontSize: 16 }}>{profile.label}{selected.value === profile.value ? '  ✓' : ''}</Text></Pressable>)}
+            {demoProfiles.map(profile => <Pressable key={profile.value} accessibilityRole="radio" accessibilityState={{ checked: selected.value === profile.value }} aria-checked={selected.value === profile.value} onPress={() => { update(s => selectDemoProfile(s, profile.value, today)); setProfilePicker(false); }} style={{ minHeight: 44, paddingHorizontal: 12, borderRadius: p.retro ? 0 : 8, backgroundColor: selected.value === profile.value ? p.primary : p.bg, justifyContent: 'center' }}><Text style={{ color: selected.value === profile.value ? p.bg : p.text, fontSize: 16 }}>{profile.label}{selected.value === profile.value ? '  ✓' : ''}</Text></Pressable>)}
             <Button title="Cancel" onPress={() => setProfilePicker(false)} />
           </Card></ScrollView>
         </View>
