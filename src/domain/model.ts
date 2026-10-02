@@ -9,7 +9,7 @@ export type WeightReading = { id: string; date: string; pounds: number; time?: s
 export type Photo = { id: string; date: string; uri: string; scale: number; x: number; y: number };
 export type Reminder = { id: string; label: string; time: string; weekendTime?: string; dayOffset?: 0 | -1; enabled: boolean };
 export type DataSet = { days: Record<string, DailyRecord>; confirmations: Confirmation[]; revisions: Revision[]; weights: WeightReading[]; photos: Photo[]; photoReviewedDates: string[] };
-export type State = { version: 1; mode: 'real' | 'demo'; theme: ThemeName; defaultPet?: DefaultPet; cloudAutoBackup?: boolean; cloudBackupOwner?: string; cloudLastBackup?: { ownerId: string; signature: string; at: string }; target: number | null; goal: number | null; milestones: number[]; reminders: Reminder[]; notificationResponseIds?: string[]; nativeActionIds?: string[]; onboardingCompleted?: boolean; weighInTime?: string; weightUnit?: 'lb' | 'kg'; demoProfile?: 'thriving' | 'good' | 'mixed' | 'low' | 'bad' | 'new'; real: DataSet; demo: DataSet };
+export type State = { version: 1; mode: 'real' | 'demo'; theme: ThemeName; defaultPet?: DefaultPet; photoGuidance?: boolean; cloudAutoBackup?: boolean; cloudBackupOwner?: string; cloudLastBackup?: { ownerId: string; signature: string; at: string }; target: number | null; goal: number | null; milestones: number[]; reminders: Reminder[]; notificationResponseIds?: string[]; nativeActionIds?: string[]; onboardingCompleted?: boolean; weighInTime?: string; weightUnit?: 'lb' | 'kg'; demoProfile?: 'thriving' | 'good' | 'mixed' | 'low' | 'bad' | 'new'; real: DataSet; demo: DataSet };
 export function emptyData(): DataSet { return { days: {}, confirmations: [], revisions: [], weights: [], photos: [], photoReviewedDates: [] }; }
 export function emptyDay(date: string, target: number | null): DailyRecord { return { date, calories: null, target, food: null, workout: null, creatine: null, sources: [] }; }
 export function localDate(d = new Date()): string { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
@@ -53,6 +53,7 @@ export function validateStored(value: unknown): State {
   if (typeof s.cloudBackupOwner !== 'string') s.cloudBackupOwner = undefined;
   if (!s.cloudLastBackup || typeof s.cloudLastBackup.ownerId !== 'string' || typeof s.cloudLastBackup.signature !== 'string' || !Number.isFinite(Date.parse(s.cloudLastBackup.at))) s.cloudLastBackup = undefined;
   s.defaultPet = normalizeDefaultPet(s.defaultPet);
+  s.photoGuidance = s.photoGuidance === true;
   s.weightUnit = s.weightUnit === 'kg' ? 'kg' : 'lb';
   if (typeof s.onboardingCompleted !== 'boolean') s.onboardingCompleted = s.target !== null || s.goal !== null || Object.keys(s.real.days).length > 0 || s.real.weights.length > 0 || s.real.photos.length > 0;
   s.notificationResponseIds ??= [];

@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
 import { Alert, Image, Platform, Share, Pressable, Text, View, useWindowDimensions } from 'react-native';
+import { useIsFocused } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Directory, File, Paths } from 'expo-file-system';
 import { useApp } from '../../store/AppStore';
-import { Photo, makeId } from '../../domain/model';
+import { Photo, type State } from '../../domain/model';
 import { photoForDate } from '../../domain/photos';
 import { validDate } from '../../domain/reminders';
 import { Button, Card, Label, Row, Screen } from '../../components/UI';
+import { GuidedPhotoCamera } from '../../components/GuidedPhotoCamera';
+import { saveLocalPhoto } from '../../photos/localPhoto';
 import { PhotoReel } from '../../components/PhotoReel';
 import { PhotoPickerModal, photoDateLabel } from '../../components/PhotoPickerModal';
 export default function Photos() {
   const { data, today, updateData, commit, state, palette: p } = useApp(); const [selectedId, setSelectedId] = useState<string | null>(null); const [referenceId,setReferenceId]=useState<string|null>(null); const [mode, setMode] = useState<'Side by side' | 'Flip' | 'Slider'>('Side by side'); const [flip, setFlip] = useState(false); const [position,setPosition]=useState(50); const [width,setWidth]=useState(0); const [trackWidth,setTrackWidth]=useState(1); const [busy,setBusy]=useState(false); const [captureDate,setCaptureDate]=useState<string|null>(null);
+  const focused = useIsFocused();
+  const [cameraSession, setCameraSession] = useState<{ date: string; mode: State['mode']; reference?: Photo } | null>(null);
   const [picker, setPicker] = useState<'date' | 'reference' | 'comparison' | null>(null);
   const [adjust, setAdjust] = useState(false);
   const [adjustReference, setAdjustReference] = useState(false);
@@ -25,7 +30,15 @@ export default function Photos() {
   const previewHeight = Math.min(height * .65, photoWidth * 4 / 3);
   const uploadDate = captureDate ?? today;
   const reviewed = data.photoReviewedDates.includes(today); const photos = data.photos.slice().sort((a,b)=>a.date.localeCompare(b.date)); const reference=photos.find(photo=>photo.id===referenceId)??photos[0]; const selected=photoForDate(photos, uploadDate, selectedId);
-  const add=async()=>{ const dateAtPick = uploadDate; if (!validDate(dateAtPick) || dateAtPick > today) { Alert.alert('Choose a valid photo date today or earlier'); return; } setBusy(true); const modeAtPick=state.mode; let copied:File|null=null; try { const result=await ImagePicker.launchImageLibraryAsync({mediaTypes:['images'],allowsEditing:false,quality:1}); if(result.canceled)return; const id=makeId(); const source=new File(result.assets[0].uri); const directory=new Directory(Paths.document,'progress-photos',modeAtPick); directory.create({intermediates:true,idempotent:true}); copied=new File(directory,`${id}.${source.extension.replace('.','')||'jpg'}`); await source.copy(copied); const photo:Photo={id,date:dateAtPick,uri:copied.uri,scale:1,x:0,y:0}; await commit(s=>({...s,[modeAtPick]:{...s[modeAtPick],photos:[...s[modeAtPick].photos,photo]}})); setSelectedId(id); setCaptureDate(dateAtPick === today ? null : dateAtPick); setAdjustReference(false); setMore(false); } catch { if(copied?.exists)try{copied.delete();}catch{} Alert.alert('Could not add photo','Please retry. The selected original is unchanged.'); } finally {setBusy(false);} };
+  const added = (photo: Photo) => { setSelectedId(photo.id); setCaptureDate(photo.date === today ? null : photo.date); setAdjustReference(false); setMore(false); };
+  const add = async () => {
+    const dateAtPick = uploadDate; const modeAtPick = state.mode;
+    if (!validDate(dateAtPick) || dateAtPick > today) { Alert.alert('Choose a valid photo date today or earlier'); return; }
+    setBusy(true);
+    try { const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: false, quality: 1 }); if (!result.canceled) added(await saveLocalPhoto(result.assets[0].uri, dateAtPick, modeAtPick, today, commit)); }
+    catch { Alert.alert('Could not add photo', 'Please retry. The selected original is unchanged.'); }
+    finally { setBusy(false); }
+  };
   const adjusted = adjustReference ? reference : selected;
   const align=(key:'scale'|'x'|'y',delta:number)=>{if(!adjusted)return;updateData(d=>({...d,photos:d.photos.map(photo=>photo.id!==adjusted.id?photo:{...photo,[key]:key==='scale'?Math.round(Math.max(.5,Math.min(2,photo.scale+delta))*100)/100:Math.max(-100,Math.min(100,photo[key]+delta))})}));};
   const picture=(photo:Photo|undefined)=>photo?<Image source={{uri:photo.uri}} accessibilityLabel={`Progress photo ${photo.date}`} resizeMode="contain" style={{width:'100%',height:'100%',transform:[{translateX:photo.x},{translateY:photo.y},{scale:photo.scale}]}}/>:<Label small>No photo yet</Label>;
@@ -39,8 +52,9 @@ export default function Photos() {
   }} /> : null;
   return <Screen title="" back={false} compact horizontalPadding={4}>
     <Card compact>
+      <Row><Text style={{ color: p.text, fontSize: 16, fontWeight: '600' }}>Progress photos</Text><Button title="Take photo" disabled={busy} onPress={() => { if (Platform.OS === 'web') { Alert.alert('Open the mobile app', 'Taking progress photos is available in the mobile app.'); return; } if (!validDate(uploadDate) || uploadDate > today) return; setCameraSession({ date: uploadDate, mode: state.mode, reference }); }} /></Row>
       <View style={{ flexDirection: 'row', gap: 8 }}>
-        {selected && reference ? <Pressable accessibilityRole="button" accessibilityLabel="Choose reference photo" accessibilityState={{ selected: reelTarget === 'reference' }} onPress={() => { setReelTarget('reference'); setAdjust(false); }} style={{ flex: 1, minHeight: 44, paddingHorizontal: 8, justifyContent: 'center', borderBottomWidth: 2, borderColor: reelTarget === 'reference' ? p.primary : p.line }}>
+        {reference ? <Pressable accessibilityRole="button" accessibilityLabel="Choose reference photo" accessibilityState={{ selected: reelTarget === 'reference' }} onPress={() => { setReelTarget('reference'); setAdjust(false); }} style={{ flex: 1, minHeight: 44, paddingHorizontal: 8, justifyContent: 'center', borderBottomWidth: 2, borderColor: reelTarget === 'reference' ? p.primary : p.line }}>
           <Text style={{ color: p.muted, fontSize: 11 }}>Reference</Text><Text style={{ color: p.primary, fontSize: 14, fontWeight: '600' }}>{photoDateLabel(reference.date, today)}</Text>
         </Pressable> : null}
         <Pressable accessibilityRole="button" accessibilityLabel="Choose comparison photo from reel" accessibilityState={{ selected: reelTarget === 'comparison' }} disabled={busy} onPress={() => { setReelTarget('comparison'); setAdjust(false); }} style={{ flex: 1, minHeight: 44, paddingHorizontal: 8, justifyContent: 'center', borderBottomWidth: 2, borderColor: reelTarget === 'comparison' ? p.primary : p.line }}>
@@ -96,6 +110,7 @@ export default function Photos() {
         </View> : null}
       </>}
     </Card>
+    {cameraSession && focused ? <GuidedPhotoCamera date={cameraSession.date} reference={cameraSession.reference} onClose={() => setCameraSession(null)} onSave={async uri => { const photo = await saveLocalPhoto(uri, cameraSession.date, cameraSession.mode, today, commit); added(photo); setCameraSession(null); }} /> : null}
     {picker ? <PhotoPickerModal kind={picker} today={today} date={uploadDate} photos={photos} selectedId={picker === 'reference' ? reference?.id : selected?.id} onDate={date => { setCaptureDate(date === today ? null : date); setSelectedId(null); setFlip(false); setAdjust(false); setAdjustReference(false); setReelTarget('comparison'); setMore(false); setPicker(null); }} onPhoto={id => { if (picker === 'reference') setReferenceId(id); else { const photo = photos.find(item => item.id === id); if (photo) setCaptureDate(photo.date === today ? null : photo.date); setSelectedId(id); setFlip(false); } setPicker(null); }} onClose={() => setPicker(null)} /> : null}
   </Screen>;
 }
