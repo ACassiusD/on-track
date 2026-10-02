@@ -9,7 +9,7 @@ import Svg, { Path } from 'react-native-svg';
 
 function Button({ title, onPress, primary = false, disabled = false }: { title: string; onPress: () => void; primary?: boolean; disabled?: boolean }) {
   const { palette: p } = useApp();
-  return <Pressable accessibilityRole="button" accessibilityLabel={title} accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => ({ minHeight: 46, padding: 12, borderRadius: 12, backgroundColor: primary ? p.primary : p.grey, opacity: disabled ? .45 : pressed ? .7 : 1, alignItems: 'center', justifyContent: 'center' })}><Text style={{ color: primary ? p.bg : p.text, fontSize: 15, fontWeight: '600' }}>{title}</Text></Pressable>;
+  return <Pressable accessibilityRole="button" accessibilityLabel={title} accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => ({ minHeight: 46, padding: 12, borderRadius: p.retro ? 0 : 12, borderWidth: p.retro ? 1 : 0, borderColor: p.accent, backgroundColor: primary ? p.primary : p.grey, opacity: disabled ? .45 : pressed ? .7 : 1, alignItems: 'center', justifyContent: 'center' })}><Text style={{ color: primary ? p.bg : p.text, fontSize: 15, fontWeight: '600' }}>{title}</Text></Pressable>;
 }
 
 export default function Account() {
@@ -26,8 +26,8 @@ export default function Account() {
   const enabled = !!owner && state.cloudAutoBackup === true && state.cloudBackupOwner === owner;
   const pending = needsAutomaticBackup(state, owner);
   const saved = owner && state.cloudLastBackup?.ownerId === owner ? state.cloudLastBackup : undefined;
-  const field = { minHeight: 48, padding: 12, borderColor: p.line, borderWidth: 1, borderRadius: 12, color: p.text, backgroundColor: p.bg, fontSize: 16 };
-  const panel = { padding: 18, gap: 16, backgroundColor: p.tile, borderColor: `${p.line}70`, borderWidth: 1, borderRadius: 16 };
+  const field = { minHeight: 48, padding: 12, borderColor: p.line, borderWidth: 1, borderRadius: p.retro ? 0 : 12, color: p.text, backgroundColor: p.bg, fontSize: 16 };
+  const panel = { padding: 18, gap: 16, backgroundColor: p.tile, borderColor: `${p.line}70`, borderWidth: 1, borderRadius: p.radius };
   const heading = { color: p.text, fontSize: 17, fontWeight: '600' as const };
   const detail = { color: p.muted, fontSize: 13, lineHeight: 19 };
   const icon = (path: string, size = 20, color = p.primary) => <Svg aria-hidden width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round"><Path d={path} /></Svg>;
@@ -42,7 +42,7 @@ export default function Account() {
         <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: p.green }} />
       </View>
       <View style={{ borderTopWidth: 1, borderTopColor: `${p.line}70`, paddingTop: 16, gap: 14 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>{icon('M9 12l2 2 4-4 M12 3l8 3v6c0 5-8 9-8 9s-8-4-8-9V6z', 18, p.muted)}<Text style={{ color: p.text, fontSize: 14, flex: 1 }}>Tracking data</Text><Text style={detail}>Auto-saved</Text></View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>{icon('M9 12l2 2 4-4 M12 3l8 3v6c0 5-8 9-8 9s-8-4-8-9V6z', 18, p.muted)}<Text style={{ color: p.text, fontSize: 14, flex: 1 }}>Stats &amp; goals</Text><Text style={detail}>On this device</Text></View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>{icon('M7 10V7a5 5 0 0 1 10 0v3 M5 10h14v11H5z', 18, p.muted)}<Text style={{ color: p.text, fontSize: 14, flex: 1 }}>Progress photos</Text><Text style={detail}>Device only</Text></View>
       </View>
       {Object.keys(state.real.days).length || state.real.weights.length ? <Text style={detail}>{Object.keys(state.real.days).length} logged days · {state.real.weights.length} weigh-ins</Text> : null}
