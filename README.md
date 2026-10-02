@@ -23,7 +23,7 @@ For standalone iPhone testing with automatic updates from main, see [iPhone test
 
 ## Welcome guide
 
-New users get a five-slide, skippable introduction with animated pet mood previews, the five daily tasks, happiness criteria, missed-day guidance and a shortcut to guided goal setup. Completion is saved locally. Existing users can replay it under **Settings → App & pet guide**; the development hard reset makes it appear on first launch again. Mood previews do not change records or the real pet score.
+New users get a five-slide, skippable introduction with animated pet mood previews, the five daily tasks, happiness criteria, missed-day guidance and a shortcut to guided goal setup. Completion is saved locally. Existing users can replay it under **Settings → App & pet guide**; the development sandbox reset makes it appear on first launch again while preserving personal records. Mood previews do not change records or the real pet score.
 
 Today labels the daily tasks with a completion count. Finishing all five collapses them into **All done for today!**; **View tasks** reopens them for corrections. Each newly completed task plays a short, queued pet reaction (dumbbell, creatine scoop, calorie checklist, scale or target shield), followed by a trophy celebration at 5/5. These reactions briefly override the expression and idle movement, then return to the actual 14-day mood. Loading saved data, switching demo profiles and midnight do not replay celebrations; reduced motion shows a static reaction instead.
 
@@ -40,7 +40,7 @@ Goal setup asks one question at a time: calorie target, goal weight, optional mi
 - Private local photo copies, daily review, timeline, side-by-side/flip/scrub comparison, uniform scale/position alignment, explicit original export and app-copy deletion. No body reshaping or automatic landmark alignment.
 - Four themes and reduced-motion-aware feedback. Factual local coaching and explicitly previewed progress sharing.
 - Opt-in weekday/weekend reminders, intentional overnight date mapping, habit actions and bounded snooze. Finite 14-day schedules refill when the app runs.
-- Optional Supabase accounts with Keychain-backed sessions, explicit versioned backups, previewed conflict-safe restore and local recovery. Photos remain local; this is manual backup, not automatic synchronization.
+- Optional Supabase accounts with Keychain-backed sessions, opt-in automatic personal-stat backups while the app is open, immutable recovery points, previewed conflict-safe restore and local recovery. Demo activity is excluded and development reset preserves personal records. Photos remain local; fresh installs require signing in and restoring a backup, rather than automatic multi-device synchronization.
 - Read-only HealthKit preview/import, Home/Lock Screen widgets, Siri habit shortcuts with durable receipts, an explicit evening Live Activity, and one-off iOS 26 AlarmKit alerts. See [native implementation and limits](docs/IPHONE-NATIVE.md).
 - Optional authenticated AI review endpoint with consent, bounded factual input and daily quota. Generation remains disabled until server-side OpenAI secrets are configured.
 
@@ -80,3 +80,7 @@ Today, Photos and Settings use bottom tabs. Add/Edit weight is on the dashboard;
 ## Task calendar and retro theme
 
 The five calendar tasks are Workout, Creatine, Calories logged, Weight entered and Calories within target. A finished over-target log still earns calorie logging completion; staying within target earns a separate check. Weight entry opens a modal. Arcade Pop uses bitmap lettering, squared neon frames, a CRT grid and a pixel buddy. Settings → Demo mode offers Good, Mixed, Bad and New profiles; choosing a profile replaces demo data only.
+
+## Protecting a personal profile during development
+
+Open **Settings → Account & cloud backup**, create an account or sign in, and enable **Automatic backup**. Confirm the last backup timestamp before uninstalling or clearing device storage. Offline edits retry while the app is open or when it returns to the foreground. Switch into demo mode to test with separate data; **Reset development sandbox** preserves personal records, device photos, goals and backup protection. On a fresh install, sign in, switch to personal mode and use **Restore latest backup**, then review and confirm the snapshot. Photos are device-only and do not survive uninstalling.
