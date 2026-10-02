@@ -4,7 +4,13 @@ import { AppleSignInButton } from '../components/AppleSignInButton';
 import { useCloud } from '../store/CloudStore';
 import { useApp } from '../store/AppStore';
 import { needsAutomaticBackup } from '../cloud/profileProtection';
-import { Button, Screen } from '../components/UI';
+import { Screen } from '../components/UI';
+import Svg, { Path } from 'react-native-svg';
+
+function Button({ title, onPress, primary = false, disabled = false }: { title: string; onPress: () => void; primary?: boolean; disabled?: boolean }) {
+  const { palette: p } = useApp();
+  return <Pressable accessibilityRole="button" accessibilityLabel={title} accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => ({ minHeight: 46, padding: 12, borderRadius: 12, backgroundColor: primary ? p.primary : p.grey, opacity: disabled ? .45 : pressed ? .7 : 1, alignItems: 'center', justifyContent: 'center' })}><Text style={{ color: primary ? p.bg : p.text, fontSize: 15, fontWeight: '600' }}>{title}</Text></Pressable>;
+}
 
 export default function Account() {
   const cloud = useCloud();
@@ -21,26 +27,33 @@ export default function Account() {
   const pending = needsAutomaticBackup(state, owner);
   const saved = owner && state.cloudLastBackup?.ownerId === owner ? state.cloudLastBackup : undefined;
   const field = { minHeight: 48, padding: 12, borderColor: p.line, borderWidth: 1, borderRadius: 12, color: p.text, backgroundColor: p.bg, fontSize: 16 };
-  const panel = { padding: 18, gap: 14, backgroundColor: p.tile, borderColor: p.line, borderWidth: 1, borderRadius: 18 };
-  const heading = { color: p.text, fontSize: 18, fontWeight: '600' as const };
-  const detail = { color: p.muted, fontSize: 14, lineHeight: 21 };
-  const disclosure = (title: string, expanded: boolean, onPress: () => void) => <Pressable accessibilityRole="button" accessibilityState={{ expanded }} onPress={onPress} style={{ minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}><Text style={{ color: p.primary, fontSize: 15, fontWeight: '600', flexShrink: 1 }}>{title}</Text><Text style={{ color: p.muted, fontSize: 18 }}>{expanded ? '−' : '+'}</Text></Pressable>;
+  const panel = { padding: 18, gap: 16, backgroundColor: p.tile, borderColor: `${p.line}70`, borderWidth: 1, borderRadius: 16 };
+  const heading = { color: p.text, fontSize: 17, fontWeight: '600' as const };
+  const detail = { color: p.muted, fontSize: 13, lineHeight: 19 };
+  const icon = (path: string, size = 20, color = p.primary) => <Svg aria-hidden width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round"><Path d={path} /></Svg>;
+  const disclosure = (title: string, expanded: boolean, onPress: () => void) => <Pressable accessibilityRole="button" accessibilityLabel={title} accessibilityState={{ expanded }} onPress={onPress} style={({ pressed }) => ({ minHeight: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, opacity: pressed ? .6 : 1 })}><Text style={{ color: p.text, fontSize: 14, flexShrink: 1 }}>{title}</Text>{icon(expanded ? 'm5 15 7-7 7 7' : 'm9 5 7 7-7 7', 16, p.muted)}</Pressable>;
   const busy = cloud.busy || !cloud.authReady;
-  return <Screen title="Account & backup">
+  return <Screen title="Account" quiet>
     {state.mode === 'demo' ? <View style={panel}><Text style={heading}>You’re trying sample data</Text><Text style={detail}>Your personal entries are kept separately.</Text><Button title="Use my own data" onPress={() => update(s => ({ ...s, mode: 'real' }))} /></View> : null}
-    <View style={panel}>
-      <Text style={heading}>Saved on this device</Text>
-      <Text style={detail}>Auto-saved. No account needed.</Text>
-      {Object.keys(state.real.days).length || state.real.weights.length ? <Text style={{ color: p.text, fontSize: 14 }}>{Object.keys(state.real.days).length} logged days · {state.real.weights.length} weigh-ins</Text> : null}
-      <View style={{ borderTopWidth: 1, borderTopColor: p.line, paddingTop: 14 }}><Text style={detail}>Photos stay local. Never uploaded.</Text></View>
+    <View style={{ ...panel, gap: 18 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+        <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: p.grey, alignItems: 'center', justifyContent: 'center' }}>{icon('M8 7a4 4 0 1 0 8 0 4 4 0 1 0-8 0 M4 21v-2a8 8 0 0 1 16 0v2', 24)}</View>
+        <View style={{ flex: 1, gap: 4 }}><Text style={{ ...heading, fontSize: 19 }}>Your account</Text><Text style={detail}>{owner ? 'Connected' : 'No sign-in required'}</Text></View>
+        <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: p.green }} />
+      </View>
+      <View style={{ borderTopWidth: 1, borderTopColor: `${p.line}70`, paddingTop: 16, gap: 14 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>{icon('M9 12l2 2 4-4 M12 3l8 3v6c0 5-8 9-8 9s-8-4-8-9V6z', 18, p.muted)}<Text style={{ color: p.text, fontSize: 14, flex: 1 }}>Tracking data</Text><Text style={detail}>Auto-saved</Text></View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>{icon('M7 10V7a5 5 0 0 1 10 0v3 M5 10h14v11H5z', 18, p.muted)}<Text style={{ color: p.text, fontSize: 14, flex: 1 }}>Progress photos</Text><Text style={detail}>Device only</Text></View>
+      </View>
+      {Object.keys(state.real.days).length || state.real.weights.length ? <Text style={detail}>{Object.keys(state.real.days).length} logged days · {state.real.weights.length} weigh-ins</Text> : null}
     </View>
     <View style={panel}>
-      <Text style={heading}>{owner ? 'Cloud backup' : 'Cloud backup (optional)'}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>{icon('M6 18a5 5 0 0 1-1-10 7 7 0 0 1 13 0 5 5 0 0 1 0 10 M12 12v9 M9 15l3-3 3 3', 22)}<Text style={{ ...heading, flex: 1 }}>Cloud backup</Text>{!owner ? <Text style={{ ...detail, fontSize: 11, backgroundColor: p.grey, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 }}>Optional</Text> : null}</View>
       {!owner ? <>
-        <Text style={detail}>Back up your stats and goals.</Text>
+        <Text style={detail}>Keep your stats and goals safe across devices.</Text>
         {!cloud.available ? <Text style={detail}>Cloud sign-in is available in the mobile app.</Text> : <>
           <AppleSignInButton busy={busy} onPress={() => { void cloud.signInApple(); }} />
-          {disclosure('Use email instead', showEmail, () => setShowEmail(!showEmail))}
+          <View style={{ borderTopWidth: 1, borderTopColor: `${p.line}70` }}>{disclosure('Continue with email', showEmail, () => setShowEmail(!showEmail))}</View>
           {showEmail ? <View style={{ gap: 12 }}>
             <Text style={{ color: p.text, fontSize: 16, fontWeight: '600' }}>{creating ? 'Create an account' : 'Sign in with email'}</Text>
             <TextInput accessibilityLabel="Email" autoCapitalize="none" autoCorrect={false} keyboardType="email-address" textContentType="emailAddress" placeholder="Email" placeholderTextColor={p.muted} value={email} onChangeText={setEmail} style={field} />
@@ -58,15 +71,15 @@ export default function Account() {
       </>}
       {cloud.available && (cloud.error || cloud.busy || cloud.status !== 'Local records only') ? <View style={{ borderTopWidth: 1, borderTopColor: p.line, paddingTop: 12, gap: 6 }}>{!cloud.error ? <Text accessibilityLiveRegion="polite" style={detail}>{cloud.status}</Text> : <Text accessibilityRole="alert" style={{ ...detail, color: p.red }}>{cloud.error}</Text>}</View> : null}
     </View>
-    <View style={panel}>
+    <View style={{ ...panel, paddingVertical: 2, gap: 0 }}>
       {disclosure('How it works', showHelp, () => setShowHelp(!showHelp))}
-      {showHelp ? <View style={{ gap: 10 }}>
+      {showHelp ? <View style={{ gap: 10, paddingBottom: 16 }}>
         <Text style={detail}>Tracking saves on this device without an account. Signing in keeps your entries and leaves cloud backup off until you enable it.</Text>
         <Text style={detail}>Cloud backups contain stats and goals, never photo files. After a reinstall, sign in and restore your backup.</Text>
         <Text style={detail}>Deleting the app can remove local data and photos. Normal updates keep them.</Text>
       </View> : null}
-      {disclosure('More options', showOptions, () => setShowOptions(!showOptions))}
-      {showOptions ? <View style={{ gap: 12 }}>
+      <View style={{ borderTopWidth: 1, borderTopColor: `${p.line}70` }}>{disclosure('Recovery & account options', showOptions, () => setShowOptions(!showOptions))}</View>
+      {showOptions ? <View style={{ gap: 12, paddingBottom: 16 }}>
         {owner ? <>
           <Button title="Back up now" disabled={cloud.busy || state.mode !== 'real'} onPress={() => { void cloud.backupNow(); }} />
           {disclosure('Earlier cloud backups', showBackups, () => { setShowBackups(!showBackups); if (!showBackups) void cloud.refresh(); })}
