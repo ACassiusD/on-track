@@ -3,7 +3,7 @@ import { Alert, Pressable, Switch, Text, TextInput, View } from 'react-native';
 import { AppleSignInButton } from '../components/AppleSignInButton';
 import { useCloud } from '../store/CloudStore';
 import { useApp } from '../store/AppStore';
-import { needsAutomaticBackup } from '../cloud/profileProtection';
+import { needsAutomaticBackup, profileSignature } from '../cloud/profileProtection';
 import { Screen } from '../components/UI';
 import Svg, { Path } from 'react-native-svg';
 
@@ -26,6 +26,7 @@ export default function Account() {
   const enabled = !!owner && state.cloudAutoBackup === true && state.cloudBackupOwner === owner;
   const pending = needsAutomaticBackup(state, owner);
   const saved = owner && state.cloudLastBackup?.ownerId === owner ? state.cloudLastBackup : undefined;
+  const statsStorage = saved && saved.signature === profileSignature(state) ? 'Stored on device + cloud' : 'Stored on device';
   const field = { minHeight: 48, padding: 12, borderColor: p.line, borderWidth: 1, borderRadius: p.retro ? 0 : 12, color: p.text, backgroundColor: p.bg, fontSize: 16 };
   const panel = { padding: 18, gap: 16, backgroundColor: p.tile, borderColor: `${p.line}70`, borderWidth: 1, borderRadius: p.radius };
   const heading = { color: p.text, fontSize: 17, fontWeight: '600' as const };
@@ -42,8 +43,8 @@ export default function Account() {
         <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: p.green }} />
       </View>
       <View style={{ borderTopWidth: 1, borderTopColor: `${p.line}70`, paddingTop: 16, gap: 14 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>{icon('M9 12l2 2 4-4 M12 3l8 3v6c0 5-8 9-8 9s-8-4-8-9V6z', 18, p.muted)}<Text style={{ color: p.text, fontSize: 14, flex: 1 }}>Stats &amp; goals</Text><Text style={detail}>On this device</Text></View>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>{icon('M7 10V7a5 5 0 0 1 10 0v3 M5 10h14v11H5z', 18, p.muted)}<Text style={{ color: p.text, fontSize: 14, flex: 1 }}>Progress photos</Text><Text style={detail}>Device only</Text></View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>{icon('M9 12l2 2 4-4 M12 3l8 3v6c0 5-8 9-8 9s-8-4-8-9V6z', 18, p.muted)}<View style={{ flex: 1, gap: 3 }}><Text style={{ color: p.text, fontSize: 14 }}>Stats &amp; goals</Text><Text style={detail}>{statsStorage}</Text></View></View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>{icon('M7 10V7a5 5 0 0 1 10 0v3 M5 10h14v11H5z', 18, p.muted)}<View style={{ flex: 1, gap: 3 }}><Text style={{ color: p.text, fontSize: 14 }}>Progress photos</Text><Text style={detail}>Stored on device</Text></View></View>
       </View>
       {Object.keys(state.real.days).length || state.real.weights.length ? <Text style={detail}>{Object.keys(state.real.days).length} logged days · {state.real.weights.length} weigh-ins</Text> : null}
     </View>
