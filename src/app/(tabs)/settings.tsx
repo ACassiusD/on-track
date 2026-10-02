@@ -39,6 +39,9 @@ export default function Settings() {
   };
   const selected = demoProfiles.find(profile => profile.value === state.demoProfile) ?? demoProfiles[2];
   return <Screen title="Settings" back={false}>
+    <SettingsSection title="Account">
+      <SettingsItem title="Account & backup" icon="cloud" detail="Optional cloud backup" onPress={() => router.push('/account')} />
+    </SettingsSection>
     <SettingsSection title="Tracking">
       <SettingsItem title="Goals" icon="goal" detail="Calorie target, goal weight & milestones" onPress={() => router.push('/goals')} />
       <SettingsItem title="Reminders" icon="bell" onPress={() => router.push('/reminders')} />
@@ -49,7 +52,6 @@ export default function Settings() {
       <SettingsItem title="Your pet" icon="pet" detail={`${defaultPets.find(pet => pet.id === normalizeDefaultPet(state.defaultPet))!.name} · Default theme`} onPress={() => setPetPicker(true)} />
     </SettingsSection>
     <SettingsSection title="Connections">
-      <SettingsItem title="Account & cloud backup" icon="cloud" onPress={() => router.push('/account')} />
       <SettingsItem title="iPhone connections" icon="phone" detail={iphone.error ? 'Needs attention · tap to retry' : 'Apple Health, widgets & shortcuts'} onPress={() => router.push('/connections')} />
     </SettingsSection>
     <SettingsSection title="Progress">

@@ -14,6 +14,7 @@ export default function Account() {
   const [showEmail, setShowEmail] = useState(false);
   const [creating, setCreating] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const [showBackups, setShowBackups] = useState(false);
   const owner = cloud.session?.user.id;
   const enabled = !!owner && state.cloudAutoBackup === true && state.cloudBackupOwner === owner;
@@ -29,15 +30,14 @@ export default function Account() {
     {state.mode === 'demo' ? <View style={panel}><Text style={heading}>You’re trying sample data</Text><Text style={detail}>Your personal entries are kept separately.</Text><Button title="Use my own data" onPress={() => update(s => ({ ...s, mode: 'real' }))} /></View> : null}
     <View style={panel}>
       <Text style={heading}>Saved on this device</Text>
-      <Text style={detail}>No account needed. Your entries save automatically as you track.</Text>
+      <Text style={detail}>Auto-saved. No account needed.</Text>
       {Object.keys(state.real.days).length || state.real.weights.length ? <Text style={{ color: p.text, fontSize: 14 }}>{Object.keys(state.real.days).length} logged days · {state.real.weights.length} weigh-ins</Text> : null}
-      <View style={{ borderTopWidth: 1, borderTopColor: p.line, paddingTop: 14 }}><Text style={detail}>Progress photos stay on your device. They are never uploaded or included in cloud backups.</Text></View>
+      <View style={{ borderTopWidth: 1, borderTopColor: p.line, paddingTop: 14 }}><Text style={detail}>Photos stay local. Never uploaded.</Text></View>
     </View>
     <View style={panel}>
-      <Text style={heading}>{owner ? 'Cloud backup' : 'Optional cloud backup'}</Text>
+      <Text style={heading}>{owner ? 'Cloud backup' : 'Cloud backup (optional)'}</Text>
       {!owner ? <>
-        <Text style={detail}>Back up stats and goals so you can restore them after reinstalling or on a new device.</Text>
-        <Text style={detail}>Without a cloud backup, deleting the app can remove your local data.</Text>
+        <Text style={detail}>Back up your stats and goals.</Text>
         {!cloud.available ? <Text style={detail}>Cloud sign-in is available in the mobile app.</Text> : <>
           <AppleSignInButton busy={busy} onPress={() => { void cloud.signInApple(); }} />
           {disclosure('Use email instead', showEmail, () => setShowEmail(!showEmail))}
@@ -48,18 +48,23 @@ export default function Account() {
             <Button title={creating ? 'Create account' : 'Sign in'} primary disabled={!email.includes('@') || password.length < 8 || busy} onPress={() => { void (creating ? cloud.signUp(email, password) : cloud.signIn(email, password)); }} />
             <Pressable accessibilityRole="button" disabled={busy} onPress={() => setCreating(!creating)} style={{ minHeight: 44, justifyContent: 'center' }}><Text style={{ color: p.primary, fontSize: 14 }}>{creating ? 'Already have an account? Sign in' : 'New here? Create an account'}</Text></Pressable>
           </View> : null}
-          <Text style={detail}>Signing in won’t replace your entries or turn on backup. You choose what happens next.</Text>
         </>}
       </> : <>
         <Text style={detail}>{cloud.session?.user.email ?? 'Signed in'}</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}><View style={{ flex: 1, gap: 4 }}><Text style={{ color: p.text, fontSize: 16, fontWeight: '600' }}>Automatic backup</Text><Text style={detail}>Stats and goals only. Photos stay local.</Text></View><Switch accessibilityLabel="Automatic backup" value={enabled} disabled={cloud.busy} trackColor={{ false: p.grey, true: p.primary }} onValueChange={value => { void cloud.setAutomaticBackup(value); }} /></View>
         <Text accessibilityLiveRegion="polite" style={detail}>{enabled ? pending ? 'Changes saved locally · waiting for backup' : saved ? `Last backup: ${new Date(saved.at).toLocaleString()}` : 'Your first backup is pending' : saved ? `Backup paused · last saved ${new Date(saved.at).toLocaleString()}` : 'Backup is off · entries still save on this device'}</Text>
-        <Text style={detail}>Returning after a reinstall? Restore your saved stats before turning on backup.</Text>
+        <Text style={detail}>Have a backup? Restore it first.</Text>
         <Button title="Restore saved stats" disabled={cloud.busy || state.mode !== 'real'} onPress={() => { void cloud.previewLatest(); }} />
       </>}
       {cloud.available && (cloud.error || cloud.busy || cloud.status !== 'Local records only') ? <View style={{ borderTopWidth: 1, borderTopColor: p.line, paddingTop: 12, gap: 6 }}>{!cloud.error ? <Text accessibilityLiveRegion="polite" style={detail}>{cloud.status}</Text> : <Text accessibilityRole="alert" style={{ ...detail, color: p.red }}>{cloud.error}</Text>}</View> : null}
     </View>
     <View style={panel}>
+      {disclosure('How it works', showHelp, () => setShowHelp(!showHelp))}
+      {showHelp ? <View style={{ gap: 10 }}>
+        <Text style={detail}>Tracking saves on this device without an account. Signing in keeps your entries and leaves cloud backup off until you enable it.</Text>
+        <Text style={detail}>Cloud backups contain stats and goals, never photo files. After a reinstall, sign in and restore your backup.</Text>
+        <Text style={detail}>Deleting the app can remove local data and photos. Normal updates keep them.</Text>
+      </View> : null}
       {disclosure('More options', showOptions, () => setShowOptions(!showOptions))}
       {showOptions ? <View style={{ gap: 12 }}>
         {owner ? <>
