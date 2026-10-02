@@ -22,13 +22,13 @@ export function DefaultPetArtwork({ pet, mood, blink, delighted, size }: { pet: 
     {pet === 'mochi' ? <>
       <Path d="M35 35C15 26 20 12 29 13c8 1 12 10 13 19m17 0C61 14 65 5 74 8c11 5 1 24-7 29" fill={`url(#${body})`} />
       <Path d="M29 26q2 4 6 4" fill="none" stroke="#e7c99f" strokeWidth={1} strokeLinecap="round" />
-      <Path d="M48 33v-9c-8 1-13-3-11-8 5-2 9 1 11 5 2-5 8-6 11-3 0 5-4 8-11 6" fill={`url(#${leaf})`} />
+      <Path d="M50 31v-8" stroke="#86b798" strokeWidth={1.8} strokeLinecap="round" />
+      <Path d="M50 23c-6 1-10-1-9-5 4-1 8 2 9 5 1-4 6-6 9-4 0 4-4 6-9 4Z" fill={`url(#${leaf})`} />
       <Ellipse cx={36} cy={87} rx={5} ry={4} fill="#fae8c8" /><Ellipse cx={64} cy={87} rx={5} ry={4} fill="#fae8c8" />
       <Path d="M50 29c-18 0-25 16-32 34C7 89 29 89 50 89s42 0 32-26C75 45 68 29 50 29Z" fill={`url(#${body})`} />
       <Path d="M36 65c8 0 8 10 0 11m28-11c-8 0-8 10 0 11" stroke="#d9ba91" strokeWidth={1.4} strokeLinecap="round" fill="none" />
     </> : pet === 'sprout' ? <>
-      <Path d="M47 30C40 19 42 7 51 6c10-1 16 9 12 16-3 6-12 8-16 3-4-4-1-10 3-10" fill={`url(#${body})`} />
-      <Path d="M48 25q-5-8 2-11" stroke="#8fbb89" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+      <Path d="M49 30C44 23 42 17 45 12c3-5 12-5 15 0 3 5-1 11-6 11-5 0-6-4-4-7 1-2 4-2 5-1" stroke={`url(#${body})`} strokeWidth={4} fill="none" strokeLinecap="round" />
       <Ellipse cx={36} cy={87} rx={5} ry={4} fill="#b3d5a2" /><Ellipse cx={65} cy={87} rx={5} ry={4} fill="#b3d5a2" />
       <Path d="M50 28c-18 0-27 12-31 24L9 65c-5 8 4 12 12 5-1 15 10 19 29 19s30-4 29-19c8 7 17 3 12-5L81 52C77 40 68 28 50 28Z" fill={`url(#${body})`} />
       <Ellipse cx={50} cy={50} rx={23} ry={17} fill="#fff0d8" />
