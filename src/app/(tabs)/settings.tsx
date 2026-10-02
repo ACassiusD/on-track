@@ -4,7 +4,8 @@ import { router } from 'expo-router';
 import { useApp } from '../../store/AppStore';
 import { useIPhone } from '../../store/IPhoneStore';
 import { selectDemoProfile } from '../../domain/demoProfiles';
-import { initialState, type ThemeName } from '../../domain/model';
+import { type ThemeName } from '../../domain/model';
+import { resetDevelopmentState } from '../../cloud/profileProtection';
 import { Button, Card, Label, Screen } from '../../components/UI';
 import { WelcomeTour } from '../../components/WelcomeTour';
 import { DefaultPetPicker } from '../../components/DefaultPetPicker';
@@ -32,7 +33,7 @@ export default function Settings() {
   const [resetError, setResetError] = useState('');
   const reset = async () => {
     setResetting(true); setResetError('');
-    try { await commit(() => initialState(today)); setResetOpen(false); router.replace('/'); }
+    try { await commit(s => resetDevelopmentState(s, today)); setResetOpen(false); router.replace('/'); }
     catch (e) { setResetError(e instanceof Error ? e.message : 'Could not reset.'); }
     finally { setResetting(false); }
   };
@@ -64,7 +65,7 @@ export default function Settings() {
     {tourOpen ? <WelcomeTour replay onClose={() => setTourOpen(false)} /> : null}
     {petPicker ? <DefaultPetPicker onClose={() => setPetPicker(false)} /> : null}
     <TestUpdateCard />
-    {__DEV__ || isTestingBuild ? <SettingsSection title="Development"><SettingsItem title="Hard reset" icon="reset" detail="Clear local records & restore defaults" danger onPress={() => setResetOpen(true)} /></SettingsSection> : null}
+    {__DEV__ || isTestingBuild ? <SettingsSection title="Development"><SettingsItem title="Reset development sandbox" icon="reset" detail="Reset demo & appearance · keep personal profile" danger onPress={() => setResetOpen(true)} /></SettingsSection> : null}
     <Modal visible={themePicker} transparent animationType="fade" onRequestClose={() => setThemePicker(false)}>
       <View style={{ flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#000000bb' }}>
         <View accessibilityViewIsModal style={{ width: '100%', maxWidth: 380, maxHeight: '85%', alignSelf: 'center' }}>
@@ -82,9 +83,9 @@ export default function Settings() {
     </Modal>
     <Modal visible={resetOpen} transparent animationType="fade" onRequestClose={() => { if (!resetting) setResetOpen(false); }}>
       <View style={{ flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#000000bb' }}><View accessibilityViewIsModal style={{ width: '100%', maxWidth: 380, alignSelf: 'center' }}><Card>
-        <Label>Reset this app?</Label><Label small>Deletes personal records and resets goals, units, themes and reminders on this device. Cloud backups and your login stay intact.</Label>
+        <Label>Reset the development sandbox?</Label><Label small>Resets demo data, appearance, reminders and the app guide. Your personal records, photos, goals and account backup settings are preserved. The app opens in demo mode.</Label>
         {resetError ? <Text accessibilityRole="alert" style={{ color: p.red }}>{resetError}</Text> : null}
-        <Button title={resetting ? 'Resetting…' : 'Reset everything locally'} primary disabled={resetting} onPress={() => { void reset(); }} />
+        <Button title={resetting ? 'Resetting…' : 'Reset sandbox'} primary disabled={resetting} onPress={() => { void reset(); }} />
         <Button title="Cancel" disabled={resetting} onPress={() => setResetOpen(false)} />
       </Card></View></View>
     </Modal>
