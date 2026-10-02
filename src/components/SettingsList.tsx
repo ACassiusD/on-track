@@ -4,6 +4,7 @@ import Svg, { Path } from 'react-native-svg';
 import { useApp } from '../store/AppStore';
 
 const iconPaths = {
+  pet: 'M8 9C4 4 5 1 8 3l3 6m2 0 3-6c3-2 4 1 0 6 M5 15a7 7 0 1 0 14 0 7 7 0 1 0-14 0 M9 14h.01 M15 14h.01 M10 18q2 2 4 0',
   goal: 'M12 3a9 9 0 1 0 9 9 M12 7a5 5 0 1 0 5 5 M12 12l8-8 M16 3h5v5',
   bell: 'M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9 M10 21h4',
   weight: 'M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2 M8 8a5 5 0 0 1 8 0 M12 6v4',

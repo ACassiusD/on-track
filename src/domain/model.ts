@@ -1,3 +1,4 @@
+import { normalizeDefaultPet, type DefaultPet } from './defaultPets.ts';
 export type Answer = boolean | null;
 export type ThemeName = 'Default' | 'Arcade Pop' | 'Enchanted Forest' | 'Heavenly Realm' | 'Astral';
 export type Source = { kind: 'manual' | 'healthkit' | 'notification' | 'app-intent'; id: string; observedAt: string; timezone: string; providerBundleId?: string; providerName?: string };
@@ -8,7 +9,7 @@ export type WeightReading = { id: string; date: string; pounds: number; time?: s
 export type Photo = { id: string; date: string; uri: string; scale: number; x: number; y: number };
 export type Reminder = { id: string; label: string; time: string; weekendTime?: string; dayOffset?: 0 | -1; enabled: boolean };
 export type DataSet = { days: Record<string, DailyRecord>; confirmations: Confirmation[]; revisions: Revision[]; weights: WeightReading[]; photos: Photo[]; photoReviewedDates: string[] };
-export type State = { version: 1; mode: 'real' | 'demo'; theme: ThemeName; target: number | null; goal: number | null; milestones: number[]; reminders: Reminder[]; notificationResponseIds?: string[]; nativeActionIds?: string[]; onboardingCompleted?: boolean; weighInTime?: string; weightUnit?: 'lb' | 'kg'; demoProfile?: 'thriving' | 'good' | 'mixed' | 'low' | 'bad' | 'new'; real: DataSet; demo: DataSet };
+export type State = { version: 1; mode: 'real' | 'demo'; theme: ThemeName; defaultPet?: DefaultPet; target: number | null; goal: number | null; milestones: number[]; reminders: Reminder[]; notificationResponseIds?: string[]; nativeActionIds?: string[]; onboardingCompleted?: boolean; weighInTime?: string; weightUnit?: 'lb' | 'kg'; demoProfile?: 'thriving' | 'good' | 'mixed' | 'low' | 'bad' | 'new'; real: DataSet; demo: DataSet };
 export function emptyData(): DataSet { return { days: {}, confirmations: [], revisions: [], weights: [], photos: [], photoReviewedDates: [] }; }
 export function emptyDay(date: string, target: number | null): DailyRecord { return { date, calories: null, target, food: null, workout: null, creatine: null, sources: [] }; }
 export function localDate(d = new Date()): string { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
@@ -37,7 +38,7 @@ export function initialState(today = localDate()): State {
   const demo = emptyData(); const dates = twoWeeks(today); dates.filter(d => d < today).forEach((date, i) => { demo.days[date] = { ...emptyDay(date, 1950), calories: i % 5 === 0 ? 2150 : 1750 + i * 10, food: i % 4 === 0 ? null : true, workout: i % 3 !== 0, creatine: i % 4 !== 0 }; });
   demo.days[today] = { ...emptyDay(today, 1950), calories: 1400 };
   for (let i = 365; i >= 0; i--) { const date = addDays(today, -i); const source = { ...manualSource(), id: `demo-${i}` }; demo.weights.push({ id: `demo-${i}`, date, pounds: 175 + i * .055 + Math.sin(i / 12) * .5 + Math.sin(i) * .22, source }); }
-  return { version: 1, mode: 'real', onboardingCompleted: false, theme: 'Default', weightUnit: 'lb', weighInTime: '14:00', target: null, goal: null, milestones: [], reminders: [{ id: 'food', label: 'Food review', time: '01:00', weekendTime: '01:00', dayOffset: -1, enabled: false }, { id: 'workout', label: 'Workout check', time: '18:00', weekendTime: '18:00', dayOffset: 0, enabled: false }, { id: 'creatine', label: 'Creatine check', time: '11:00', weekendTime: '11:00', dayOffset: 0, enabled: false }], real: emptyData(), demo };
+  return { version: 1, mode: 'real', onboardingCompleted: false, theme: 'Default', defaultPet: 'mochi', weightUnit: 'lb', weighInTime: '14:00', target: null, goal: null, milestones: [], reminders: [{ id: 'food', label: 'Food review', time: '01:00', weekendTime: '01:00', dayOffset: -1, enabled: false }, { id: 'workout', label: 'Workout check', time: '18:00', weekendTime: '18:00', dayOffset: 0, enabled: false }, { id: 'creatine', label: 'Creatine check', time: '11:00', weekendTime: '11:00', dayOffset: 0, enabled: false }], real: emptyData(), demo };
 }
 export function activeTarget(s: State): number | null { return s.mode === 'demo' ? 1950 : s.target; }
 export function validateStored(value: unknown): State {
@@ -48,6 +49,7 @@ export function validateStored(value: unknown): State {
   if (['Neon Arcade', 'Classic', 'Cozy Quest', 'Pocket Arcade'].includes(s.theme)) s.theme = 'Default';
   s.reminders = s.reminders.map(r => ({ ...r, weekendTime: r.weekendTime ?? r.time, dayOffset: r.dayOffset ?? (r.id === 'food' && r.time < '06:00' ? -1 : 0) }));
   s.weighInTime = typeof s.weighInTime === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(s.weighInTime) ? s.weighInTime : '14:00';
+  s.defaultPet = normalizeDefaultPet(s.defaultPet);
   s.weightUnit = s.weightUnit === 'kg' ? 'kg' : 'lb';
   if (typeof s.onboardingCompleted !== 'boolean') s.onboardingCompleted = s.target !== null || s.goal !== null || Object.keys(s.real.days).length > 0 || s.real.weights.length > 0 || s.real.photos.length > 0;
   s.notificationResponseIds ??= [];
