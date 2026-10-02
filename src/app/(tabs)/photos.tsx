@@ -17,7 +17,10 @@ export default function Photos() {
   const [fine, setFine] = useState(false);
   const [more, setMore] = useState(false);
   const [reelTarget, setReelTarget] = useState<'reference' | 'comparison'>('comparison');
-  const { height } = useWindowDimensions();
+  const { height, width: windowWidth } = useWindowDimensions();
+  // Keep the canvas identical while adjusting and viewing. `contain` depends on
+  // its bounds, so shrinking the canvas also changes the apparent alignment.
+  const previewHeight = Math.min(height * .65, (width || windowWidth - 12) * 4 / 3);
   const uploadDate = captureDate ?? today;
   const reviewed = data.photoReviewedDates.includes(today); const photos = data.photos.slice().sort((a,b)=>a.date.localeCompare(b.date)); const reference=photos.find(photo=>photo.id===referenceId)??photos[0]; const selected=photoForDate(photos, uploadDate, selectedId);
   const add=async()=>{ const dateAtPick = uploadDate; if (!validDate(dateAtPick) || dateAtPick > today) { Alert.alert('Choose a valid photo date today or earlier'); return; } setBusy(true); const modeAtPick=state.mode; let copied:File|null=null; try { const result=await ImagePicker.launchImageLibraryAsync({mediaTypes:['images'],allowsEditing:false,quality:1}); if(result.canceled)return; const id=makeId(); const source=new File(result.assets[0].uri); const directory=new Directory(Paths.document,'progress-photos',modeAtPick); directory.create({intermediates:true,idempotent:true}); copied=new File(directory,`${id}.${source.extension.replace('.','')||'jpg'}`); await source.copy(copied); const photo:Photo={id,date:dateAtPick,uri:copied.uri,scale:1,x:0,y:0}; await commit(s=>({...s,[modeAtPick]:{...s[modeAtPick],photos:[...s[modeAtPick].photos,photo]}})); setSelectedId(id); setCaptureDate(dateAtPick === today ? null : dateAtPick); setAdjustReference(false); setMore(false); } catch { if(copied?.exists)try{copied.delete();}catch{} Alert.alert('Could not add photo','Please retry. The selected original is unchanged.'); } finally {setBusy(false);} };
@@ -32,7 +35,7 @@ export default function Photos() {
     else { setCaptureDate(photo.date === today ? null : photo.date); setSelectedId(photo.id); setFlip(false); setAdjustReference(false); }
     setMore(false);
   }} /> : null;
-  return <Screen title="" back={false} compact>
+  return <Screen title="" back={false} compact horizontalPadding={4}>
     <Card compact>
       <View style={{ flexDirection: 'row', gap: 8 }}>
         {selected && reference ? <Pressable accessibilityRole="button" accessibilityLabel="Choose reference photo" accessibilityState={{ selected: reelTarget === 'reference' }} onPress={() => { setReelTarget('reference'); setAdjust(false); }} style={{ flex: 1, minHeight: 44, paddingHorizontal: 8, justifyContent: 'center', borderBottomWidth: 2, borderColor: reelTarget === 'reference' ? p.primary : p.line }}>
@@ -50,7 +53,7 @@ export default function Photos() {
         <View style={{ flexDirection: 'row', backgroundColor: p.bg, borderRadius: p.retro ? 0 : 8, padding: 3 }}>
           {(['Side by side', 'Flip', 'Slider'] as const).map(item => <Pressable key={item} accessibilityRole="button" accessibilityState={{ selected: mode === item }} onPress={() => { setMode(item); setFlip(false); }} style={{ flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', backgroundColor: mode === item ? p.primary : 'transparent', borderRadius: p.retro ? 0 : 6 }}><Text style={{ color: mode === item ? p.bg : p.muted, fontSize: 13, fontWeight: '600' }}>{item}</Text></Pressable>)}
         </View>
-        <View onLayout={event => setWidth(event.nativeEvent.layout.width)} style={{ flexDirection: 'row', height: Math.min(adjust ? 280 : 320, Math.max(220, height * (adjust ? .3 : .36))), gap: 8 }}>
+        <View onLayout={event => setWidth(event.nativeEvent.layout.width)} style={{ flexDirection: 'row', height: previewHeight, marginHorizontal: -10, gap: 4 }}>
           {mode === 'Side by side' ? <>
             <View style={{ flex: 1, overflow: 'hidden', borderRadius: 10, backgroundColor: p.bg }}>{picture(reference)}</View><View style={{ flex: 1, overflow: 'hidden', borderRadius: 10, backgroundColor: p.bg }}>{picture(selected)}</View>
           </> : <View style={{ flex: 1, overflow: 'hidden', borderRadius: 10, backgroundColor: p.bg }}>
