@@ -11,7 +11,8 @@
       "bundleIdentifier": "com.acassiusd.ontrack",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "usesAppleSignIn": true
     },
     "android": {
       "adaptiveIcon": {
@@ -66,7 +67,8 @@
             }
           ]
         }
-      ]
+      ],
+      "expo-apple-authentication"
     ],
     "runtimeVersion": {
       "policy": "fingerprint"
