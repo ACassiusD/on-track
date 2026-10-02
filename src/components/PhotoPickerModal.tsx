@@ -10,9 +10,9 @@ export function photoDateLabel(date: string, today: string) {
   return date === today ? 'Today' : parseDate(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', ...(date.slice(0, 4) !== today.slice(0, 4) ? { year: 'numeric' } : {}) });
 }
 
-export function PhotoPickerModal({ kind, today, date, photos, selectedId, onDate, onPhoto, onClose }: {
+export function PhotoPickerModal({ kind, today, date, photos, selectedId, onDate, onPhoto, onChooseDate, onClose }: {
   kind: 'date' | 'reference' | 'comparison'; today: string; date: string; photos: Photo[]; selectedId?: string;
-  onDate: (date: string) => void; onPhoto: (id: string) => void; onClose: () => void;
+  onChooseDate?: () => void; onDate: (date: string) => void; onPhoto: (id: string) => void; onClose: () => void;
 }) {
   const { palette: p } = useApp();
   const savedDates = new Set(photos.map(photo => photo.date));
@@ -25,8 +25,10 @@ export function PhotoPickerModal({ kind, today, date, photos, selectedId, onDate
     <SafeAreaProvider>
     <SafeAreaView edges={['top', 'right', 'bottom', 'left']} style={{ flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#000000bb' }}>
       <View accessibilityViewIsModal style={{ maxWidth: 430, width: '100%', maxHeight: '85%', alignSelf: 'center', backgroundColor: p.tile, borderWidth: 1, borderColor: p.line, borderRadius: p.radius, padding: 16, gap: 12 }}>
-        <Row><Label>{kind === 'date' ? 'Photo date' : kind === 'reference' ? 'Reference photo' : 'Compare photo'}</Label><Button title="Close" onPress={onClose} /></Row>
+        <Row><Label>{kind === 'date' ? 'Comparison date' : kind === 'reference' ? 'Choose reference' : 'Choose comparison'}</Label><Button title="Close" onPress={onClose} /></Row>
+        {kind === 'comparison' && onChooseDate ? <Button title="Choose another date" onPress={onChooseDate} /> : null}
         {kind === 'date' ? <>
+          <Text style={{ color: p.muted, fontSize: 12 }}>New photos save to this date.</Text>
           <Row><Button title="‹" onPress={() => shift(-1)} /><Text style={{ color: p.text, fontSize: 16, fontWeight: '600' }}>{monthDate.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</Text><Button title="›" disabled={month.slice(0, 7) >= today.slice(0, 7)} onPress={() => shift(1)} /></Row>
           <View style={{ flexDirection: 'row' }}>{['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => <Text key={i} style={{ width: `${100 / 7}%`, textAlign: 'center', color: p.muted }}>{day}</Text>)}</View>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>{Array.from({ length: Math.ceil((offset + days) / 7) * 7 }, (_, i) => {
@@ -38,7 +40,7 @@ export function PhotoPickerModal({ kind, today, date, photos, selectedId, onDate
           })}</View>
           <Button title="Use today" onPress={() => onDate(today)} />
         </> : <ScrollView style={{ flexShrink: 1 }} contentContainerStyle={{ gap: 8 }}>
-          {photos.slice().reverse().map(photo => <Pressable key={photo.id} accessibilityRole="button" accessibilityState={{ selected: photo.id === selectedId }} onPress={() => onPhoto(photo.id)} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 8, borderWidth: 1, borderColor: photo.id === selectedId ? p.primary : p.line, borderRadius: p.retro ? 0 : 10 }}>
+          {photos.slice().reverse().map(photo => <Pressable key={photo.id} accessibilityRole="button" accessibilityLabel={`Use ${photoDateLabel(photo.date, today)} as ${kind} photo`} accessibilityState={{ selected: photo.id === selectedId }} onPress={() => onPhoto(photo.id)} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 8, borderWidth: 1, borderColor: photo.id === selectedId ? p.primary : p.line, borderRadius: p.retro ? 0 : 10 }}>
             <View style={{ width: 44, height: 56, borderRadius: p.retro ? 0 : 6, overflow: 'hidden' }}><FramedPhoto photo={photo} /></View>
             <Text style={{ color: p.text, flex: 1, fontSize: 15 }}>{photoDateLabel(photo.date, today)}</Text>
             {photo.id === selectedId ? <Text style={{ color: p.primary }}>✓</Text> : null}

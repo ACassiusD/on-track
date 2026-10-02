@@ -41,7 +41,7 @@ The camera shutter is outside the scrolling options in a safe-area footer. Revie
 
 Adjust now opens resize and directional controls immediately below the existing comparison canvas. Slider's divider stays active, with a 50% center shortcut; fine increments support lining up individual body landmarks manually. Reference and Photo can be adjusted independently in one draft. Done saves changed framing for the bound dataset, Cancel discards it, and failed saves preserve the draft for retry. The canvas retains its size and image transform when finishing.
 
-The normal page groups comparison modes, canvas/divider, Adjust / Photo options, then the photo reel. Adjustment and Photo options temporarily hide the reel to reduce crowding. Selecting Reference or Photo returns to the reel. Date explicitly chooses the photo date. Full cropping, imports, original export, deletion and marking photos reviewed remain under Photo options; the camera stays available in the header.
+The normal page groups comparison modes, canvas/divider, Adjust / Photo options, then the photo reel. Adjustment and Photo options temporarily hide the reel to reduce crowding. Selecting Reference or Comparison opens a clearly titled photo picker. Comparison also offers Choose another date for days without a saved photo; the calendar is labeled Comparison date and explains that new photos save to that date. Filled selection cards and the reel heading identify the active target. Full cropping, imports, original export, deletion and marking photos reviewed remain under Photo options; the camera stays available in the header.
 
 ## Camera overlay and modal insets
 
