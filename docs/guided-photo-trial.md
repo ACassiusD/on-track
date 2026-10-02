@@ -28,3 +28,11 @@ The guides suggest framing, not measured distance or an exact pose match. Repeat
 Test front and rear cameras on a real iPhone, including mirror photos, permission denial, foreground/background transitions, and matching saved framing. If the trial helps, consider a level indicator and separate front/side/back reference presets next. Only then trial on-device pose landmarks for shoulder/hip orientation and visibility; expose uncertainty and avoid misleading exact-distance claims.
 
 New native module: expo-camera. A new signed iPhone build is required; fingerprint-based updates keep incompatible old builds from loading it.
+
+## Saved framing (follow-up)
+
+Capture and library import now open a framing editor before saving. Existing photos can be framed using Frame photo / Frame reference. Pinch and drag, precision buttons, reset and Match reference work on a draft; Cancel leaves the stored photo unchanged. Saving stores normalized zoom and position for a fixed 3:4 portrait frame alongside the original local file. No pixels are rewritten or uploaded.
+
+The same frame renderer is used for the reel, picker, Side by side, Flip and Slider. Older pixel-based adjustments remain intact until edited. A selected reference's saved framing supplies the starting frame for new imports/captures. The camera preview and its ghost reference use that same framing, while capture retains the complete original. Matching copies framing settings; it does not detect anatomy or automatically align differently posed subjects.
+
+The camera shutter is outside the scrolling options in a safe-area footer. Review/framing actions are also fixed at the bottom. Real-device pinch gestures and saved camera-preview matching still need an iPhone trial.

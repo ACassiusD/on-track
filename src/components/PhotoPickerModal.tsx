@@ -1,5 +1,6 @@
+import { FramedPhoto } from './FramedPhoto';
 import React, { useState } from 'react';
-import { Image, Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { localDate, parseDate, type Photo } from '../domain/model';
 import { useApp } from '../store/AppStore';
@@ -37,7 +38,7 @@ export function PhotoPickerModal({ kind, today, date, photos, selectedId, onDate
           <Button title="Use today" onPress={() => onDate(today)} />
         </> : <ScrollView style={{ flexShrink: 1 }} contentContainerStyle={{ gap: 8 }}>
           {photos.slice().reverse().map(photo => <Pressable key={photo.id} accessibilityRole="button" accessibilityState={{ selected: photo.id === selectedId }} onPress={() => onPhoto(photo.id)} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 8, borderWidth: 1, borderColor: photo.id === selectedId ? p.primary : p.line, borderRadius: p.retro ? 0 : 10 }}>
-            <Image source={{ uri: photo.uri }} resizeMode="cover" style={{ width: 44, height: 56, borderRadius: p.retro ? 0 : 6 }} />
+            <View style={{ width: 44, height: 56, borderRadius: p.retro ? 0 : 6, overflow: 'hidden' }}><FramedPhoto photo={photo} /></View>
             <Text style={{ color: p.text, flex: 1, fontSize: 15 }}>{photoDateLabel(photo.date, today)}</Text>
             {photo.id === selectedId ? <Text style={{ color: p.primary }}>✓</Text> : null}
           </Pressable>)}
