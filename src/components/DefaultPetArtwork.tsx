@@ -32,7 +32,6 @@ export function DefaultPetArtwork({ pet, mood, blink, delighted, size }: { pet: 
       <Ellipse cx={36} cy={87} rx={5} ry={4} fill="#b3d5a2" /><Ellipse cx={65} cy={87} rx={5} ry={4} fill="#b3d5a2" />
       <Path d="M50 28c-18 0-27 12-31 24L9 65c-5 8 4 12 12 5-1 15 10 19 29 19s30-4 29-19c8 7 17 3 12-5L81 52C77 40 68 28 50 28Z" fill={`url(#${body})`} />
       <Ellipse cx={50} cy={50} rx={23} ry={17} fill="#fff0d8" />
-      <Path d="M18 73q3-1 4-4m56 0q1 3 4 4" stroke="#97bd8a" strokeWidth={1} fill="none" strokeLinecap="round" />
     </> : <>
       <Path d="M65 28c-8-6-9-14-5-17 5-1 8 3 8 8 4-4 10-4 12 0-1 6-7 9-15 9Z" fill={`url(#${leaf})`} />
       <Ellipse cx={36} cy={86} rx={5} ry={4} fill="#fae8c8" /><Ellipse cx={64} cy={86} rx={5} ry={4} fill="#fae8c8" />
